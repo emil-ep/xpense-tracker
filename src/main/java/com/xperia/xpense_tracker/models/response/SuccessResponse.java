@@ -1,0 +1,9 @@
+package com.xperia.xpense_tracker.models.response;
+
+public class SuccessResponse extends AbstractResponse{
+
+    public SuccessResponse(Object body) {
+        this.status = 1;
+        this.body = body;
+    }
+}
