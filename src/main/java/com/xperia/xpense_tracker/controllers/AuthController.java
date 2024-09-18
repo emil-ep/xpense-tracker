@@ -1,39 +1,52 @@
 package com.xperia.xpense_tracker.controllers;
 
+import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.SignInRequest;
 import com.xperia.xpense_tracker.models.request.SignUpRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.AuthService;
-import com.xperia.xpense_tracker.services.AuthServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/signIn")
+    @PostMapping(value = "/signIn", produces = "application/json")
     public ResponseEntity<AbstractResponse> signIn(@RequestBody SignInRequest signInRequest) {
         try{
             authService.signInUser(signInRequest.getUsername(), signInRequest.getPassword());
         }catch (Exception ex){
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         }
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/signUp")
+    @PostMapping(value = "/signUp", produces = "application/json")
     public ResponseEntity<AbstractResponse> signUp(@RequestBody SignUpRequest signUpRequest){
         try{
-            return ResponseEntity.ok(new SuccessResponse(authService.signUpUser(signUpRequest)));
+            TrackerUser savedUser = authService.signUpUser(signUpRequest);
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new SuccessResponse(savedUser));
         }catch (Exception ex){
-            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+            return ResponseEntity
+                    .badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorResponse(ex.getMessage()));
         }
     }
 }
