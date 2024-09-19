@@ -28,7 +28,7 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public void signInUser(String userName, String password) throws BadRequestException{
         validateSignIn(userName);
-        TrackerUser user = userRepository.findByEmail(userName).get();
+        var user = userRepository.findByEmail(userName).get();
         if(encoder.matches(password, user.getPassword())){
 
         }else{
