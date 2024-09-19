@@ -6,6 +6,7 @@ import com.xperia.xpense_tracker.models.request.SignUpRequest;
 import com.xperia.xpense_tracker.repository.UserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +15,9 @@ public class AuthServiceImpl implements AuthService{
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     @Override
     public void signInUser(String userName, String password) throws BadRequestException{
@@ -40,6 +44,6 @@ public class AuthServiceImpl implements AuthService{
     public TrackerUser signUpUser(SignUpRequest signUpRequest) throws BadRequestException{
         validateSignUp(signUpRequest.getEmail());
         return userRepository.save(new TrackerUser(signUpRequest.getEmail(),
-                signUpRequest.getPassword(), signUpRequest.getName(), UserRole.USER));
+                encoder.encode(signUpRequest.getPassword()), signUpRequest.getName(), UserRole.USER));
     }
 }

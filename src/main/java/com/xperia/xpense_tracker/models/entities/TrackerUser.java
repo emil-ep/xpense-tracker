@@ -1,8 +1,8 @@
 package com.xperia.xpense_tracker.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,7 +14,6 @@ import java.util.List;
 @Data
 @Entity(name = "users")
 @NoArgsConstructor
-@Getter
 public class TrackerUser implements UserDetails {
 
     @Id
@@ -23,6 +22,7 @@ public class TrackerUser implements UserDetails {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     private String name;
@@ -42,26 +42,31 @@ public class TrackerUser implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return this.email;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;
