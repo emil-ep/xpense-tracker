@@ -19,17 +19,20 @@ public class AuthServiceImpl implements AuthService{
     @Autowired
     private PasswordEncoder encoder;
 
-    @Override
-    public void signInUser(String userName, String password) throws BadRequestException{
-
-        if(userRepository.findByEmail(userName).isEmpty()){
+    private void validateSignIn(String email) throws BadRequestException {
+        if(userRepository.findByEmail(email).isEmpty()){
             throw new BadRequestException("User with the provided email not present");
         }
+    }
 
-        if (userName.equals("test") && password.equals("test")){
+    @Override
+    public void signInUser(String userName, String password) throws BadRequestException{
+        validateSignIn(userName);
+        TrackerUser user = userRepository.findByEmail(userName).get();
+        if(encoder.matches(password, user.getPassword())){
 
         }else{
-            throw new BadRequestException("Credentials not valid");
+            throw new BadRequestException("Entered username or password doesn't match");
         }
     }
 

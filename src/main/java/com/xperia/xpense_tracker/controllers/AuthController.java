@@ -9,6 +9,7 @@ import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class AuthController {
     public ResponseEntity<AbstractResponse> signIn(@Valid @RequestBody SignInRequest signInRequest) {
         try{
             authService.signInUser(signInRequest.getUsername(), signInRequest.getPassword());
-        }catch (Exception ex){
+        } catch (Exception ex){
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         }
         return ResponseEntity.ok().build();
