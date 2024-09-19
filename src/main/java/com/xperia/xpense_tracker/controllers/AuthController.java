@@ -7,6 +7,7 @@ import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping(value = "/signIn", produces = "application/json")
-    public ResponseEntity<AbstractResponse> signIn(@RequestBody SignInRequest signInRequest) {
+    public ResponseEntity<AbstractResponse> signIn(@Valid @RequestBody SignInRequest signInRequest) {
         try{
             authService.signInUser(signInRequest.getUsername(), signInRequest.getPassword());
         }catch (Exception ex){
@@ -35,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/signUp", produces = "application/json")
-    public ResponseEntity<AbstractResponse> signUp(@RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<AbstractResponse> signUp(@Valid @RequestBody SignUpRequest signUpRequest){
         try{
             TrackerUser savedUser = authService.signUpUser(signUpRequest);
             return ResponseEntity
