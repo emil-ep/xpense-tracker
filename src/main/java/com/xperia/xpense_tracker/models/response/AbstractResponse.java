@@ -5,17 +5,17 @@ import java.util.Objects;
 
 public abstract class AbstractResponse {
 
-    protected Object body;
+    protected Object data;
 
     protected int status;
 
 
-    public Object getBody() {
-        return body;
+    public Object getData() {
+        return data;
     }
 
-    public void setBody(Object body) {
-        this.body = body;
+    public void setData(Object body) {
+        this.data = body;
     }
 
     public int getStatus() {
@@ -29,7 +29,7 @@ public abstract class AbstractResponse {
     @Override
     public String toString() {
         return "AbstractResponse{" +
-                "body=" + body +
+                "body=" + data +
                 ", status=" + status +
                 '}';
     }
@@ -39,11 +39,11 @@ public abstract class AbstractResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractResponse that = (AbstractResponse) o;
-        return status == that.status && Objects.equals(body, that.body);
+        return status == that.status && Objects.equals(data, that.data);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(body, status);
+        return Objects.hash(data, status);
     }
 }

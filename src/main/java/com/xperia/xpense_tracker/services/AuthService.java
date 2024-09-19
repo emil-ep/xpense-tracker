@@ -6,7 +6,7 @@ import org.apache.coyote.BadRequestException;
 
 public interface AuthService {
 
-    void signInUser(String userName, String password) throws BadRequestException;
+    String signInUser(String userName, String password) throws BadRequestException;
 
     TrackerUser signUpUser(SignUpRequest signUpRequest) throws BadRequestException;
 

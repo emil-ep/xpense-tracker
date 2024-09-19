@@ -19,6 +19,9 @@ public class AuthServiceImpl implements AuthService{
     @Autowired
     private PasswordEncoder encoder;
 
+    @Autowired
+    private JwtService jwtService;
+
     private void validateSignIn(String email) throws BadRequestException {
         if(userRepository.findByEmail(email).isEmpty()){
             throw new BadRequestException("User with the provided email not present");
@@ -26,11 +29,11 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public void signInUser(String userName, String password) throws BadRequestException{
+    public String signInUser(String userName, String password) throws BadRequestException{
         validateSignIn(userName);
         var user = userRepository.findByEmail(userName).get();
         if(encoder.matches(password, user.getPassword())){
-
+            return jwtService.generateToken(user);
         }else{
             throw new BadRequestException("Entered username or password doesn't match");
         }

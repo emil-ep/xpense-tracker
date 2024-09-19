@@ -5,11 +5,11 @@ import com.xperia.xpense_tracker.models.request.SignInRequest;
 import com.xperia.xpense_tracker.models.request.SignUpRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
+import com.xperia.xpense_tracker.models.response.LoginResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/v1/auth")
@@ -29,11 +31,14 @@ public class AuthController {
     @PostMapping(value = "/signIn", produces = "application/json")
     public ResponseEntity<AbstractResponse> signIn(@Valid @RequestBody SignInRequest signInRequest) {
         try{
-            authService.signInUser(signInRequest.getUsername(), signInRequest.getPassword());
+            String token = authService.signInUser(signInRequest.getUsername(), signInRequest.getPassword());
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new SuccessResponse(new LoginResponse(token)));
         } catch (Exception ex){
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         }
-        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/signUp", produces = "application/json")
