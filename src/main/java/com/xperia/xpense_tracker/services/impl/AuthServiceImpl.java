@@ -1,16 +1,18 @@
-package com.xperia.xpense_tracker.services;
+package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.UserRole;
 import com.xperia.xpense_tracker.models.request.SignUpRequest;
 import com.xperia.xpense_tracker.repository.UserRepository;
+import com.xperia.xpense_tracker.services.AuthService;
+import com.xperia.xpense_tracker.services.JwtService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
 
     @Autowired

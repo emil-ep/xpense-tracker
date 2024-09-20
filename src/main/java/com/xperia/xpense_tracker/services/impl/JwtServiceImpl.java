@@ -1,5 +1,6 @@
-package com.xperia.xpense_tracker.services;
+package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.services.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,7 +17,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JwtServiceImpl implements JwtService{
+public class JwtServiceImpl implements JwtService {
 
     @Value("${token.signing.key}")
     private String jwtSigningKey;
