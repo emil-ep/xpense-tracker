@@ -28,9 +28,10 @@ public abstract class AbstractResponse {
 
     @Override
     public String toString() {
-        return "AbstractResponse{" +
-                "body=" + data +
-                ", status=" + status +
+        return "{\n" +
+                "\"" + "data" + "\"" + ":" + "\"" + data + "\"" +
+                ",\n" +
+                "\"status\":" + status + "\n" +
                 '}';
     }
 
