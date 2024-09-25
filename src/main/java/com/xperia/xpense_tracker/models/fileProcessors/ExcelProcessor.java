@@ -8,13 +8,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class ExcelStatement extends StatementFile{
+public class ExcelProcessor extends FileProcessor {
 
-    public ExcelStatement(Map<Integer, String> headerIndexMap){
+    public ExcelProcessor(Map<Integer, String> headerIndexMap){
         this.headerIndexMap = headerIndexMap;
     }
 
-    public ExcelStatement(){
+    public ExcelProcessor(){
 
     }
 
@@ -23,7 +23,8 @@ public class ExcelStatement extends StatementFile{
             case STRING -> {
                 return cell.getStringCellValue();
             }
-            case _NONE -> {
+            case _NONE, FORMULA, BLANK, ERROR -> {
+                return null;
             }
             case NUMERIC -> {
                 if (DateUtil.isCellDateFormatted(cell)){
@@ -35,20 +36,12 @@ public class ExcelStatement extends StatementFile{
             case BOOLEAN ->  {
                 return cell.getBooleanCellValue();
             }
-            case FORMULA -> {
-            }
-            case BLANK -> {
-                return "";
-            }
-
-            case ERROR -> {
-            }
         }
         return null;
     }
 
     @Override
-    public List<HashMap<Integer, Object>> parseExpenseFromFile(Map<Integer, String> headerIndexMap, File file) {
+    public List<HashMap<Integer, String>> parseFile(File file) {
 
         try{
             Workbook workbook = new XSSFWorkbook(file);
@@ -56,16 +49,16 @@ public class ExcelStatement extends StatementFile{
             Row topRow = sheet.getRow(0);
             sheet.removeRow(topRow);
             Iterator<Row> rowIterator = sheet.rowIterator();
-            List<HashMap<Integer, Object>> bookMapList = new ArrayList<>();
+            List<HashMap<Integer, String>> bookMapList = new ArrayList<>();
             while(rowIterator.hasNext()){
                 Row currentRow = rowIterator.next();
                 Iterator<Cell> cellIterator = currentRow.cellIterator();
-                HashMap<Integer, Object> cellValueMap = new HashMap<>();
+                HashMap<Integer, String> cellValueMap = new HashMap<>();
                 while(cellIterator.hasNext()){
                     Cell cell = cellIterator.next();
-                    cellValueMap.put(cell.getColumnIndex(), getValueFromCell(cell));
-                    bookMapList.add(cellValueMap);
+                    cellValueMap.put(cell.getColumnIndex(), String.valueOf(getValueFromCell(cell)));
                 }
+                bookMapList.add(cellValueMap);
             }
             return bookMapList;
         }catch (IOException e){

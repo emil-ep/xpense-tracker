@@ -2,7 +2,6 @@ package com.xperia.xpense_tracker.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,19 +16,19 @@ public class Expenses {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Pattern(regexp = "\\d{2}/\\d{2}/\\d{4}", message = "Date must be in the format dd/MM/yyyy")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+//    @Pattern(regexp = "\\d{2}/\\d{2}/\\d{4}", message = "Date must be in the format dd/MM/yy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yy")
     private LocalDate transactionDate;
 
     private String description;
 
     private String bankReferenceNo;
 
-    private Float debit;
+    private Double debit;
 
-    private Float credit;
+    private Double credit;
 
-    private Float closingBalance;
+    private Double closingBalance;
 
     @Enumerated(EnumType.STRING)
     private TransactionType type;
@@ -52,11 +51,11 @@ public class Expenses {
 
         private String bankReferenceNo;
 
-        private Float debit;
+        private Double debit;
 
-        private Float credit;
+        private Double credit;
 
-        private Float closingBalance;
+        private Double closingBalance;
 
         private TransactionType type;
 
@@ -79,23 +78,23 @@ public class Expenses {
             return this;
         }
 
-        public ExpenseBuilder setCredit(Float credit){
+        public ExpenseBuilder setCredit(Double credit){
             this.credit = credit;
             return this;
         }
 
-        public ExpenseBuilder setDebit(Float debit){
+        public ExpenseBuilder setDebit(Double debit){
             this.debit = debit;
             return this;
         }
 
-        public ExpenseBuilder setClosingBalance(Float closingBalance){
+        public ExpenseBuilder setClosingBalance(Double closingBalance){
             this.closingBalance = closingBalance;
             return this;
         }
 
         public Expenses build(){
-            if (this.credit == null && this.debit != null){
+            if (this.credit == 0.0 && this.debit != 0.0){
                 this.type = TransactionType.DEBIT;
             }else{
                 this.type = TransactionType.CREDIT;
