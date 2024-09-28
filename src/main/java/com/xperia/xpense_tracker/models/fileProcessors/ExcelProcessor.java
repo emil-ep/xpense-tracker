@@ -1,14 +1,19 @@
 package com.xperia.xpense_tracker.models.fileProcessors;
 
+import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 public class ExcelProcessor extends FileProcessor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelProcessor.class);
 
     public ExcelProcessor(Map<Integer, String> headerIndexMap){
         this.headerIndexMap = headerIndexMap;
@@ -41,7 +46,7 @@ public class ExcelProcessor extends FileProcessor {
     }
 
     @Override
-    public List<HashMap<Integer, String>> parseFile(File file) {
+    public List<HashMap<Integer, String>> parseFile(File file) throws TrackerBadRequestException {
 
         try{
             Workbook workbook = new XSSFWorkbook(file);
@@ -56,17 +61,15 @@ public class ExcelProcessor extends FileProcessor {
                 HashMap<Integer, String> cellValueMap = new HashMap<>();
                 while(cellIterator.hasNext()){
                     Cell cell = cellIterator.next();
-                    cellValueMap.put(cell.getColumnIndex(), String.valueOf(getValueFromCell(cell)));
+                    Object value = getValueFromCell(cell);
+                    cellValueMap.put(cell.getColumnIndex(), value != null ? String.valueOf(value) : null);
                 }
                 bookMapList.add(cellValueMap);
             }
             return bookMapList;
-        }catch (IOException e){
-            System.out.println("IOException occurred");
-        }catch (InvalidFormatException ex){
-            System.out.println("InvalidFormatException occurred");
+        }catch (IOException | InvalidFormatException e){
+            LOGGER.error("The file requested for parsing faced error, {}", e.getMessage());
+            throw new TrackerBadRequestException("The file requested is not a valid excel file");
         }
-
-        return List.of();
     }
 }

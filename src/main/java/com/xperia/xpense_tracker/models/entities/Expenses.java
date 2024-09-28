@@ -33,6 +33,10 @@ public class Expenses {
     @Enumerated(EnumType.STRING)
     private TransactionType type;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private TrackerUser user;
+
     private Expenses(ExpenseBuilder builder){
         this.description = builder.description;
         this.bankReferenceNo = builder.bankReferenceNo;
@@ -41,6 +45,7 @@ public class Expenses {
         this.closingBalance = builder.closingBalance;
         this.transactionDate = builder.transactionDate;
         this.type = builder.type;
+        this.user = builder.user;
     }
 
     public static class ExpenseBuilder{
@@ -59,8 +64,10 @@ public class Expenses {
 
         private TransactionType type;
 
-        public ExpenseBuilder(){
+        private TrackerUser user;
 
+        public ExpenseBuilder(TrackerUser user){
+            this.user = user;
         }
 
         public ExpenseBuilder onDate(LocalDate transactionDate){

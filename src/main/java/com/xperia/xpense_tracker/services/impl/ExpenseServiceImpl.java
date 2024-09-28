@@ -1,12 +1,17 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -25,6 +30,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseServiceImpl.class);
+
     @Autowired
     private ExpensesRepository expensesRepository;
 
@@ -41,16 +48,30 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
     @Override
-    public void processExpenseFromFile(File file) throws IOException{
+    public List<Expenses> getExpenses(UserDetails userDetails) {
+
+         TrackerUser user = (TrackerUser) userDetails;
+         return expensesRepository.getExpensesByUser(user);
+    }
+
+    @Override
+    public void processExpenseFromFile(File file, UserDetails userDetails) throws IOException{
         String extension = file.getName().split("\\.")[1];
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
         if (fileProcessor == null){
             throw new BadRequestException("File format is invalid. Please upload xlsx files only");
         }
-        List<HashMap<Integer, String>> parsedFile = fileProcessor.parseFile(file);
+        List<HashMap<Integer, String>> parsedFile;
+        try{
+            parsedFile = fileProcessor.parseFile(file);
+        }catch (TrackerBadRequestException ex){
+            LOGGER.error("unable to parse the file : {}", ex.getMessage());
+            throw ex;
+        }
 
+        TrackerUser user = (TrackerUser) userDetails;
         List<Expenses> expensesList = parsedFile.stream().map(row ->
-                        new Expenses.ExpenseBuilder()
+                        new Expenses.ExpenseBuilder(user)
                                 .onDate(LocalDate.parse(String.valueOf(row.get(0)), formatter))
                                 .withDescription(row.get(1))
                                 .withBankReferenceNo(row.get(2))
