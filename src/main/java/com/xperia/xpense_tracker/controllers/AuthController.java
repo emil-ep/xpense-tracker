@@ -9,7 +9,6 @@ import com.xperia.xpense_tracker.models.response.LoginResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.AuthService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
