@@ -17,10 +17,6 @@ public class ExcelProcessor extends FileProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelProcessor.class);
 
-    public ExcelProcessor(Map<Integer, String> headerIndexMap){
-        this.headerIndexMap = headerIndexMap;
-    }
-
     public ExcelProcessor(){
 
     }
