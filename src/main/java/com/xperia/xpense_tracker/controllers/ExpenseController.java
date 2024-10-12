@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.controllers;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
+import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
@@ -76,12 +77,12 @@ public class ExpenseController {
             }
             List<String> header = statementService.extractHeaderMapper(file);
             List<String> entityMap = Arrays.asList(
-                    "transactionDate",
-                    "description",
-                    "bankReferenceNo",
-                    "debit",
-                    "credit",
-                    "closingBalance"
+                    ExpenseFields.TRANSACTION_DATE.getFieldName(),
+                    ExpenseFields.DESCRIPTION.getFieldName(),
+                    ExpenseFields.BANK_REF_NO.getFieldName(),
+                    ExpenseFields.DEBIT.getFieldName(),
+                    ExpenseFields.CREDIT.getFieldName(),
+                    ExpenseFields.CLOSING_BALANCE.getFieldName()
                     );
             return ResponseEntity.ok(new SuccessResponse(new StatementHeaderMapResponse(header, entityMap)));
         }catch (IOException ex){
