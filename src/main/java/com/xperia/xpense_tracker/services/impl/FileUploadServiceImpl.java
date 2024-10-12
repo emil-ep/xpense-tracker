@@ -1,9 +1,12 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.models.entities.Statements;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.services.StatementService;
 import com.xperia.xpense_tracker.services.UploadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,9 @@ public class FileUploadServiceImpl implements UploadService {
 
     @Value("${file.upload.path}")
     private String fileUploadPath;
+
+    @Autowired
+    private StatementService statementService;
 
     private static final String[] ALLOWED_FILE_TYPES = {"csv", "xlsx"};
 
@@ -51,6 +57,8 @@ public class FileUploadServiceImpl implements UploadService {
             }
             Path filePath = uploadPath.resolve(customFileName);
             file.transferTo(filePath.toFile());
+            Statements statement = new Statements(customFileName, user, System.currentTimeMillis());
+            statementService.saveStatement(statement);
             return customFileName;
         }catch (IOException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage());

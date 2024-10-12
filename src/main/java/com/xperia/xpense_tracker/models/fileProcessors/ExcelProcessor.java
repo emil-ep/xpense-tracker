@@ -1,6 +1,7 @@
 package com.xperia.xpense_tracker.models.fileProcessors;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
+import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -70,6 +71,26 @@ public class ExcelProcessor extends FileProcessor {
         }catch (IOException | InvalidFormatException e){
             LOGGER.error("The file requested for parsing faced error, {}", e.getMessage());
             throw new TrackerBadRequestException("The file requested is not a valid excel file");
+        }
+    }
+
+    @Override
+    public List<String> fetchHeaders(File file) throws TrackerException {
+        try {
+            Workbook workbook = new XSSFWorkbook(file);
+            Sheet sheet = workbook.getSheetAt(0);
+            Row headerRow = sheet.getRow(0);
+            Iterator<Cell> cellIterator = headerRow.cellIterator();
+            List<String> headerValues = new LinkedList<>();
+            while (cellIterator.hasNext()){
+                Cell cell = cellIterator.next();
+                String value = String.valueOf(getValueFromCell(cell));
+                headerValues.add(value);
+            }
+            return headerValues;
+        }catch (Exception ex){
+            LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage());
+            throw new TrackerException("Unable to fetch headers from the file");
         }
     }
 }

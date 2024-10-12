@@ -3,8 +3,10 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestExce
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
+import com.xperia.xpense_tracker.models.response.StatementHeaderMapResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.ExpenseService;
+import com.xperia.xpense_tracker.services.StatementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -27,6 +30,9 @@ public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
+
+    @Autowired
+    private StatementService statementService;
 
     @GetMapping
     public ResponseEntity<AbstractResponse> getExpenses(@AuthenticationPrincipal UserDetails userDetails){
@@ -58,4 +64,28 @@ public class ExpenseController {
         return null;
     }
 
+    @GetMapping("/statement/mapper")
+    public ResponseEntity<AbstractResponse> viewStatementMapper(@RequestParam("fileName") String fileName,
+                                                                @AuthenticationPrincipal UserDetails userDetails){
+        try{
+            Path uploadedPath = Paths.get(fileUploadPath);
+            Path filePath = uploadedPath.resolve(fileName);
+            File file = filePath.toFile();
+            if (!file.exists()){
+                throw new IOException("File not found");
+            }
+            List<String> header = statementService.extractHeaderMapper(file);
+            List<String> entityMap = Arrays.asList(
+                    "transactionDate",
+                    "description",
+                    "bankReferenceNo",
+                    "debit",
+                    "credit",
+                    "closingBalance"
+                    );
+            return ResponseEntity.ok(new SuccessResponse(new StatementHeaderMapResponse(header, entityMap)));
+        }catch (IOException ex){
+            return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
+        }
+    }
 }
