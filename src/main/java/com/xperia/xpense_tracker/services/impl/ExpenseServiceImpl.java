@@ -127,17 +127,23 @@ public class ExpenseServiceImpl implements ExpenseService {
              throw new TrackerBadRequestException("transactionDate cannot be parsed");
          }
          try{
-             Double debit = row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0;
+             if (row.get(request.getDebit()) != null) {
+                 Double.parseDouble(row.get(request.getDebit()));
+             }
          }catch (NumberFormatException ex){
              throw new TrackerBadRequestException("Debit cannot be parsed");
          }
          try{
-             Double credit = row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0;
+             if (row.get(request.getCredit()) != null){
+                 Double.parseDouble(row.get(request.getCredit()));
+             }
          }catch (NumberFormatException ex){
              throw new TrackerBadRequestException("Credit cannot be parsed");
          }
         try{
-            Double closingBalance = row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0;
+            if (row.get(request.getClosingBalance()) != null){
+                Double.parseDouble(row.get(request.getClosingBalance()));
+            }
         }catch (NumberFormatException ex){
             throw new TrackerBadRequestException("ClosingBalance cannot be parsed");
         }
