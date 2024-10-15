@@ -1,13 +1,17 @@
 package com.xperia.xpense_tracker.controllers;
+
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.StatementHeaderMapResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +38,8 @@ public class ExpenseController {
 
     @Autowired
     private StatementService statementService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
 
     @GetMapping
     public ResponseEntity<AbstractResponse> getExpenses(@AuthenticationPrincipal UserDetails userDetails){
@@ -68,6 +74,7 @@ public class ExpenseController {
     @GetMapping("/statement/mapper")
     public ResponseEntity<AbstractResponse> viewStatementMapper(@RequestParam("fileName") String fileName,
                                                                 @AuthenticationPrincipal UserDetails userDetails){
+        LOGGER.debug("received request for statement mapper : {}", fileName);
         try{
             Path uploadedPath = Paths.get(fileUploadPath);
             Path filePath = uploadedPath.resolve(fileName);
@@ -89,4 +96,21 @@ public class ExpenseController {
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }
     }
-}
+
+    @PostMapping("/statement/preview")
+    public ResponseEntity<AbstractResponse> viewStatementPreview(@RequestParam("fileName") String fileName,
+                                                                 @RequestBody StatementPreviewRequest request){
+        try{
+            Path uploadedPath = Paths.get(fileUploadPath);
+            Path filePath = uploadedPath.resolve(fileName);
+            File file = filePath.toFile();
+            if (!file.exists()){
+                throw new IOException("File not found");
+            }
+            List<Expenses> expenses = expenseService.previewExpenses(file, request);
+            return ResponseEntity.ok(new SuccessResponse(expenses));
+        }catch (IOException ex){
+            return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
+        }
+    }
+ }
