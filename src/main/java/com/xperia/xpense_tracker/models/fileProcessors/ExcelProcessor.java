@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.models.fileProcessors;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
+import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -15,10 +16,6 @@ import java.util.*;
 public class ExcelProcessor extends FileProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelProcessor.class);
-
-    public ExcelProcessor(Map<Integer, String> headerIndexMap){
-        this.headerIndexMap = headerIndexMap;
-    }
 
     public ExcelProcessor(){
 
@@ -90,7 +87,7 @@ public class ExcelProcessor extends FileProcessor {
             return headerValues;
         }catch (Exception ex){
             LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage());
-            throw new TrackerException("Unable to fetch headers from the file");
+            throw new TrackerUnknownException("Unable to fetch headers from the file");
         }
     }
 }
