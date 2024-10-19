@@ -42,7 +42,7 @@ public class StatementServiceImpl implements StatementService {
         String extension = file.getName().split("\\.")[1];
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
         if (fileProcessor == null){
-            throw new TrackerBadRequestException("File format is invalid. Please upload xlsx files only");
+            throw new TrackerBadRequestException("Unable to find relevant processor to parse the file");
         }
         try{
             return fileProcessor.fetchHeaders(file);

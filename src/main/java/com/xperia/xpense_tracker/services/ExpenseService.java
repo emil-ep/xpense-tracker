@@ -1,6 +1,7 @@
 package com.xperia.xpense_tracker.services;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.File;
@@ -11,5 +12,10 @@ public interface ExpenseService {
 
     List<Expenses> getExpenses(UserDetails userDetails);
 
-    void processExpenseFromFile(File file, UserDetails userDetails) throws IOException;
+    List<Expenses> processExpenseFromFile(File file,
+                                          StatementPreviewRequest request,
+                                          UserDetails userDetails,
+                                          boolean isPreview)
+            throws IOException;
+
 }
