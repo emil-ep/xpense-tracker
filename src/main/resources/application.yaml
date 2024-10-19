@@ -20,4 +20,9 @@ file:
   upload:
     path: /Users/emil/Documents/projects/xpense-tracker/uploads
 
+logging:
+  level:
+    root: INFO
+    com.xperia.xpense_tracker: DEBUG
+    org.springframework.web: ERROR
 
