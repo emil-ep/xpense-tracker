@@ -55,6 +55,7 @@ public class ExpenseController {
 
     @PutMapping("/save")
     public ResponseEntity<AbstractResponse> processExpense(@RequestParam("fileName") String fileName,
+                                                           @RequestBody StatementPreviewRequest request,
                                                            @AuthenticationPrincipal UserDetails userDetails){
 
         try{
@@ -64,7 +65,7 @@ public class ExpenseController {
             if (!file.exists()){
                 throw new IOException("File not found");
             }
-            expenseService.processExpenseFromFile(file, userDetails);
+            expenseService.processExpenseFromFile(file, request, userDetails);
         }catch (IOException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }
