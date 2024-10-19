@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
 
-//    private static final Map<Integer, String> headerMap;
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
 
@@ -40,122 +39,98 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public List<Expenses> getExpenses(UserDetails userDetails) {
 
-         TrackerUser user = (TrackerUser) userDetails;
-         return expensesRepository.getExpensesByUser(user);
+        TrackerUser user = (TrackerUser) userDetails;
+        return expensesRepository.getExpensesByUser(user);
     }
 
     @Override
-    public void processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails) throws IOException{
+    public List<Expenses> processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails, boolean isPreview) throws IOException {
         String extension = file.getName().split("\\.")[1];
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
-        if (fileProcessor == null){
+        if (fileProcessor == null) {
             throw new BadRequestException("File format is invalid. Please upload xlsx files only");
         }
         List<HashMap<Integer, String>> parsedFile;
-        try{
+        try {
             parsedFile = fileProcessor.parseFile(file);
-        }catch (TrackerBadRequestException ex){
+        } catch (TrackerBadRequestException ex) {
             LOGGER.error("unable to parse the file : {}", ex.getMessage());
             throw ex;
         }
         validatePreviewInputs(parsedFile, request);
         TrackerUser user = (TrackerUser) userDetails;
         List<Expenses> expensesList = parsedFile.stream()
-                .map(row ->
-                        new Expenses.ExpenseBuilder(user)
-                                .onDate(
-                                        LocalDate.parse(
-                                                String.valueOf(row.get(request.getTransactionDate())),
-                                                formatter)
-                                )
-                                .withDescription(row.get(request.getDescription()))
-                                .withBankReferenceNo(row.get(request.getBankReferenceNo()))
-                                .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
-                                .setCredit(row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0)
-                                .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
-                                .build()
+                .limit(isPreview ? 5 : parsedFile.size()) //limit processing to 5 elements if it's a preview
+                .map(row -> new Expenses.ExpenseBuilder(user)
+                        .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter))
+                        .withDescription(row.get(request.getDescription()))
+                        .withBankReferenceNo(row.get(request.getBankReferenceNo()))
+                        .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
+                        .setCredit(row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0)
+                        .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
+                        .build()
                 ).toList();
+        LOGGER.debug("Total expenses found from the parsed file : {}", expensesList.size());
+        if (isPreview) {
+            return expensesList;
+        }
 
-        List<Expenses> existingExpenses = expensesRepository.findByUserAndTransactionDateAndBankReferenceNo(
+        //the real duplicate checking starts from here
+        //finding any existing expenses in database based on userId and transactionDates, bankReferenceNo from the parsedFile
+        List<Expenses> existingExpenses = expensesRepository.findByUserAndTransactionDateInAndBankReferenceNoIn(
                 user,
                 expensesList.stream().map(Expenses::getTransactionDate).collect(Collectors.toSet()),
                 expensesList.stream().map(Expenses::getBankReferenceNo).collect(Collectors.toSet()));
+
+        LOGGER.debug("Expenses with same transactionDate and bankReferenceNo : {}", existingExpenses.size());
+        //Generating unique items for existing expenses if any
         Set<String> existingExpenseIdentifiers = existingExpenses.stream()
-                        .map(e -> generateIdentifier(e.getTransactionDate(), e.getBankReferenceNo(), user.getId()))
-                                .collect(Collectors.toSet());
+                .map(e -> generateIdentifier(e.getTransactionDate(), e.getBankReferenceNo(), user.getId()))
+                .collect(Collectors.toSet());
 
+        //Filtering the new expenses and omitting any existing expense based on the generated identifier
         List<Expenses> expensesToSave = expensesList.stream()
-                        .filter(e -> existingExpenseIdentifiers.contains(generateIdentifier(e.getTransactionDate(), e.getBankReferenceNo(), user.getId())))
-                                .toList();
-        if (!expensesToSave.isEmpty()){
-            expensesRepository.saveAll(expensesList);
+                .filter(e -> !existingExpenseIdentifiers.contains(
+                        generateIdentifier(e.getTransactionDate(), e.getBankReferenceNo(), user.getId())
+                ))
+                .toList();
+        LOGGER.debug("Expenses to save : {}", expensesToSave.size());
+        if (!expensesToSave.isEmpty()) {
+            expensesRepository.saveAll(expensesToSave);
         }
+        return expensesToSave;
     }
 
-    @Override
-    public List<Expenses> previewExpenses(File file, StatementPreviewRequest request) throws IOException, TrackerBadRequestException {
-        String extension = file.getName().split("\\.")[1];
-        FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
-        if (fileProcessor == null){
-            throw new BadRequestException("File format is invalid. Please upload xlsx files only");
-        }
-        List<HashMap<Integer, String>> parsedFile;
-
-        try{
-            parsedFile = fileProcessor.parseFile(file);
-        }catch (TrackerBadRequestException ex){
-            LOGGER.error("unable to parse the file : {}", ex.getMessage());
-            throw ex;
-        }
-        validatePreviewInputs(parsedFile, request);
-        return parsedFile.stream()
-                .limit(5)
-                .map(row ->
-                        new Expenses.ExpenseBuilder(null)
-                            .onDate(
-                                    LocalDate.parse(
-                                            String.valueOf(row.get(request.getTransactionDate())),
-                                            formatter)
-                            )
-                            .withDescription(row.get(request.getDescription()))
-                            .withBankReferenceNo(row.get(request.getBankReferenceNo()))
-                            .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
-                            .setCredit(row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0)
-                            .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
-                            .build()
-                ).toList();
-    }
-
-    private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId){
+    private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
         return date.toString() + "_" + bankReferenceNo + "_" + userId;
     }
 
     private void validatePreviewInputs(List<HashMap<Integer, String>> parsedFile, StatementPreviewRequest request) {
-         HashMap<Integer, String> row = parsedFile.getFirst();
-         try{
-             LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter);
-         }catch (DateTimeParseException ex){
-             throw new TrackerBadRequestException("transactionDate cannot be parsed");
-         }
-         try{
-             if (row.get(request.getDebit()) != null) {
-                 Double.parseDouble(row.get(request.getDebit()));
-             }
-         }catch (NumberFormatException ex){
-             throw new TrackerBadRequestException("Debit cannot be parsed");
-         }
-         try{
-             if (row.get(request.getCredit()) != null){
-                 Double.parseDouble(row.get(request.getCredit()));
-             }
-         }catch (NumberFormatException ex){
-             throw new TrackerBadRequestException("Credit cannot be parsed");
-         }
-        try{
-            if (row.get(request.getClosingBalance()) != null){
+        HashMap<Integer, String> row = parsedFile.getFirst();
+        try {
+            LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter);
+        } catch (DateTimeParseException ex) {
+            throw new TrackerBadRequestException("transactionDate cannot be parsed");
+        }
+        try {
+            if (row.get(request.getDebit()) != null) {
+                Double.parseDouble(row.get(request.getDebit()));
+            }
+        } catch (NumberFormatException ex) {
+            throw new TrackerBadRequestException("Debit cannot be parsed");
+        }
+        try {
+            if (row.get(request.getCredit()) != null) {
+                Double.parseDouble(row.get(request.getCredit()));
+            }
+        } catch (NumberFormatException ex) {
+            throw new TrackerBadRequestException("Credit cannot be parsed");
+        }
+        try {
+            if (row.get(request.getClosingBalance()) != null) {
                 Double.parseDouble(row.get(request.getClosingBalance()));
             }
-        }catch (NumberFormatException ex){
+        } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("ClosingBalance cannot be parsed");
         }
     }

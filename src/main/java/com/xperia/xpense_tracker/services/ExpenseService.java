@@ -12,7 +12,10 @@ public interface ExpenseService {
 
     List<Expenses> getExpenses(UserDetails userDetails);
 
-    void processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails) throws IOException;
+    List<Expenses> processExpenseFromFile(File file,
+                                          StatementPreviewRequest request,
+                                          UserDetails userDetails,
+                                          boolean isPreview)
+            throws IOException;
 
-    List<Expenses> previewExpenses(File file, StatementPreviewRequest request) throws IOException;
 }

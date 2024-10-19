@@ -65,7 +65,7 @@ public class ExpenseController {
             if (!file.exists()){
                 throw new IOException("File not found");
             }
-            expenseService.processExpenseFromFile(file, request, userDetails);
+            expenseService.processExpenseFromFile(file, request, userDetails, false);
         }catch (IOException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }
@@ -100,6 +100,7 @@ public class ExpenseController {
 
     @PostMapping("/statement/preview")
     public ResponseEntity<AbstractResponse> viewStatementPreview(@RequestParam("fileName") String fileName,
+                                                                 @AuthenticationPrincipal UserDetails userDetails,
                                                                  @RequestBody StatementPreviewRequest request){
         try{
             Path uploadedPath = Paths.get(fileUploadPath);
@@ -108,7 +109,7 @@ public class ExpenseController {
             if (!file.exists()){
                 throw new IOException("File not found");
             }
-            List<Expenses> expenses = expenseService.previewExpenses(file, request);
+            List<Expenses> expenses = expenseService.processExpenseFromFile(file, request, userDetails, true);
             return ResponseEntity.ok(new SuccessResponse(expenses));
         }catch (IOException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
