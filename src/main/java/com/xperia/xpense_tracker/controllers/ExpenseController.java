@@ -59,6 +59,7 @@ public class ExpenseController {
                                                            @AuthenticationPrincipal UserDetails userDetails){
 
         try{
+            LOGGER.debug("received request for saving expenses fileName: {}, user: {}", fileName, userDetails.getUsername());
             Path uploadedPath = Paths.get(fileUploadPath);
             Path filePath = uploadedPath.resolve(fileName);
             File file = filePath.toFile();
@@ -66,10 +67,12 @@ public class ExpenseController {
                 throw new IOException("File not found");
             }
             expenseService.processExpenseFromFile(file, request, userDetails, false);
-        }catch (IOException ex){
+            LOGGER.info("Saved expense fileName: {}, user: {}", fileName, userDetails.getUsername());
+            return ResponseEntity.ok(new SuccessResponse("Saved expense"));
+        } catch (Exception ex){
+            LOGGER.debug("Exception while saving expense fileName: {}, user: {}, ex: {}", fileName, userDetails.getUsername(), ex.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }
-        return null;
     }
 
     @GetMapping("/statement/mapper")
