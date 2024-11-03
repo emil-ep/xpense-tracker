@@ -4,16 +4,15 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestExce
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
-import com.xperia.xpense_tracker.models.response.AbstractResponse;
-import com.xperia.xpense_tracker.models.response.ErrorResponse;
-import com.xperia.xpense_tracker.models.response.StatementHeaderMapResponse;
-import com.xperia.xpense_tracker.models.response.SuccessResponse;
+import com.xperia.xpense_tracker.models.response.*;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,11 +40,20 @@ public class ExpenseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
 
-    @GetMapping
-    public ResponseEntity<AbstractResponse> getExpenses(@AuthenticationPrincipal UserDetails userDetails){
+    @GetMapping()
+    public ResponseEntity<AbstractResponse> getExpenses(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                        @RequestParam(value = "size", defaultValue = "10") int size,
+                                                        @AuthenticationPrincipal UserDetails userDetails){
         try{
-            List<Expenses> expenses = expenseService.getExpenses(userDetails);
-            return ResponseEntity.ok(new SuccessResponse(expenses));
+            Page<Expenses> expenses = expenseService.getExpenses(userDetails, PageRequest.of(page, size));
+            return ResponseEntity.ok(new SuccessResponse(
+                    new ExpensePaginatedResponse(
+                            expenses.getTotalPages(),
+                            expenses.getTotalElements(),
+                            expenses.getSize(),
+                            expenses.getNumber(),
+                            expenses.getContent()
+                    )));
         }catch (TrackerBadRequestException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         }catch (Exception ex) {

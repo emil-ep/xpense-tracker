@@ -12,6 +12,8 @@ import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -37,10 +39,10 @@ public class ExpenseServiceImpl implements ExpenseService {
     private ExpensesRepository expensesRepository;
 
     @Override
-    public List<Expenses> getExpenses(UserDetails userDetails) {
+    public Page<Expenses> getExpenses(UserDetails userDetails, PageRequest pageRequest) {
 
         TrackerUser user = (TrackerUser) userDetails;
-        return expensesRepository.getExpensesByUser(user);
+        return expensesRepository.getPaginatedExpensesByUser(user, pageRequest);
     }
 
     @Override
