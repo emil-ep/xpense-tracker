@@ -2,12 +2,14 @@ package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
+import com.xperia.xpense_tracker.services.TagService;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,6 +40,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Autowired
     private ExpensesRepository expensesRepository;
+
+    @Autowired
+    private TagService tagService;
 
     @Override
     public Page<Expenses> getExpenses(UserDetails userDetails, PageRequest pageRequest) {
@@ -61,16 +67,22 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
         validatePreviewInputs(parsedFile, request);
         TrackerUser user = (TrackerUser) userDetails;
+        List<Tag> userTags = tagService.findAllTagsForUser(user);
         List<Expenses> expensesList = parsedFile.stream()
                 .limit(isPreview ? 5 : parsedFile.size()) //limit processing to 5 elements if it's a preview
-                .map(row -> new Expenses.ExpenseBuilder(user)
-                        .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter))
-                        .withDescription(row.get(request.getDescription()))
-                        .withBankReferenceNo(row.get(request.getBankReferenceNo()))
-                        .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
-                        .setCredit(row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0)
-                        .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
-                        .build()
+                .map(row -> {
+                    String transactionDescription = row.get(request.getDescription());
+                    Set<Tag> matchedTags = findMatchingTags(userTags, transactionDescription);
+                    return new Expenses.ExpenseBuilder(user)
+                            .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter))
+                            .withDescription(transactionDescription)
+                            .withBankReferenceNo(row.get(request.getBankReferenceNo()))
+                            .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
+                            .setCredit(row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0)
+                            .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
+                            .withTags(matchedTags)
+                            .build();
+                        }
                 ).toList();
         LOGGER.debug("Total expenses found from the parsed file : {}", expensesList.size());
         if (isPreview) {
@@ -135,5 +147,17 @@ public class ExpenseServiceImpl implements ExpenseService {
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("ClosingBalance cannot be parsed");
         }
+    }
+
+    private Set<Tag> findMatchingTags(List<Tag> userTags, String transactionDescription){
+        Set<Tag> matchedTags = new HashSet<>();
+        for (Tag tag: userTags){
+            for (String keyword: tag.getKeywords()){
+                if(transactionDescription.toLowerCase().contains(keyword.toLowerCase())){
+                    matchedTags.add(tag);
+                }
+            }
+        }
+        return matchedTags;
     }
 }

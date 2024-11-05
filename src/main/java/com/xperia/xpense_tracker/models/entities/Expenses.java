@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,6 +47,7 @@ public class Expenses {
             joinColumns = @JoinColumn(name = "expense_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
+    @JsonManagedReference
     private Set<Tag> tags = new HashSet<>();
 
     private Expenses(ExpenseBuilder builder){

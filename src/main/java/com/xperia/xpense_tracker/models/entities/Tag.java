@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,19 +23,20 @@ public class Tag {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
     private TagType tagType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private TrackerUser user;
 
-    private boolean editable;
-
     @ManyToMany(mappedBy = "tags")
+    @JsonBackReference
     private Set<Expenses> expenses = new HashSet<>();
 
+    private String[] keywords;
 
     public boolean isEditable(){
-        return tagType.equals(TagType.CUSTOM);
+        return false;
     }
 }
