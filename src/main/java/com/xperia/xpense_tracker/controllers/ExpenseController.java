@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,7 +46,11 @@ public class ExpenseController {
                                                         @RequestParam(value = "size", defaultValue = "10") int size,
                                                         @AuthenticationPrincipal UserDetails userDetails){
         try{
-            Page<Expenses> expenses = expenseService.getExpenses(userDetails, PageRequest.of(page, size));
+            Page<Expenses> expenses = expenseService.getExpenses(userDetails,
+                    PageRequest.of(
+                            page - 1,
+                            size,
+                            Sort.by(Sort.Direction.DESC, "transactionDate")));
             return ResponseEntity.ok(new SuccessResponse(
                     new ExpensePaginatedResponse(
                             expenses.getTotalPages(),
