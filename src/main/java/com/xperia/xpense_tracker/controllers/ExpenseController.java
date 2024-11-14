@@ -1,6 +1,7 @@
 package com.xperia.xpense_tracker.controllers;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
+import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
@@ -41,7 +42,7 @@ public class ExpenseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<AbstractResponse> getExpenses(@RequestParam(value = "page", defaultValue = "1") int page,
                                                         @RequestParam(value = "size", defaultValue = "10") int size,
                                                         @AuthenticationPrincipal UserDetails userDetails){
@@ -129,6 +130,22 @@ public class ExpenseController {
             return ResponseEntity.ok(new SuccessResponse(expenses));
         }catch (IOException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
+        }
+    }
+
+    @GetMapping("/aggregate")
+    public ResponseEntity<AbstractResponse> fetchAggregatedExpenses(@RequestParam("by") String aggregatePeriod,
+                                                                    @AuthenticationPrincipal UserDetails userDetails) {
+
+        try{
+            if(ExpenseAggregateType.findByType(aggregatePeriod) == null){
+                throw new TrackerBadRequestException("by field provided incompatible values");
+            }
+            List<Object[]> response = expenseService.aggregateExpenses(aggregatePeriod, userDetails);
+            return  ResponseEntity.ok(new SuccessResponse(response));
+        }catch (Exception ex){
+            LOGGER.error("Unable to fetch expenses based on aggregation : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching aggregated expenses"));
         }
     }
  }

@@ -20,4 +20,6 @@ public interface ExpenseService {
                                           boolean isPreview)
             throws IOException;
 
+    List<Object[]> aggregateExpenses(String by, UserDetails userDetails);
+
 }

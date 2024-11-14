@@ -115,6 +115,12 @@ public class ExpenseServiceImpl implements ExpenseService {
         return expensesToSave;
     }
 
+    @Override
+    public List<Object[]> aggregateExpenses(String by, UserDetails userDetails) {
+        List<Object[]> expenses = expensesRepository.findAggregatedExpensesByPeriod(by);
+        return expenses;
+    }
+
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
         return date.toString() + "_" + bankReferenceNo + "_" + userId;
     }

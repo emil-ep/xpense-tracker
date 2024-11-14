@@ -19,4 +19,15 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
 
     @Query("SELECT e FROM expenses e WHERE e.user = :user AND e.transactionDate IN :dates AND e.bankReferenceNo IN :bankReferenceNos")
     List<Expenses> findByUserAndTransactionDateInAndBankReferenceNoIn(TrackerUser user, Set<LocalDate> dates, Set<String> bankReferenceNos);
+
+    @Query("SELECT " +
+            "CASE WHEN :aggregateBy = 'daily' THEN DATE(e.transactionDate) " +
+            "     WHEN :aggregateBy = 'monthly' THEN FUNCTION('MONTH', e.transactionDate) " +
+            "     WHEN :aggregateBy = 'yearly' THEN FUNCTION('YEAR', e.transactionDate) " +
+            "END AS period, " +
+            "SUM(e.debit) AS totalAmount " +
+            "FROM expenses e " +
+            "GROUP BY period " +
+            "ORDER BY period ASC")
+    List<Object[]> findAggregatedExpensesByPeriod(String aggregateBy);
 }
