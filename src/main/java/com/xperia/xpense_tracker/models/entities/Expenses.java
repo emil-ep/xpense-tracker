@@ -2,11 +2,14 @@ package com.xperia.xpense_tracker.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "expenses")
 @NoArgsConstructor
@@ -17,7 +20,6 @@ public class Expenses {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-//    @Pattern(regexp = "\\d{2}/\\d{2}/\\d{4}", message = "Date must be in the format dd/MM/yy")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yy")
     private LocalDate transactionDate;
 
@@ -39,6 +41,15 @@ public class Expenses {
     @JoinColumn(name = "user_id", nullable = false)
     private TrackerUser user;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "expense_tags",
+            joinColumns = @JoinColumn(name = "expense_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @JsonManagedReference
+    private Set<Tag> tags = new HashSet<>();
+
     private Expenses(ExpenseBuilder builder){
         this.description = builder.description;
         this.bankReferenceNo = builder.bankReferenceNo;
@@ -48,6 +59,7 @@ public class Expenses {
         this.transactionDate = builder.transactionDate;
         this.type = builder.type;
         this.user = builder.user;
+        this.tags = builder.tags;
     }
 
     public static class ExpenseBuilder{
@@ -67,6 +79,8 @@ public class Expenses {
         private TransactionType type;
 
         private TrackerUser user;
+
+        private Set<Tag> tags;
 
         public ExpenseBuilder(TrackerUser user){
             this.user = user;
@@ -99,6 +113,11 @@ public class Expenses {
 
         public ExpenseBuilder setClosingBalance(Double closingBalance){
             this.closingBalance = closingBalance;
+            return this;
+        }
+
+        public ExpenseBuilder withTags(Set<Tag> tags){
+            this.tags = tags;
             return this;
         }
 
