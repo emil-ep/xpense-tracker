@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.repository;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,13 +22,13 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
     List<Expenses> findByUserAndTransactionDateInAndBankReferenceNoIn(TrackerUser user, Set<LocalDate> dates, Set<String> bankReferenceNos);
 
     @Query("SELECT " +
-            "CASE WHEN :aggregateBy = 'daily' THEN DATE(e.transactionDate) " +
-            "     WHEN :aggregateBy = 'monthly' THEN FUNCTION('MONTH', e.transactionDate) " +
-            "     WHEN :aggregateBy = 'yearly' THEN FUNCTION('YEAR', e.transactionDate) " +
-            "END AS period, " +
-            "SUM(e.debit) AS totalAmount " +
+            "EXTRACT(YEAR FROM e.transactionDate) AS year, " +
+            "EXTRACT(MONTH FROM e.transactionDate) AS month, " +
+            "SUM(e.debit) AS totalDebit " +
             "FROM expenses e " +
-            "GROUP BY period " +
-            "ORDER BY period ASC")
-    List<Object[]> findAggregatedExpensesByPeriod(String aggregateBy);
+            "WHERE e.user = :user " +
+            "GROUP BY EXTRACT(YEAR FROM e.transactionDate), EXTRACT(MONTH FROM e.transactionDate) " +
+            "ORDER BY EXTRACT(YEAR FROM e.transactionDate), EXTRACT(MONTH FROM e.transactionDate)")
+    List<Tuple> findMonthlyDebitSummaries(TrackerUser user);
+
 }

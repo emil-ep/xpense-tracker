@@ -7,9 +7,11 @@ import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
+import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.TagService;
+import jakarta.persistence.Tuple;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,9 +118,15 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public List<Object[]> aggregateExpenses(String by, UserDetails userDetails) {
-        List<Object[]> expenses = expensesRepository.findAggregatedExpensesByPeriod(by);
-        return expenses;
+    public List<MonthlyDebitSummary> aggregateExpenses(String by, UserDetails userDetails) {
+        List<Tuple> result = expensesRepository.findMonthlyDebitSummaries((TrackerUser) userDetails);
+        return result.stream()
+                .map(tuple -> new MonthlyDebitSummary(
+                        ((Number) tuple.get(0)).intValue(),   // year
+                        ((Number) tuple.get(1)).intValue(),   // month
+                        ((Number) tuple.get(2)).doubleValue() // totalDebit
+                ))
+                .collect(Collectors.toList());
     }
 
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {

@@ -141,7 +141,7 @@ public class ExpenseController {
             if(ExpenseAggregateType.findByType(aggregatePeriod) == null){
                 throw new TrackerBadRequestException("by field provided incompatible values");
             }
-            List<Object[]> response = expenseService.aggregateExpenses(aggregatePeriod, userDetails);
+            List<MonthlyDebitSummary> response = expenseService.aggregateExpenses(aggregatePeriod, userDetails);
             return  ResponseEntity.ok(new SuccessResponse(response));
         }catch (Exception ex){
             LOGGER.error("Unable to fetch expenses based on aggregation : {}", ex.getMessage());

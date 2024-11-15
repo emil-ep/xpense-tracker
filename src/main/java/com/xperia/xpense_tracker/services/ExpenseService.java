@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.services;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
+import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +21,6 @@ public interface ExpenseService {
                                           boolean isPreview)
             throws IOException;
 
-    List<Object[]> aggregateExpenses(String by, UserDetails userDetails);
+    List<MonthlyDebitSummary> aggregateExpenses(String by, UserDetails userDetails);
 
 }
