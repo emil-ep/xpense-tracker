@@ -12,6 +12,7 @@ public class MonthlyDebitSummary {
     private int year;
     private int month;
     private double totalDebit;
+    private double totalCredit;
 
 
 }

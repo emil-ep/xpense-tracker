@@ -124,7 +124,8 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .map(tuple -> new MonthlyDebitSummary(
                         ((Number) tuple.get(0)).intValue(),   // year
                         ((Number) tuple.get(1)).intValue(),   // month
-                        ((Number) tuple.get(2)).doubleValue() // totalDebit
+                        ((Number) tuple.get(2)).doubleValue(), // totalDebit
+                        ((Number) tuple.get(3)).doubleValue()
                 ))
                 .collect(Collectors.toList());
     }

@@ -24,7 +24,8 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
     @Query("SELECT " +
             "EXTRACT(YEAR FROM e.transactionDate) AS year, " +
             "EXTRACT(MONTH FROM e.transactionDate) AS month, " +
-            "SUM(e.debit) AS totalDebit " +
+            "SUM(e.debit) AS totalDebit, " +
+            "SUM(e.credit) AS totalCredit " +
             "FROM expenses e " +
             "WHERE e.user = :user " +
             "GROUP BY EXTRACT(YEAR FROM e.transactionDate), EXTRACT(MONTH FROM e.transactionDate) " +

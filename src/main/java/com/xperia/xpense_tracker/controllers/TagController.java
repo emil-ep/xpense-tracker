@@ -1,7 +1,9 @@
 package com.xperia.xpense_tracker.controllers;
 
+import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.request.TagRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
@@ -12,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -38,6 +38,37 @@ public class TagController {
             LOG.error("Failed to fetch tags : {}", ex.getMessage());
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching tag data"));
         }
+    }
 
+    @PostMapping
+    public ResponseEntity<AbstractResponse> addNewTag(@AuthenticationPrincipal UserDetails userDetails,
+                                                      @RequestBody TagRequest tagRequest){
+        try{
+            TrackerUser user = (TrackerUser) userDetails;
+            Tag tag = tagService.addNewTag(tagRequest, user);
+            return ResponseEntity.ok(new SuccessResponse(tag));
+        }catch (TrackerException ex){
+            LOG.error("Error while creating tag : {}", ex.getMessage());
+            throw ex;
+        }catch (Exception ex){
+            LOG.error("Internal server error while creating tag : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Internal server error : Error creating tag"));
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<AbstractResponse> editTag(@AuthenticationPrincipal UserDetails userDetails,
+                                                    @RequestBody TagRequest tagRequest){
+        try{
+            TrackerUser user = (TrackerUser) userDetails;
+            Tag savedTag = tagService.editTag(tagRequest, user);
+            return ResponseEntity.ok(new SuccessResponse(savedTag));
+        }catch (TrackerException ex){
+            LOG.error("Error while editing tag : {}", ex.getMessage());
+            throw ex;
+        }catch (Exception ex){
+            LOG.error("Internal server error while editing tag : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Internal server error : Error editing tag"));
+        }
     }
 }
