@@ -5,6 +5,7 @@ import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
+import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.*;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
@@ -86,6 +87,21 @@ public class ExpenseController {
         } catch (Exception ex){
             LOGGER.debug("Exception while saving expense fileName: {}, user: {}, ex: {}", fileName, userDetails.getUsername(), ex.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
+        }
+    }
+
+    @PatchMapping
+    public ResponseEntity<AbstractResponse> updateExpense(@RequestParam("expense") String expenseId,
+                                                          @RequestBody UpdateExpenseRequest request,
+                                                          @AuthenticationPrincipal UserDetails userDetails){
+        LOGGER.debug("received request for updating expense : {}", expenseId);
+        try{
+            Expenses updatedExpense = expenseService.updateExpense(expenseId, request, userDetails);
+            LOGGER.info("Updated expense with id : {}", expenseId);
+            return ResponseEntity.ok(new SuccessResponse(updatedExpense));
+        }catch (Exception ex){
+            LOGGER.error("Unable to update expense : {} , exception : {}", expenseId, ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Unable to update expense"));
         }
     }
 
