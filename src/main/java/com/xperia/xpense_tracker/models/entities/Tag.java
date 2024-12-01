@@ -30,6 +30,7 @@ public class Tag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private TrackerUser user;
 
     @ManyToMany(mappedBy = "tags")

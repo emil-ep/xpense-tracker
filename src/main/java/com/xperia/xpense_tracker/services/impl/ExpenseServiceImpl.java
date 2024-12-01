@@ -133,12 +133,17 @@ public class ExpenseServiceImpl implements ExpenseService {
         Expenses existingExpense = expensesRepository.findExpensesById(expenseId)
                 .orElseThrow(() -> new TrackerBadRequestException("Expense Id is not valid"));
 
+        Set<Tag> tags = null;
+        if(expenseRequest.getTagIds() != null){
+            tags = new HashSet<>(tagService.findTagsByTagIds(expenseRequest.getTagIds()));
+        }
+
         Expenses expenseToUpdate = new Expenses.ExpenseBuilder(existingExpense)
                 .withDescription(expenseRequest.getDescription() != null
                         ? expenseRequest.getDescription()
                         : existingExpense.getDescription())
-                .withTags(expenseRequest.getTags() != null
-                        ? expenseRequest.getTags()
+                .withTags(expenseRequest.getTagIds() != null
+                        ? tags
                         : existingExpense.getTags())
                 .withBankReferenceNo(expenseRequest.getBankReferenceNo() != null
                         ? expenseRequest.getBankReferenceNo()

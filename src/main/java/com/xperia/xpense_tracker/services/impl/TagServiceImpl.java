@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -77,5 +78,10 @@ public class TagServiceImpl implements TagService {
         existingTag.setKeywords(tagRequest.getKeywords());
         existingTag.setCanBeConsideredExpense(tagRequest.isCanBeCountedAsExpense());
         return tagRepository.save(existingTag);
+    }
+
+    @Override
+    public List<Tag> findTagsByTagIds(Set<String> tagIds) {
+        return tagRepository.findAllById(tagIds);
     }
 }

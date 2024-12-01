@@ -1,16 +1,13 @@
 package com.xperia.xpense_tracker.models.request;
 
-import com.xperia.xpense_tracker.models.entities.Tag;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
+@Setter
 public class UpdateExpenseRequest {
 
     private String description;
@@ -25,7 +22,7 @@ public class UpdateExpenseRequest {
 
     private Double closingBalance;
 
-    private Set<Tag> tags;
+    private Set<String> tagIds;
 
 
 }
