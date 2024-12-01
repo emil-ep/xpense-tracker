@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
 @Entity(name = "tag")
 @NoArgsConstructor
 @Getter
+@Setter
 public class Tag {
 
     @Id
@@ -28,6 +30,7 @@ public class Tag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private TrackerUser user;
 
     @ManyToMany(mappedBy = "tags")
@@ -35,6 +38,16 @@ public class Tag {
     private Set<Expenses> expenses = new HashSet<>();
 
     private String[] keywords;
+
+    private boolean canBeConsideredExpense;
+
+    public Tag(String name, Tag parentTag, TagType tagType, TrackerUser user, String[] keywords, boolean canBeConsideredExpense){
+        this.name = name;
+        this.tagType = tagType;
+        this.user = user;
+        this.keywords = keywords;
+        this.canBeConsideredExpense = canBeConsideredExpense;
+    }
 
     public boolean isEditable(){
         return false;

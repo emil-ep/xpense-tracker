@@ -5,6 +5,7 @@ import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
+import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.*;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
@@ -89,6 +90,21 @@ public class ExpenseController {
         }
     }
 
+    @PatchMapping
+    public ResponseEntity<AbstractResponse> updateExpense(@RequestParam("expense") String expenseId,
+                                                          @RequestBody UpdateExpenseRequest request,
+                                                          @AuthenticationPrincipal UserDetails userDetails){
+        LOGGER.debug("received request for updating expense : {}", expenseId);
+        try{
+            Expenses updatedExpense = expenseService.updateExpense(expenseId, request, userDetails);
+            LOGGER.info("Updated expense with id : {}", expenseId);
+            return ResponseEntity.ok(new SuccessResponse(updatedExpense));
+        }catch (Exception ex){
+            LOGGER.error("Unable to update expense : {} , exception : {}", expenseId, ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Unable to update expense"));
+        }
+    }
+
     @GetMapping("/statement/mapper")
     public ResponseEntity<AbstractResponse> viewStatementMapper(@RequestParam("fileName") String fileName,
                                                                 @AuthenticationPrincipal UserDetails userDetails){
@@ -141,7 +157,7 @@ public class ExpenseController {
             if(ExpenseAggregateType.findByType(aggregatePeriod) == null){
                 throw new TrackerBadRequestException("by field provided incompatible values");
             }
-            List<Object[]> response = expenseService.aggregateExpenses(aggregatePeriod, userDetails);
+            List<MonthlyDebitSummary> response = expenseService.aggregateExpenses(aggregatePeriod, userDetails);
             return  ResponseEntity.ok(new SuccessResponse(response));
         }catch (Exception ex){
             LOGGER.error("Unable to fetch expenses based on aggregation : {}", ex.getMessage());

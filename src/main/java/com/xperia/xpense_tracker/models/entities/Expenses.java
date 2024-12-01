@@ -62,6 +62,19 @@ public class Expenses {
         this.tags = builder.tags;
     }
 
+    private Expenses(String id, ExpenseBuilder builder){
+        this.id = id;
+        this.description = builder.description;
+        this.bankReferenceNo = builder.bankReferenceNo;
+        this.debit = builder.debit;
+        this.credit = builder.credit;
+        this.closingBalance = builder.closingBalance;
+        this.transactionDate = builder.transactionDate;
+        this.type = builder.type;
+        this.user = builder.user;
+        this.tags = builder.tags;
+    }
+
     public static class ExpenseBuilder{
 
         private LocalDate transactionDate;
@@ -84,6 +97,18 @@ public class Expenses {
 
         public ExpenseBuilder(TrackerUser user){
             this.user = user;
+        }
+
+        public ExpenseBuilder(Expenses existing){
+            this.transactionDate = existing.getTransactionDate();
+            this.description = existing.getDescription();
+            this.bankReferenceNo = existing.getBankReferenceNo();
+            this.debit = existing.getDebit();
+            this.credit = existing.getCredit();
+            this.closingBalance = existing.getClosingBalance();
+            this.type = existing.getType();
+            this.tags = new HashSet<>(existing.tags);
+            this.user = existing.getUser();
         }
 
         public ExpenseBuilder onDate(LocalDate transactionDate){
@@ -128,6 +153,10 @@ public class Expenses {
                 this.type = TransactionType.CREDIT;
             }
             return new Expenses(this);
+        }
+
+        public Expenses build(String id){
+            return new Expenses(id, this);
         }
     }
 }

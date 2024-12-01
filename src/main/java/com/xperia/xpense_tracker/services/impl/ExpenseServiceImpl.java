@@ -7,9 +7,12 @@ import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
+import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
+import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.TagService;
+import jakarta.persistence.Tuple;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,9 +119,55 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public List<Object[]> aggregateExpenses(String by, UserDetails userDetails) {
-        List<Object[]> expenses = expensesRepository.findAggregatedExpensesByPeriod(by);
-        return expenses;
+    public boolean isValidExpenseOfUser(UserDetails userDetails, String expenseId) {
+        TrackerUser user = (TrackerUser) userDetails;
+        List<Expenses> expensesByUser = expensesRepository.getExpensesByUser(user);
+        return expensesByUser.stream().anyMatch(expenses -> expenses.getId().equals(expenseId));
+    }
+
+    @Override
+    public Expenses updateExpense(String expenseId, UpdateExpenseRequest expenseRequest, UserDetails userDetails) {
+        if(!this.isValidExpenseOfUser(userDetails, expenseId)){
+            throw new TrackerBadRequestException("Expense Id is not valid");
+        }
+        Expenses existingExpense = expensesRepository.findExpensesById(expenseId)
+                .orElseThrow(() -> new TrackerBadRequestException("Expense Id is not valid"));
+
+        Set<Tag> tags = null;
+        if(expenseRequest.getTagIds() != null){
+            tags = new HashSet<>(tagService.findTagsByTagIds(expenseRequest.getTagIds()));
+        }
+
+        Expenses expenseToUpdate = new Expenses.ExpenseBuilder(existingExpense)
+                .withDescription(expenseRequest.getDescription() != null
+                        ? expenseRequest.getDescription()
+                        : existingExpense.getDescription())
+                .withTags(expenseRequest.getTagIds() != null
+                        ? tags
+                        : existingExpense.getTags())
+                .withBankReferenceNo(expenseRequest.getBankReferenceNo() != null
+                        ? expenseRequest.getBankReferenceNo()
+                        : existingExpense.getBankReferenceNo())
+                .onDate(expenseRequest.getTransactionDate() != null
+                        ? expenseRequest.getTransactionDate()
+                        : existingExpense.getTransactionDate())
+                .build(existingExpense.getId());
+
+        return expensesRepository.save(expenseToUpdate);
+    }
+
+
+    @Override
+    public List<MonthlyDebitSummary> aggregateExpenses(String by, UserDetails userDetails) {
+        List<Tuple> result = expensesRepository.findMonthlyDebitSummaries((TrackerUser) userDetails);
+        return result.stream()
+                .map(tuple -> new MonthlyDebitSummary(
+                        ((Number) tuple.get(0)).intValue(),   // year
+                        ((Number) tuple.get(1)).intValue(),   // month
+                        ((Number) tuple.get(2)).doubleValue(), // totalDebit
+                        ((Number) tuple.get(3)).doubleValue()
+                ))
+                .collect(Collectors.toList());
     }
 
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
