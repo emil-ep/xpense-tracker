@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -168,6 +169,16 @@ public class ExpenseServiceImpl implements ExpenseService {
                         ((Number) tuple.get(3)).doubleValue()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * The sync method helps in re-syncing the entire expenses of user with the new tags
+     * @param userDetails The user who is triggering the sync functionality
+     */
+    @Async
+    @Override
+    public void syncExpenses(UserDetails userDetails) {
+
     }
 
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
