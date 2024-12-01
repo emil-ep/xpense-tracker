@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/expenses")
@@ -170,13 +171,14 @@ public class ExpenseController {
     @PostMapping("/sync")
     public ResponseEntity<AbstractResponse> syncExpenses(@AuthenticationPrincipal UserDetails userDetails){
         try{
-            expenseService.syncExpenses(userDetails);
+            String requestId = UUID.randomUUID().toString();
+            expenseService.syncExpenses(userDetails, requestId);
             TrackerUser user = (TrackerUser) userDetails;
-            LOGGER.error("Sync operation initiated for user : {}", user.getId());
+            LOGGER.info("Sync operation initiated for user : {} - requestId : {}", user.getId(), requestId);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(new SuccessResponse(
-                            "Sync operation initiated for user")
+                            "Sync operation initiated for user - requestId : " + requestId)
                     );
         }catch (Exception ex){
             LOGGER.error("unable to sync expenses : {}", ex.getMessage());
