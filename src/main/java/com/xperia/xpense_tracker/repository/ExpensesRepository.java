@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,4 +36,17 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
             "ORDER BY EXTRACT(YEAR FROM e.transactionDate), EXTRACT(MONTH FROM e.transactionDate)")
     List<Tuple> findMonthlyDebitSummaries(TrackerUser user);
 
+    @Query("SELECT " +
+            "CASE\n" +
+            "  WHEN :metricTimeFrame = 'daily' THEN TO_CHAR(e.transactionDate, 'YYYY-MM-DD')\n" +
+            "  WHEN :metricTimeFrame = 'monthly' THEN TO_CHAR(e.transactionDate, 'YYYY-MM')\n" +
+            "  WHEN :metricTimeFrame = 'yearly' THEN TO_CHAR(e.transactionDate, 'YYYY')\n" +
+            "END AS timeFrame,\n" +
+            "  COALESCE(SUM(e.credit), 0) AS deposits,\n" +
+            "  COALESCE(SUM(e.debit), 0) AS expenses\n" +
+            "FROM expenses e\n" +
+            "WHERE e.transactionDate IS NOT NULL AND e.user = :user\n" +
+            "GROUP BY timeFrame\n" +
+            "ORDER BY timeFrame")
+    List<Object[]> aggregateExpensesByMetricTimeFrame(@Param("metricTimeFrame") String metricTimeFrame, TrackerUser user);
 }
