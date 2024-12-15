@@ -1,6 +1,8 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.models.entities.MetricTimeFrame;
+import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.metrics.MetricDefinitions;
+import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.response.AggregatedExpenseResponse;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
@@ -9,7 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MetricsServiceImpl implements MetricsService {
@@ -27,5 +30,40 @@ public class MetricsServiceImpl implements MetricsService {
                                 ((Number) aggExpense[1]).doubleValue(),
                                 ((Number) aggExpense[2]).doubleValue()
                         )).toList();
+    }
+
+    /**
+     * Very important function for processing metrics. NEED TO TEST COMPLETELY
+     * @param timeFrame the timeframe in which metrics needs to be fetched
+     * @param metricToBeFetched the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
+     * @param userDetails the user for which the details should be fetched
+     * @return returns the list of metrics aggregated by timeframe
+     */
+    @Override
+    public List<Object> fetchMetricsV2(MetricTimeFrame timeFrame, String[] metricToBeFetched, UserDetails userDetails) {
+        TrackerUser user = (TrackerUser) userDetails;
+        //converting the metrics received in request to the corresponding MetricDefinitions
+        List<MetricDefinitions> metricDefinitions = Arrays.stream(metricToBeFetched).map(MetricDefinitions::findByMetricName).toList();
+        List<Object> results = new ArrayList<>();
+        List<Expenses> expenses = expensesRepository.getExpensesByUser(user);
+        Map<String, List<Expenses>> groupedByTimeframe = timeFrame.groupBy(expenses.stream(), Expenses::getTransactionDate);
+        for (Map.Entry<String, List<Expenses>> entry : groupedByTimeframe.entrySet()) {
+            String currentTimeframe = entry.getKey();
+            List<Expenses> group = entry.getValue();
+
+            // Aggregate the group's values
+            Map<String, Object> aggregatedMetrics = metricDefinitions
+                    .parallelStream()
+                    .collect(Collectors.toMap(
+                            MetricDefinitions::getMetricName,
+                            definition -> definition.process(group.stream())
+                    ));
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("timeframe", currentTimeframe);
+            result.putAll(aggregatedMetrics);
+            results.add(result);
+        }
+        return results;
     }
 }
