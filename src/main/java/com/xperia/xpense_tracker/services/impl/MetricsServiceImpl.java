@@ -34,19 +34,22 @@ public class MetricsServiceImpl implements MetricsService {
 
     /**
      * Very important function for processing metrics. NEED TO TEST COMPLETELY
-     * @param timeFrame the timeframe in which metrics needs to be fetched
+     * @param aggregationTimeframe the timeframe in which metrics needs to be fetched
      * @param metricToBeFetched the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
      * @param userDetails the user for which the details should be fetched
      * @return returns the list of metrics aggregated by timeframe
      */
     @Override
-    public List<Object> fetchMetricsV2(MetricTimeFrame timeFrame, String[] metricToBeFetched, UserDetails userDetails) {
+    public List<Object> fetchMetricsV2(MetricTimeFrame aggregationTimeframe, String[] metricToBeFetched, UserDetails userDetails) {
         TrackerUser user = (TrackerUser) userDetails;
         //converting the metrics received in request to the corresponding MetricDefinitions
-        List<MetricDefinitions> metricDefinitions = Arrays.stream(metricToBeFetched).map(MetricDefinitions::findByMetricName).toList();
+        List<MetricDefinitions> metricDefinitions = Arrays.stream(metricToBeFetched)
+                .map(MetricDefinitions::findByMetricName)
+                .toList();
         List<Object> results = new ArrayList<>();
         List<Expenses> expenses = expensesRepository.getExpensesByUser(user);
-        Map<String, List<Expenses>> groupedByTimeframe = timeFrame.groupBy(expenses.stream(), Expenses::getTransactionDate);
+        Map<String, List<Expenses>> groupedByTimeframe = aggregationTimeframe
+                .groupBy(expenses.stream(), Expenses::getTransactionDate);
         for (Map.Entry<String, List<Expenses>> entry : groupedByTimeframe.entrySet()) {
             String currentTimeframe = entry.getKey();
             List<Expenses> group = entry.getValue();

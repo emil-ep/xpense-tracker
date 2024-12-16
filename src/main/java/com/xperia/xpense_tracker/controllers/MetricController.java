@@ -3,8 +3,11 @@ package com.xperia.xpense_tracker.controllers;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
+import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.MetricsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +22,8 @@ public class MetricController {
 
     @Autowired
     private MetricsService metricsService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricController.class);
 
     @PostMapping
     public ResponseEntity<AbstractResponse> fetchMetrics(@RequestParam("timeframe") String timeframe,
@@ -49,7 +54,8 @@ public class MetricController {
             List<Object> response = metricsService.fetchMetricsV2(metricTimeFrame, metrics, userDetails);
             return ResponseEntity.ok(new SuccessResponse(response));
         }catch (Exception ex){
-            return null;
+            LOGGER.debug("Exception while processing metrics - timeframe : {} , metrics : {} - ex: {}", timeframe, metrics, ex.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing metrics"));
         }
     }
 }
