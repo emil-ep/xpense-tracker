@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.controllers;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
+import com.xperia.xpense_tracker.models.request.TimeframeRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
@@ -14,6 +15,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 @RestController
@@ -42,20 +46,44 @@ public class MetricController {
         }
     }
 
-    @GetMapping("/v2")
-    public ResponseEntity<AbstractResponse> fetchMetricsV2(@RequestParam("timeframe") String timeframe,
+    @PostMapping("/v2")
+    public ResponseEntity<AbstractResponse> fetchMetricsV2(@RequestParam("aggregationMode") String timeframe,
                                                            @RequestParam("metrics") String[] metrics,
+                                                           @RequestBody TimeframeRequest request,
                                                            @AuthenticationPrincipal UserDetails userDetails){
         try{
             if (MetricTimeFrame.findByTimeframe(timeframe) == null){
                 throw new TrackerBadRequestException("Invalid parameter for timeframe");
             }
+            validateTimeframeRequest(request);
             MetricTimeFrame metricTimeFrame = MetricTimeFrame.findByTimeframe(timeframe);
             List<Object> response = metricsService.fetchMetricsV2(metricTimeFrame, metrics, userDetails);
             return ResponseEntity.ok(new SuccessResponse(response));
-        }catch (Exception ex){
+        } catch (TrackerBadRequestException ex){
+            LOGGER.error("Error processing metrics : {}", ex.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+        } catch (Exception ex){
             LOGGER.debug("Exception while processing metrics - timeframe : {} , metrics : {} - ex: {}", timeframe, metrics, ex.getMessage());
-            return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing metrics"));
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error while processing metrics"));
+        }
+    }
+
+
+    private void validateTimeframeRequest(TimeframeRequest request) throws TrackerBadRequestException{
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
+        LocalDate fromDate;
+        LocalDate toDate;
+        try{
+            fromDate = LocalDate.parse(request.getFromDate(), formatter);
+            toDate = LocalDate.parse(request.getToDate(), formatter);
+        }catch (Exception ex){
+            LOGGER.error("Error while parsing fromDate or toDate : {}", ex.getMessage());
+            throw new TrackerBadRequestException("Error parsing fromDate or toDate - should be in the format dd/MM/yy");
+        }
+
+        if (fromDate.isAfter(toDate)){
+            throw new TrackerBadRequestException("fromDate is after toDate");
         }
     }
 }
