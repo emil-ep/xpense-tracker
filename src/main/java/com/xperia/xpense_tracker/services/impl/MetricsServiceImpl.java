@@ -4,6 +4,7 @@ import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.metrics.MetricDefinitions;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.request.TimeframeServiceRequest;
 import com.xperia.xpense_tracker.models.response.AggregatedExpenseResponse;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.MetricsService;
@@ -34,20 +35,28 @@ public class MetricsServiceImpl implements MetricsService {
 
     /**
      * Very important function for processing metrics. NEED TO TEST COMPLETELY
+     *
      * @param aggregationTimeframe the timeframe in which metrics needs to be fetched
-     * @param metricToBeFetched the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
-     * @param userDetails the user for which the details should be fetched
+     * @param metricToBeFetched    the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
+     * @param userDetails          the user for which the details should be fetched
+     * @param timeInterval         the time interval in which metrics should be calculated
      * @return returns the list of metrics aggregated by timeframe
      */
     @Override
-    public List<Object> fetchMetricsV2(MetricTimeFrame aggregationTimeframe, String[] metricToBeFetched, UserDetails userDetails) {
+    public List<Object> fetchMetricsV2(MetricTimeFrame aggregationTimeframe, String[] metricToBeFetched,
+                                       UserDetails userDetails, TimeframeServiceRequest timeInterval) {
         TrackerUser user = (TrackerUser) userDetails;
         //converting the metrics received in request to the corresponding MetricDefinitions
         List<MetricDefinitions> metricDefinitions = Arrays.stream(metricToBeFetched)
                 .map(MetricDefinitions::findByMetricName)
                 .toList();
         List<Object> results = new ArrayList<>();
-        List<Expenses> expenses = expensesRepository.getExpensesByUser(user);
+        List<Expenses> expenses = expensesRepository
+                .findExpensesByUserAndTransactionDateBetween(
+                        user,
+                        timeInterval.getFromDate(),
+                        timeInterval.getToDate()
+                );
         Map<String, List<Expenses>> groupedByTimeframe = aggregationTimeframe
                 .groupBy(expenses.stream(), Expenses::getTransactionDate);
         for (Map.Entry<String, List<Expenses>> entry : groupedByTimeframe.entrySet()) {

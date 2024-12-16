@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.controllers;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
 import com.xperia.xpense_tracker.models.request.TimeframeRequest;
+import com.xperia.xpense_tracker.models.request.TimeframeServiceRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 @RestController
@@ -55,9 +55,9 @@ public class MetricController {
             if (MetricTimeFrame.findByTimeframe(timeframe) == null){
                 throw new TrackerBadRequestException("Invalid parameter for timeframe");
             }
-            validateTimeframeRequest(request);
+            TimeframeServiceRequest timeInterval = validateTimeframeRequest(request);
             MetricTimeFrame metricTimeFrame = MetricTimeFrame.findByTimeframe(timeframe);
-            List<Object> response = metricsService.fetchMetricsV2(metricTimeFrame, metrics, userDetails);
+            List<Object> response = metricsService.fetchMetricsV2(metricTimeFrame, metrics, userDetails, timeInterval);
             return ResponseEntity.ok(new SuccessResponse(response));
         } catch (TrackerBadRequestException ex){
             LOGGER.error("Error processing metrics : {}", ex.getMessage());
@@ -69,7 +69,7 @@ public class MetricController {
     }
 
 
-    private void validateTimeframeRequest(TimeframeRequest request) throws TrackerBadRequestException{
+    private TimeframeServiceRequest validateTimeframeRequest(TimeframeRequest request) throws TrackerBadRequestException{
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
         LocalDate fromDate;
@@ -85,5 +85,7 @@ public class MetricController {
         if (fromDate.isAfter(toDate)){
             throw new TrackerBadRequestException("fromDate is after toDate");
         }
+
+        return new TimeframeServiceRequest(fromDate, toDate);
     }
 }

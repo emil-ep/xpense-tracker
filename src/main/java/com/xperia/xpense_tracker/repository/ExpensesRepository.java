@@ -16,6 +16,12 @@ import java.util.Set;
 
 public interface ExpensesRepository extends JpaRepository<Expenses, String> {
 
+    @Query("SELECT e FROM expenses e WHERE e.user = :user AND e.transactionDate BETWEEN :fromDate AND :toDate")
+    List<Expenses> findExpensesByUserAndTransactionDateBetween(
+            @Param("user") TrackerUser user,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate);
+
     List<Expenses> getExpensesByUser(TrackerUser user);
 
     Optional<Expenses> findExpensesById(String expenseId);
