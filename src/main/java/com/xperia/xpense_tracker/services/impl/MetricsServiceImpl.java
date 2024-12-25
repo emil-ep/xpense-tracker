@@ -57,8 +57,8 @@ public class MetricsServiceImpl implements MetricsService {
                         timeInterval.getFromDate(),
                         timeInterval.getToDate()
                 );
-        Map<String, List<Expenses>> groupedByTimeframe = aggregationTimeframe
-                .groupBy(expenses.stream(), Expenses::getTransactionDate);
+        Map<String, List<Expenses>> groupedByTimeframe = new TreeMap<>(aggregationTimeframe
+                .groupBy(expenses.stream(), Expenses::getTransactionDate));
         for (Map.Entry<String, List<Expenses>> entry : groupedByTimeframe.entrySet()) {
             String currentTimeframe = entry.getKey();
             List<Expenses> group = entry.getValue();

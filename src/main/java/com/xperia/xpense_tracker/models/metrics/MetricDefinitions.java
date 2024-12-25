@@ -3,7 +3,9 @@ package com.xperia.xpense_tracker.models.metrics;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import lombok.Getter;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -26,7 +28,21 @@ public enum MetricDefinitions {
             stream -> stream
                     .filter(Objects::nonNull)
                     .mapToDouble(value -> ((Expenses) value).getDebit())
-                    .sum());
+                    .sum()),
+    AGG_BY_TAG(
+            "tags_aggregate",
+            "GROUP_BY_TAG",
+            stream -> stream
+                    .filter(Expenses.class::isInstance) // Ensure the stream contains only Expenses
+                    .map(Expenses.class::cast)          // Safely cast each element to Expenses
+                    .flatMap(expense -> expense.getTags().stream()
+                            .map(tag -> Map.entry(tag.getName(), expense))) // Use Map.entry
+                    .collect(Collectors.groupingBy(
+                            Map.Entry::getKey,
+                            Collectors.summingDouble(entry ->
+                                    entry.getValue().getCredit() + entry.getValue().getDebit())
+                    ))
+    );
 
     // ADD MORE METRIC DEFINITIONS HERE
 
