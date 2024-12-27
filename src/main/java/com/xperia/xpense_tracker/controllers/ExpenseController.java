@@ -4,6 +4,7 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestExce
 import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.*;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/expenses")
@@ -162,6 +165,24 @@ public class ExpenseController {
         }catch (Exception ex){
             LOGGER.error("Unable to fetch expenses based on aggregation : {}", ex.getMessage());
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching aggregated expenses"));
+        }
+    }
+
+    @PostMapping("/sync")
+    public ResponseEntity<AbstractResponse> syncExpenses(@AuthenticationPrincipal UserDetails userDetails){
+        try{
+            String requestId = UUID.randomUUID().toString();
+            expenseService.syncExpenses(userDetails, requestId);
+            TrackerUser user = (TrackerUser) userDetails;
+            LOGGER.info("Sync operation initiated for user : {} - requestId : {}", user.getId(), requestId);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new SuccessResponse(
+                            "Sync operation initiated for user - requestId : " + requestId)
+                    );
+        }catch (Exception ex){
+            LOGGER.error("unable to sync expenses : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error syncing expenses"));
         }
     }
  }

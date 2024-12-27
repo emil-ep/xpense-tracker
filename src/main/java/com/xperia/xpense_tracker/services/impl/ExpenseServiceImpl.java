@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -168,6 +169,35 @@ public class ExpenseServiceImpl implements ExpenseService {
                         ((Number) tuple.get(3)).doubleValue()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * The sync method helps in re-syncing the entire expenses of user with the new tags
+     *
+     * @param userDetails The user who is triggering the sync functionality
+     * @param requestId the requestId generated for tracking purposes
+     */
+    @Async
+    @Override
+    public void syncExpenses(UserDetails userDetails, String requestId) {
+        TrackerUser user = (TrackerUser) userDetails;
+        try{
+            List<Expenses> userExpenses = expensesRepository.getExpensesByUser(user);
+            List<Tag> userTags = tagService.findAllTagsForUser(user);
+            List<Expenses> updatesExpenses = userExpenses.stream()
+                    .map(expenses -> {
+                        Set<Tag> matchedTags = findMatchingTags(userTags, expenses.getDescription());
+                        return new Expenses.ExpenseBuilder(expenses)
+                                .withTags(matchedTags)
+                                .build(expenses.getId());
+                    })
+                    .toList();
+            expensesRepository.saveAll(updatesExpenses);
+        }catch (Exception ex){
+            LOGGER.error("Failure while syncing expenses for user - requestId : {} : ex : {} ", requestId, ex.getMessage());
+        }finally {
+            LOGGER.info("completed sync request: {}", requestId);
+        }
     }
 
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {

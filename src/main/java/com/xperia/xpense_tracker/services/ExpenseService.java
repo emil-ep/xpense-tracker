@@ -28,4 +28,6 @@ public interface ExpenseService {
 
     List<MonthlyDebitSummary> aggregateExpenses(String by, UserDetails userDetails);
 
+    void syncExpenses(UserDetails userDetails, String requestId);
+
 }
