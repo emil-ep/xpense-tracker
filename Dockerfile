@@ -1,21 +1,21 @@
-# Use the official Eclipse Temurin image for Java 21
-FROM eclipse-temurin:21-jre as base
-
-# Set the working directory inside the container
+# Use a Maven image to build the application
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
+# Copy pom.xml and dependencies first for caching
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+# Copy the source code and build
+COPY src ./src
+RUN mvn clean install -DskipTests
 
-# Copy the Spring Boot JAR file into the container
-# Assuming the JAR file is built in the `target` directory with the name `app.jar`
-COPY target/xpense-tracker-0.0.1-SNAPSHOT.jar app.jar
-
-# Expose the default Spring Boot port
+# Use a smaller image to run the application
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+# Copy the built JAR from the builder stage
+COPY --from=builder /app/target/*.jar /app.jar
 EXPOSE 8080
-
-# Define environment variables for PostgreSQL configuration
-# These can be overridden during deployment
 ENV SPRING_DATASOURCE_URL=jdbc:postgresql://dpg-ctn3u6a3esus739turn0-a.singapore-postgres.render.com:5432/xpense_tracker
 ENV SPRING_DATASOURCE_USERNAME=xpense_tracker_user
 ENV SPRING_DATASOURCE_PASSWORD=sNc0EtRaXVGBykLwtjxMtAitaU4wz6BY
+ENTRYPOINT ["java", "-jar", "/app.jar"]
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
