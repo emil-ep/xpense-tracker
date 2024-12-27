@@ -8,6 +8,12 @@ spring:
     password: xpenseTracker1234
     driver-class-name: org.postgresql.Driver
 
+#  datasource:
+#    url: jdbc:postgresql://dpg-ctn3u6a3esus739turn0-a.singapore-postgres.render.com:5432/xpense_tracker
+#    username: xpense_tracker_user
+#    password: sNc0EtRaXVGBykLwtjxMtAitaU4wz6BY
+#    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
