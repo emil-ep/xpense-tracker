@@ -39,6 +39,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
+    private static final DateTimeFormatter formatter_1 = DateTimeFormatter.ofPattern("dd MMM yyyy");
+    private static final DateTimeFormatter formatter_2 = DateTimeFormatter.ofPattern("d MMM yyyy");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseServiceImpl.class);
 
@@ -69,7 +71,8 @@ public class ExpenseServiceImpl implements ExpenseService {
             LOGGER.error("unable to parse the file : {}", ex.getMessage());
             throw ex;
         }
-        validatePreviewInputs(parsedFile, request);
+        DateTimeFormatter compatibleDateFormatter = findCompatibleDateFormatter(parsedFile, request.getTransactionDate());
+        validatePreviewInputs(parsedFile, request, compatibleDateFormatter);
         TrackerUser user = (TrackerUser) userDetails;
         List<Tag> userTags = tagService.findAllTagsForUser(user);
         List<Expenses> expensesList = parsedFile.stream()
@@ -78,7 +81,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                     String transactionDescription = row.get(request.getDescription());
                     Set<Tag> matchedTags = findMatchingTags(userTags, transactionDescription);
                     return new Expenses.ExpenseBuilder(user)
-                            .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter))
+                            .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), compatibleDateFormatter))
                             .withDescription(transactionDescription)
                             .withBankReferenceNo(row.get(request.getBankReferenceNo()))
                             .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
@@ -204,30 +207,57 @@ public class ExpenseServiceImpl implements ExpenseService {
         return date.toString() + "_" + bankReferenceNo + "_" + userId;
     }
 
-    private void validatePreviewInputs(List<HashMap<Integer, String>> parsedFile, StatementPreviewRequest request) {
+    private DateTimeFormatter findCompatibleDateFormatter(List<HashMap<Integer, String>> parsedFile, Integer dateIndex){
         HashMap<Integer, String> row = parsedFile.getFirst();
+        try {
+            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter);
+            return formatter;
+        } catch (DateTimeParseException ex) {
+            LOGGER.error("Unable to parse transactionDate in the format dd/MM/yy");
+        }
+        try{
+            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_1);
+            return formatter_1;
+        }catch (DateTimeParseException ex){
+            LOGGER.error("Unable to parse transactionDate in the format dd MMM yyyy");
+        }
+
+        try{
+            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_2);
+            return formatter_2;
+        }catch (DateTimeParseException ex){
+            throw new TrackerBadRequestException("Unable to parse transaction date");
+        }
+    }
+
+    private void validatePreviewInputs(List<HashMap<Integer, String>> parsedFile, StatementPreviewRequest request, DateTimeFormatter formatter) {
+        HashMap<Integer, String> row = parsedFile.getFirst();
+
         try {
             LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter);
         } catch (DateTimeParseException ex) {
-            throw new TrackerBadRequestException("transactionDate cannot be parsed");
+            throw new TrackerBadRequestException("unable to parse transactionDate");
         }
         try {
             if (row.get(request.getDebit()) != null) {
-                Double.parseDouble(row.get(request.getDebit()));
+                if (row.get(request.getDebit()) != null && !row.get(request.getDebit()).trim().isEmpty())
+                    Double.parseDouble(row.get(request.getDebit()));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("Debit cannot be parsed");
         }
         try {
             if (row.get(request.getCredit()) != null) {
-                Double.parseDouble(row.get(request.getCredit()));
+                if (row.get(request.getCredit()) != null && !row.get(request.getCredit()).trim().isEmpty())
+                    Double.parseDouble(row.get(request.getCredit()));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("Credit cannot be parsed");
         }
         try {
             if (row.get(request.getClosingBalance()) != null) {
-                Double.parseDouble(row.get(request.getClosingBalance()));
+                if (row.get(request.getClosingBalance()) != null && !row.get(request.getClosingBalance()).trim().isEmpty())
+                    Double.parseDouble(row.get(request.getClosingBalance()));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("ClosingBalance cannot be parsed");
