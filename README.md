@@ -17,6 +17,10 @@ Application is a monolith
 
 ### **How to run locally**
 
+### Branch
+`main` branch contains the completed features   
+`develop` branch contains the development code - This should not be changed. All other branches should be merged to `develop` and ultimately to `main`
+
 The Xpense-Tracker backend requires a Postgresql database to run with it. 
 A docker-compose file is already available in the repository for running the postgresql database for you. To execute this,
 you need to have docker-compose installed on your system.
