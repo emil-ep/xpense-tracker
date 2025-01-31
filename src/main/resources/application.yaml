@@ -31,4 +31,10 @@ logging:
     root: INFO
     com.xperia.xpense_tracker: DEBUG
     org.springframework.web: ERROR
+#
+#flyway:
+#  url: jdbc:postgresql://localhost:5432/xpense_tracker
+#  user: xpense_admin
+#  password: xpenseTracker1234
+
 
