@@ -42,3 +42,9 @@ If you are deploying to new environment, follow the instructions
 
 1. Go to Dockerfile
 2. Update the Environment variables (Spring datasource) with the new details
+
+### Flyway
+We are using Flyway for database migration. If running for the first time, you may encounter an issue where flyway is not able to locate the schema_history_table
+For this, you may need to run flyway baseline operation. For this:
+1. Install flyway on your machine using the command `brew install flyway`
+2. Execute the command `flyway -url=jdbc:postgresql://localhost:5432/xpense_tracker -user=xpense_admin -password=xpenseTracker1234 baseline`
