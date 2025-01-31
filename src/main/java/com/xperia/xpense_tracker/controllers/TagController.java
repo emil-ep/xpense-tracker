@@ -4,6 +4,7 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
+import com.xperia.xpense_tracker.models.request.TagsEditRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
@@ -69,6 +70,39 @@ public class TagController {
         }catch (Exception ex){
             LOG.error("Internal server error while editing tag : {}", ex.getMessage());
             return ResponseEntity.internalServerError().body(new ErrorResponse("Internal server error : Error editing tag"));
+        }
+    }
+
+    @PatchMapping("/multiple")
+    public ResponseEntity<AbstractResponse> editTags(@AuthenticationPrincipal UserDetails userDetails,
+                                                     @RequestBody TagsEditRequest tagRequests){
+
+        try{
+            TrackerUser user = (TrackerUser) userDetails;
+            List<Tag> savedTags = tagService.editTags(tagRequests, user);
+            return ResponseEntity.ok(new SuccessResponse(savedTags));
+        }catch (TrackerException ex){
+            LOG.error("Error while editing tags : {}", ex.getMessage());
+            throw ex;
+        }catch (Exception ex){
+            LOG.error("Internal server error while editing tags : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Internal server error : Error editing tags"));
+        }
+    }
+
+    @DeleteMapping("/{tagId}")
+    public ResponseEntity<AbstractResponse> deleteTags(@AuthenticationPrincipal UserDetails userDetails,
+                                                       @PathVariable("tagId") String tagId){
+        try{
+            TrackerUser user = (TrackerUser) userDetails;
+            tagService.deleteTag(tagId, user);
+            return ResponseEntity.ok(new SuccessResponse("Tag removed successfully"));
+        }catch (TrackerException ex){
+            LOG.error("Error while deleting tags : {}", ex.getMessage());
+            throw ex;
+        }catch (Exception ex){
+            LOG.error("Internal server error while deleting tags : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Internal server error : Error deleting tags"));
         }
     }
 }

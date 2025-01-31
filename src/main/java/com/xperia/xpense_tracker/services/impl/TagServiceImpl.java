@@ -6,6 +6,7 @@ import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TagType;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
+import com.xperia.xpense_tracker.models.request.TagsEditRequest;
 import com.xperia.xpense_tracker.repository.TagRepository;
 import com.xperia.xpense_tracker.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -40,6 +42,10 @@ public class TagServiceImpl implements TagService {
                 throw new TrackerBadRequestException("Parent tagId is not valid");
             }
             parentTag = tagRepository.findTagById(tagRequest.getParentTagId()).get();
+        }
+        Optional<Tag> existingTag = tagRepository.findByNameAndUser(tagRequest.getName(), user);
+        if (existingTag.isPresent()){
+            throw new TrackerBadRequestException("Tag with same name exists");
         }
         if(tagRequest.getKeywords() == null || tagRequest.getKeywords().length == 0){
             throw new TrackerBadRequestException("Keywords cannot be empty");
@@ -83,5 +89,36 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<Tag> findTagsByTagIds(Set<String> tagIds) {
         return tagRepository.findAllById(tagIds);
+    }
+
+    @Override
+    public List<Tag> editTags(TagsEditRequest tagsRequest, TrackerUser user) {
+
+        List<Tag> existingTags = tagRepository.findAllByUser(user);
+        List<Tag> modifiedTags = new ArrayList<>();
+        tagsRequest.getTags().forEach(tagRequest -> {
+            Tag tagToBeUpdated = existingTags
+                    .stream()
+                    .filter(tag -> tagRequest.getId().equals(tag.getId()))
+                    .findFirst()
+                    .orElseThrow(
+                            () -> new TrackerBadRequestException("Tag id " + tagRequest.getId() + " not valid")
+                    );
+            tagToBeUpdated.setName(tagRequest.getName());
+            tagToBeUpdated.setKeywords(tagRequest.getKeywords().split(","));
+            tagToBeUpdated.setCanBeConsideredExpense(tagRequest.isCanBeCountedAsExpense());
+            modifiedTags.add(tagToBeUpdated);
+        });
+        return tagRepository.saveAll(modifiedTags);
+    }
+
+    @Override
+    public void deleteTag(String tagId, TrackerUser user) {
+        List<Tag> tagsByUser = tagRepository.findAllByUser(user);
+        if(tagsByUser.stream().noneMatch(tag -> tagId.equals(tag.getId()))){
+            throw new TrackerBadRequestException("Tag Id is not valid");
+        }
+
+        tagRepository.deleteById(tagId);
     }
 }
