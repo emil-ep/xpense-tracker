@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, String> {
 
-    Tag findByName(String name);
+    Optional<Tag> findByNameAndUser(String name, TrackerUser user);
 
     List<Tag> findAllByUser(TrackerUser user);
 

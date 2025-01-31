@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.services;
 import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
+import com.xperia.xpense_tracker.models.request.TagsEditRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -16,4 +17,8 @@ public interface TagService {
     Tag editTag(TagRequest tagRequest, TrackerUser user);
 
     List<Tag> findTagsByTagIds(Set<String> tagIds);
+
+    List<Tag> editTags(TagsEditRequest tagsRequest, TrackerUser user);
+
+    void deleteTag(String tagId, TrackerUser user);
 }

@@ -8,6 +8,9 @@ public class FileProcessorFactory {
             case "xlsx" -> {
                 return new ExcelProcessor();
             }
+            case "DELIMITED" -> {
+                return new DelimitedProcessor();
+            }
 
             default -> {
                 return null;
