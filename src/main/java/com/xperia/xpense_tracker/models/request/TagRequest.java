@@ -19,6 +19,8 @@ public class TagRequest {
 
     private String[] keywords;
 
+    private String tagCategoryId;
+
     private boolean canBeCountedAsExpense;
 
 }

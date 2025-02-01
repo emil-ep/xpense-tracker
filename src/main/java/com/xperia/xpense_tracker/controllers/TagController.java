@@ -105,4 +105,17 @@ public class TagController {
             return ResponseEntity.internalServerError().body(new ErrorResponse("Internal server error : Error deleting tags"));
         }
     }
+
+    @GetMapping("/categories")
+    public ResponseEntity<AbstractResponse> fetchTagCategories(){
+        try{
+            return ResponseEntity.ok(new SuccessResponse(tagService.fetchTagCategories()));
+        }catch (TrackerException ex){
+            LOG.error("Error while fetching tag categories tag categories : {}", ex.getMessage());
+            throw ex;
+        }catch (Exception ex){
+            LOG.error("Internal server error while fetching tag categories : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Internal server error: Error fetching tag categories"));
+        }
+    }
 }

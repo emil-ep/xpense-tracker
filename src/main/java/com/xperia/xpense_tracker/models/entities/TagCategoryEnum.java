@@ -17,7 +17,8 @@ public enum TagCategoryEnum {
     OTHER_EXPENSE("Other Expenses", true),
     OTHER_SAVINGS("Other Savings", false),
     LIFE_INSURANCE("Insurance", true),
-    HEALTH_INSURANCE("Health Insurance", true);
+    HEALTH_INSURANCE("Health Insurance", true),
+    SALARY("Salary", false);
 
     private final String name;
 

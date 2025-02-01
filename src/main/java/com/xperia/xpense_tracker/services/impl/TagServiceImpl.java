@@ -3,10 +3,12 @@ package com.xperia.xpense_tracker.services.impl;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.Tag;
+import com.xperia.xpense_tracker.models.entities.TagCategory;
 import com.xperia.xpense_tracker.models.entities.TagType;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
 import com.xperia.xpense_tracker.models.request.TagsEditRequest;
+import com.xperia.xpense_tracker.repository.TagCategoryRepository;
 import com.xperia.xpense_tracker.repository.TagRepository;
 import com.xperia.xpense_tracker.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class TagServiceImpl implements TagService {
     @Autowired
     private TagRepository tagRepository;
 
+    @Autowired
+    private TagCategoryRepository tagCategoryRepository;
+
 
     @Override
     public List<Tag> findAllTagsForUser(TrackerUser user) {
@@ -37,6 +42,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public Tag addNewTag(TagRequest tagRequest, TrackerUser user) throws TrackerException{
         Tag parentTag = null;
+        Optional<TagCategory> tagCategory = Optional.empty();
         if(tagRequest.getParentTagId() != null){
             if(tagRepository.findTagById(tagRequest.getParentTagId()).isEmpty()){
                 throw new TrackerBadRequestException("Parent tagId is not valid");
@@ -50,16 +56,25 @@ public class TagServiceImpl implements TagService {
         if(tagRequest.getKeywords() == null || tagRequest.getKeywords().length == 0){
             throw new TrackerBadRequestException("Keywords cannot be empty");
         }
+        if (tagRequest.getTagCategoryId() == null || tagRequest.getTagCategoryId().isEmpty()){
+            throw new TrackerBadRequestException("Tag category is not valid");
+        }
         if (tagRequest.getName() == null || tagRequest.getName().isEmpty()){
             throw new TrackerBadRequestException("Name cannot be empty");
         }
+        tagCategory = tagCategoryRepository.findById(tagRequest.getTagCategoryId());
+        if (tagCategory.isEmpty()){
+            throw new TrackerBadRequestException("Tag category id is not valid");
+        }
+
         Tag tag = new Tag(
                 tagRequest.getName(),
                 parentTag,
                 TagType.CUSTOM,
                 user,
                 tagRequest.getKeywords(),
-                tagRequest.isCanBeCountedAsExpense()
+                tagRequest.isCanBeCountedAsExpense(),
+                tagCategory.get()
         );
         return tagRepository.save(tag);
     }
@@ -120,5 +135,11 @@ public class TagServiceImpl implements TagService {
         }
 
         tagRepository.deleteById(tagId);
+    }
+
+    @Override
+    public List<TagCategory> fetchTagCategories() {
+        List<TagCategory> categories = tagCategoryRepository.findAll();
+        return categories;
     }
 }
