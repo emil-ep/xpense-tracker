@@ -119,9 +119,12 @@ public class TagServiceImpl implements TagService {
                     .orElseThrow(
                             () -> new TrackerBadRequestException("Tag id " + tagRequest.getId() + " not valid")
                     );
+            TagCategory category = tagCategoryRepository.findById(tagRequest.getCategory().getId())
+                    .orElseThrow(() -> new TrackerBadRequestException("Tag category id provided for tag " + tagRequest.getName() + "is not correct"));
             tagToBeUpdated.setName(tagRequest.getName());
             tagToBeUpdated.setKeywords(tagRequest.getKeywords().split(","));
             tagToBeUpdated.setCanBeConsideredExpense(tagRequest.isCanBeCountedAsExpense());
+            tagToBeUpdated.setCategory(category);
             modifiedTags.add(tagToBeUpdated);
         });
         return tagRepository.saveAll(modifiedTags);

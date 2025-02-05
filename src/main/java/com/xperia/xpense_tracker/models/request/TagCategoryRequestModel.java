@@ -9,17 +9,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TagItemEditRequest {
+public class TagCategoryRequestModel {
 
     private String id;
 
     private String name;
 
-    private String parentTagId;
-
-    private String keywords;
-
-    private boolean canBeCountedAsExpense;
-
-    private TagCategoryRequestModel category;
+    private boolean expense;
 }
