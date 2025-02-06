@@ -48,11 +48,8 @@ If you are deploying to new environment, follow the instructions
 2. Update the Environment variables (Spring datasource) with the new details
 
 ### Flyway
-We are using Flyway for the database migration. Flyway dependency is added in the pom.xml and also the plugin is configured for running this using maven
+We are using Flyway for the database migration. You can install flyway CLI using `brew install flyway`
 If there is a need to update the database schema, then add a new migration file `V{version_number}__{description}.sql` and then execute 
-`mvn flyway:migrate`
+go to the directory `db-migrations` and execute `flyway repair migrate -configFiles=./dev/dev.conf -locations=filesystem:./`
 
-In a server, follow the below process
-1. Install flyway on your machine using the command `brew install flyway`
-2. Access the conf file `flyway.toml` and update the datasource url, username and password. Also provide the filepath
-2. Execute the command `flyway -url=jdbc:postgresql://localhost:5432/xpense_tracker -user=xpense_admin -password=xpenseTracker1234 baseline`
+

@@ -87,10 +87,6 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.3.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
-		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -118,16 +114,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.flywaydb</groupId>
-				<artifactId>flyway-maven-plugin</artifactId>
-				<version>6.5.7</version>
-				<configuration>
-					<url>jdbc:postgresql://localhost:5432/xpense_tracker</url>
-					<user>xpense_admin</user>
-					<password>xpenseTracker1234</password>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
