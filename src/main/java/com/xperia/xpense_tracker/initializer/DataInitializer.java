@@ -1,8 +1,11 @@
 package com.xperia.xpense_tracker.initializer;
 
+import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TagCategory;
 import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
+import com.xperia.xpense_tracker.models.entities.TagType;
 import com.xperia.xpense_tracker.repository.TagCategoryRepository;
+import com.xperia.xpense_tracker.repository.TagRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private TagCategoryRepository tagCategoryRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 

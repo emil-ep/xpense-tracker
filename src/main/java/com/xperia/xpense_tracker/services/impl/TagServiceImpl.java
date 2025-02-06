@@ -31,12 +31,8 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> findAllTagsForUser(TrackerUser user) {
-        List<Tag> systemTags = tagRepository.findByTagType(TagType.SYSTEM);
         List<Tag> userTags = tagRepository.findAllByUser(user);
-        List<Tag> tags = new ArrayList<>();
-        tags.addAll(systemTags);
-        tags.addAll(userTags);
-        return tags;
+        return userTags;
     }
 
     @Override
@@ -70,7 +66,6 @@ public class TagServiceImpl implements TagService {
         Tag tag = new Tag(
                 tagRequest.getName(),
                 parentTag,
-                TagType.CUSTOM,
                 user,
                 tagRequest.getKeywords(),
                 tagRequest.isCanBeCountedAsExpense(),
