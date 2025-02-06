@@ -52,5 +52,7 @@ We are using Flyway for the database migration. Flyway dependency is added in th
 If there is a need to update the database schema, then add a new migration file `V{version_number}__{description}.sql` and then execute 
 `mvn flyway:migrate`
 
+In a server, follow the below process
 1. Install flyway on your machine using the command `brew install flyway`
+2. Access the conf file `flyway.toml` and update the datasource url, username and password. Also provide the filepath
 2. Execute the command `flyway -url=jdbc:postgresql://localhost:5432/xpense_tracker -user=xpense_admin -password=xpenseTracker1234 baseline`
