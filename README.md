@@ -48,7 +48,9 @@ If you are deploying to new environment, follow the instructions
 2. Update the Environment variables (Spring datasource) with the new details
 
 ### Flyway
-We are using Flyway for database migration. If running for the first time, you may encounter an issue where flyway is not able to locate the schema_history_table
-For this, you may need to run flyway baseline operation. For this:
+We are using Flyway for the database migration. Flyway dependency is added in the pom.xml and also the plugin is configured for running this using maven
+If there is a need to update the database schema, then add a new migration file `V{version_number}__{description}.sql` and then execute 
+`mvn flyway:migrate`
+
 1. Install flyway on your machine using the command `brew install flyway`
 2. Execute the command `flyway -url=jdbc:postgresql://localhost:5432/xpense_tracker -user=xpense_admin -password=xpenseTracker1234 baseline`

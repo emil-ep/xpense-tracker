@@ -90,7 +90,6 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>9.22.0</version>
 		</dependency>
 	</dependencies>
 
@@ -119,6 +118,16 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>6.5.7</version>
+				<configuration>
+					<url>jdbc:postgresql://localhost:5432/xpense_tracker</url>
+					<user>xpense_admin</user>
+					<password>xpenseTracker1234</password>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
