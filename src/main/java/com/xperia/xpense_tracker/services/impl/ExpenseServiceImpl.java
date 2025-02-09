@@ -84,8 +84,16 @@ public class ExpenseServiceImpl implements ExpenseService {
                             .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), compatibleDateFormatter))
                             .withDescription(transactionDescription)
                             .withBankReferenceNo(row.get(request.getBankReferenceNo()))
-                            .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
-                            .setCredit(row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0)
+                            .setDebit(
+                                    row.get(request.getDebit()) != null && !row.get(request.getDebit()).isEmpty()
+                                            ? Double.parseDouble(row.get(request.getDebit()))
+                                            : 0.0
+                            )
+                            .setCredit(
+                                    row.get(request.getCredit()) != null && !row.get(request.getCredit()).isEmpty()
+                                            ? Double.parseDouble(row.get(request.getCredit()))
+                                            : 0.0
+                            )
                             .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
                             .withTags(matchedTags)
                             .build();

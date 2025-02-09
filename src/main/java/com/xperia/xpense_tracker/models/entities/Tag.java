@@ -25,9 +25,6 @@ public class Tag {
 
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private TagType tagType;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
@@ -41,12 +38,17 @@ public class Tag {
 
     private boolean canBeConsideredExpense;
 
-    public Tag(String name, Tag parentTag, TagType tagType, TrackerUser user, String[] keywords, boolean canBeConsideredExpense){
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", nullable = false)
+    private TagCategory category;
+
+    public Tag(String name, Tag parentTag, TrackerUser user, String[] keywords,
+               boolean canBeConsideredExpense, TagCategory category){
         this.name = name;
-        this.tagType = tagType;
         this.user = user;
         this.keywords = keywords;
         this.canBeConsideredExpense = canBeConsideredExpense;
+        this.category = category;
     }
 
     public boolean isEditable(){

@@ -9,18 +9,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TagRequest {
+public class TagCategoryRequestModel {
 
     private String id;
 
     private String name;
 
-    private String parentTagId;
-
-    private String[] keywords;
-
-    private String tagCategoryId;
-
-    private boolean canBeCountedAsExpense;
-
+    private boolean expense;
 }

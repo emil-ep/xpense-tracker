@@ -20,4 +20,6 @@ public class TagItemEditRequest {
     private String keywords;
 
     private boolean canBeCountedAsExpense;
+
+    private TagCategoryRequestModel category;
 }

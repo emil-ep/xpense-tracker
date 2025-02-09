@@ -8,10 +8,12 @@ public class FileProcessorFactory {
             case "xlsx" -> {
                 return new ExcelProcessor();
             }
-            case "DELIMITED" -> {
+            case "delimited", "csv" -> {
                 return new DelimitedProcessor();
             }
-
+            case "pdf" -> {
+                return new PdfProcessor();
+            }
             default -> {
                 return null;
             }

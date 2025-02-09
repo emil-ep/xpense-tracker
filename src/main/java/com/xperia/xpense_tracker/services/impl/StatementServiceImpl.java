@@ -39,7 +39,7 @@ public class StatementServiceImpl implements StatementService {
 
     @Override
     public List<String> extractHeaderMapper(File file) {
-        String extension = file.getName().split("\\.")[1];
+        String extension = file.getName().split("\\.")[1].toLowerCase();
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
         if (fileProcessor == null){
             throw new TrackerBadRequestException("Unable to find relevant processor to parse the file");
