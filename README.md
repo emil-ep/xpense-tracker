@@ -17,6 +17,10 @@ Application is a monolith
 
 ### **How to run locally**
 
+### Branch
+`main` branch contains the completed features   
+`develop` branch contains the development code - This should not be changed. All other branches should be merged to `develop` and ultimately to `main`
+
 The Xpense-Tracker backend requires a Postgresql database to run with it. 
 A docker-compose file is already available in the repository for running the postgresql database for you. To execute this,
 you need to have docker-compose installed on your system.
@@ -42,3 +46,10 @@ If you are deploying to new environment, follow the instructions
 
 1. Go to Dockerfile
 2. Update the Environment variables (Spring datasource) with the new details
+
+### Flyway
+We are using Flyway for the database migration. You can install flyway CLI using `brew install flyway`
+If there is a need to update the database schema, then add a new migration file `V{version_number}__{description}.sql` and then execute 
+go to the directory `db-migrations` and execute `flyway repair migrate -configFiles=./dev/dev.conf -locations=filesystem:./`
+
+
