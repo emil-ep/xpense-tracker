@@ -1,9 +1,7 @@
 package com.xperia.xpense_tracker.initializer;
 
-import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TagCategory;
 import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
-import com.xperia.xpense_tracker.models.entities.TagType;
 import com.xperia.xpense_tracker.repository.TagCategoryRepository;
 import com.xperia.xpense_tracker.repository.TagRepository;
 import org.slf4j.Logger;
