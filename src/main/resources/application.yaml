@@ -2,20 +2,25 @@ spring:
   application:
     name: xpense-tracker
 
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/xpense_tracker
-#    username: xpense_admin
-#    password: xpenseTracker1234
-#    driver-class-name: org.postgresql.Driver
-
   datasource:
-    url: jdbc:postgresql://dpg-cujfbv0gph6c73bf9ddg-a.singapore-postgres.render.com/xpense_tracker_dpcw
+    url: jdbc:postgresql://localhost:5432/xpense_tracker
     username: xpense_admin
-    password: xaNxUDDQhdlnG3WTRXUvGsDqd5xmSnLi
+    password: xpenseTracker1234
     driver-class-name: org.postgresql.Driver
+
+#  datasource:
+#    url: jdbc:postgresql://dpg-cujfbv0gph6c73bf9ddg-a.singapore-postgres.render.com/xpense_tracker_dpcw
+#    username: xpense_admin
+#    password: xaNxUDDQhdlnG3WTRXUvGsDqd5xmSnLi
+#    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
 
 token:
   signing:

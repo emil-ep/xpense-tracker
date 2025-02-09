@@ -11,6 +11,9 @@ public class FileProcessorFactory {
             case "delimited", "csv" -> {
                 return new DelimitedProcessor();
             }
+            case "pdf" -> {
+                return new PdfProcessor();
+            }
             default -> {
                 return null;
             }
