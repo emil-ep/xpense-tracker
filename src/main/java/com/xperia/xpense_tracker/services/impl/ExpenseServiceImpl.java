@@ -41,6 +41,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
     private static final DateTimeFormatter formatter_1 = DateTimeFormatter.ofPattern("dd MMM yyyy");
     private static final DateTimeFormatter formatter_2 = DateTimeFormatter.ofPattern("d MMM yyyy");
+    private static final DateTimeFormatter formatter_3 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseServiceImpl.class);
 
@@ -86,15 +87,17 @@ public class ExpenseServiceImpl implements ExpenseService {
                             .withBankReferenceNo(row.get(request.getBankReferenceNo()))
                             .setDebit(
                                     row.get(request.getDebit()) != null && !row.get(request.getDebit()).isEmpty()
-                                            ? Double.parseDouble(row.get(request.getDebit()))
+                                            ? Double.parseDouble(cleanAmountValue(row.get(request.getDebit())))
                                             : 0.0
                             )
                             .setCredit(
                                     row.get(request.getCredit()) != null && !row.get(request.getCredit()).isEmpty()
-                                            ? Double.parseDouble(row.get(request.getCredit()))
+                                            ? Double.parseDouble(cleanAmountValue(row.get(request.getCredit())))
                                             : 0.0
                             )
-                            .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
+                            .setClosingBalance(row.get(request.getClosingBalance()) != null
+                                    ? Double.parseDouble(cleanAmountValue(row.get(request.getClosingBalance())))
+                                    : 0.0)
                             .withTags(matchedTags)
                             .build();
                         }
@@ -215,6 +218,10 @@ public class ExpenseServiceImpl implements ExpenseService {
         return date.toString() + "_" + bankReferenceNo + "_" + userId;
     }
 
+    private String cleanAmountValue(String value){
+        return value.replaceAll("[^0-9.]", "");
+    }
+
     private DateTimeFormatter findCompatibleDateFormatter(List<HashMap<Integer, String>> parsedFile, Integer dateIndex){
         HashMap<Integer, String> row = parsedFile.getFirst();
         try {
@@ -234,6 +241,13 @@ public class ExpenseServiceImpl implements ExpenseService {
             LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_2);
             return formatter_2;
         }catch (DateTimeParseException ex){
+            LOGGER.error("Unable to parse transactionDate in the format d MMM yyyy");
+        }
+
+        try{
+            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_3);
+            return formatter_3;
+        }catch (DateTimeParseException ex){
             throw new TrackerBadRequestException("Unable to parse transaction date");
         }
     }
@@ -249,7 +263,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         try {
             if (row.get(request.getDebit()) != null) {
                 if (row.get(request.getDebit()) != null && !row.get(request.getDebit()).trim().isEmpty())
-                    Double.parseDouble(row.get(request.getDebit()));
+                    Double.parseDouble(cleanAmountValue(row.get(request.getDebit())));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("Debit cannot be parsed");
@@ -257,7 +271,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         try {
             if (row.get(request.getCredit()) != null) {
                 if (row.get(request.getCredit()) != null && !row.get(request.getCredit()).trim().isEmpty())
-                    Double.parseDouble(row.get(request.getCredit()));
+                    Double.parseDouble(cleanAmountValue(row.get(request.getCredit())));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("Credit cannot be parsed");
@@ -265,7 +279,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         try {
             if (row.get(request.getClosingBalance()) != null) {
                 if (row.get(request.getClosingBalance()) != null && !row.get(request.getClosingBalance()).trim().isEmpty())
-                    Double.parseDouble(row.get(request.getClosingBalance()));
+                    Double.parseDouble(cleanAmountValue(row.get(request.getClosingBalance())));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("ClosingBalance cannot be parsed");
