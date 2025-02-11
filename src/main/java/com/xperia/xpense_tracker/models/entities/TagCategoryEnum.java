@@ -18,6 +18,12 @@ public enum TagCategoryEnum {
     OTHER_SAVINGS("Other Savings", false),
     LIFE_INSURANCE("Insurance", true),
     HEALTH_INSURANCE("Health Insurance", true),
+    ONLINE_FOOD_DELIVERY("Online Food delivery", true),
+    COMMUNICATION("Communication", true),
+    DINE_OUT("Dine-Out", true),
+    MEDICINE("Medicine", true),
+    TRAVEL("Travelling", true),
+    BEVERAGES("Bevarage", true),
     SALARY("Salary", false);
 
     private final String name;
