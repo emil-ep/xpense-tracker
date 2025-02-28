@@ -15,6 +15,19 @@ import java.util.stream.Stream;
 @Getter
 public enum MetricDefinitions {
 
+    TOTAL_EXPENSES_ENTRY(
+         "total_expenses_entry",
+            "SUM",
+            Stream::count
+    ),
+    TOTAL_UNTAGGED_EXPENSES_ENTRY(
+      "total_untagged_expenses_entry",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .filter(expense -> ((Expenses) expense).getTags() == null || ((Expenses) expense).getTags().isEmpty())
+              .count()
+    ),
     AGG_CREDIT(
             "credit_aggregate",
             "SUM",

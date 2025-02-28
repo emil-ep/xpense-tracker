@@ -71,6 +71,13 @@ public class MetricController {
 
     private TimeframeServiceRequest validateTimeframeRequest(TimeframeRequest request) throws TrackerBadRequestException{
 
+        if (request.getFromDate() == null){
+            if (request.getToDate() == null){
+                return new TimeframeServiceRequest(null, null);
+            }
+            throw new TrackerBadRequestException("Invalid request: fromDate and toDate is null");
+        }
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
         LocalDate fromDate;
         LocalDate toDate;
