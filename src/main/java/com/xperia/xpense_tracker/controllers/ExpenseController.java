@@ -4,12 +4,14 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestExce
 import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.SyncStatus;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.*;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
+import com.xperia.xpense_tracker.services.SyncStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -43,6 +46,9 @@ public class ExpenseController {
 
     @Autowired
     private StatementService statementService;
+
+    @Autowired
+    private SyncStatusService syncStatusService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
 
@@ -177,12 +183,31 @@ public class ExpenseController {
             LOGGER.info("Sync operation initiated for user : {} - requestId : {}", user.getId(), requestId);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(new SuccessResponse(
-                            "Sync operation initiated for user - requestId : " + requestId)
-                    );
+                    .body(
+                            new SuccessResponse(
+                                    new SyncExpenseResponse(
+                                            "Sync operation initiated for user - requestId : " + requestId,
+                                            requestId)
+                            ));
         }catch (Exception ex){
             LOGGER.error("unable to sync expenses : {}", ex.getMessage());
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error syncing expenses"));
+        }
+    }
+
+    @GetMapping("/sync/status/{requestId}")
+    public ResponseEntity<AbstractResponse> syncStatus(@AuthenticationPrincipal UserDetails userDetails,
+                                                       @PathVariable("requestId") String requestId){
+        try{
+            Optional<SyncStatus> status = syncStatusService.fetchStatus(requestId);
+            if (status.isPresent()){
+                return ResponseEntity.ok(new SuccessResponse(status));
+            }else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("Status for the requestId not found"));
+            }
+        }catch (Exception ex){
+            LOGGER.error("unable to fetch sync status : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching sync status"));
         }
     }
  }

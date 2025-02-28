@@ -1,9 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.Tag;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.*;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
@@ -11,6 +9,7 @@ import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
+import com.xperia.xpense_tracker.services.SyncStatusService;
 import com.xperia.xpense_tracker.services.TagService;
 import jakarta.persistence.Tuple;
 import org.apache.coyote.BadRequestException;
@@ -50,6 +49,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Autowired
     private TagService tagService;
+
+    @Autowired
+    private SyncStatusService syncStatusService;
 
     @Override
     public Page<Expenses> getExpenses(UserDetails userDetails, PageRequest pageRequest) {
@@ -196,6 +198,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     public void syncExpenses(UserDetails userDetails, String requestId) {
         TrackerUser user = (TrackerUser) userDetails;
         try{
+            SyncStatus inProgressStatus = new SyncStatus(requestId, SyncStatusEnum.IN_PROGRESS);
+            syncStatusService.saveStatus(inProgressStatus);
             List<Expenses> userExpenses = expensesRepository.getExpensesByUser(user);
             List<Tag> userTags = tagService.findAllTagsForUser(user);
             List<Expenses> updatesExpenses = userExpenses.stream()
@@ -207,9 +211,15 @@ public class ExpenseServiceImpl implements ExpenseService {
                     })
                     .toList();
             expensesRepository.saveAll(updatesExpenses);
+            SyncStatus completedStatus = new SyncStatus(requestId, SyncStatusEnum.COMPLETED);
+            syncStatusService.updateStatus(completedStatus);
         }catch (Exception ex){
+            SyncStatus failedStatus = new SyncStatus(requestId, SyncStatusEnum.FAILED);
+            syncStatusService.updateStatus(failedStatus);
             LOGGER.error("Failure while syncing expenses for user - requestId : {} : ex : {} ", requestId, ex.getMessage());
         }finally {
+            SyncStatus completedStatus = new SyncStatus(requestId, SyncStatusEnum.COMPLETED);
+            syncStatusService.updateStatus(completedStatus);
             LOGGER.info("completed sync request: {}", requestId);
         }
     }
