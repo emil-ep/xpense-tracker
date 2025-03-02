@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.models.metrics;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,6 +28,21 @@ public enum MetricDefinitions {
               .filter(Expenses.class::isInstance)
               .filter(expense -> ((Expenses) expense).getTags() == null || ((Expenses) expense).getTags().isEmpty())
               .count()
+    ),
+    TOTAL_TAGGED_EXPENSES_ENTRY(
+      "total_tagged_expenses_entry",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .filter(expense -> ((Expenses) expense).getTags() != null && !((Expenses) expense).getTags().isEmpty())
+              .count()
+    ),
+    HIGHEST_EXPENSE_RECORDED(
+      "highest_expense_recorded",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .max(Comparator.comparingDouble(e -> ((Expenses) e).getDebit()))
     ),
     AGG_CREDIT(
             "credit_aggregate",
