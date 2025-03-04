@@ -62,6 +62,28 @@ public enum MetricDefinitions {
                     })
 
     ),
+    HIGHEST_CREDIT_RECORDED(
+      "highest_credit_recorded",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
+              .map(e -> ((Expenses)e).getCredit())
+    ),
+    HIGHEST_CREDIT_RECORDED_TAG(
+            "highest_credit_recorded_tag",
+            "SUM",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
+                    .map(e -> {
+                        Set<Tag> tags = ((Expenses) e).getTags();
+                        if (tags != null && !tags.isEmpty()){
+                            return tags.stream().map(Tag::getName).reduce((t1, t2) -> t1 + "," + t2);
+                        }
+                        return "";
+                    })
+    ),
     AGG_CREDIT(
             "credit_aggregate",
             "SUM",
