@@ -18,6 +18,36 @@ import java.util.stream.Stream;
 @Getter
 public enum MetricDefinitions {
 
+    FIRST_EXPENSE_RECORDED_DATE(
+      "first_expense_recorded_date",
+      "",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
+                      Comparator.nullsLast(Comparator.naturalOrder())))
+              .map(expense -> {
+                  Expenses expenses = ((Expenses) expense);
+                  if (expenses.getTransactionDate() != null){
+                      return expenses.getTransactionDate().toString();
+                  }
+                  return "Not found";
+              })
+    ),
+    LAST_EXPENSE_RECORDED_DATE(
+            "last_expense_recorded_date",
+            "",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
+                            Comparator.nullsLast(Comparator.reverseOrder())))
+                    .map(expense -> {
+                        Expenses expenses = ((Expenses) expense);
+                        if (expenses.getTransactionDate() != null){
+                            return expenses.getTransactionDate().toString();
+                        }
+                        return "Not found";
+                    })
+    ),
     TOTAL_EXPENSES_ENTRY(
          "total_expenses_entry",
             "SUM",
