@@ -229,7 +229,11 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     private String cleanAmountValue(String value){
-        return value.replaceAll("[^0-9.]", "");
+        String cleanedValue = value.replaceAll("[^0-9.]", "");
+        if (cleanedValue.isEmpty() || cleanedValue.isBlank()){
+            return "0.0";
+        }
+        return cleanedValue;
     }
 
     private DateTimeFormatter findCompatibleDateFormatter(List<HashMap<Integer, String>> parsedFile, Integer dateIndex){

@@ -94,7 +94,7 @@ public class ExpenseController {
             LOGGER.info("Saved expense fileName: {}, user: {}", fileName, userDetails.getUsername());
             return ResponseEntity.ok(new SuccessResponse("Saved expense"));
         } catch (Exception ex){
-            LOGGER.debug("Exception while saving expense fileName: {}, user: {}, ex: {}", fileName, userDetails.getUsername(), ex.getMessage());
+            LOGGER.debug("Exception while saving expense fileName: {}, user: {}", fileName, userDetails.getUsername(), ex);
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }
     }
