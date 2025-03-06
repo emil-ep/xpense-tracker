@@ -29,6 +29,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -52,12 +55,21 @@ public class ExpenseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yy");
+
     @GetMapping
     public ResponseEntity<AbstractResponse> getExpenses(@RequestParam(value = "page", defaultValue = "1") int page,
                                                         @RequestParam(value = "size", defaultValue = "10") int size,
+                                                        @RequestParam(value = "from") String fromDate,
+                                                        @RequestParam(value = "to") String toDate,
                                                         @AuthenticationPrincipal UserDetails userDetails){
         try{
-            Page<Expenses> expenses = expenseService.getExpenses(userDetails,
+            LocalDate startDate;
+            LocalDate endDate;
+            startDate = LocalDate.parse(fromDate, DATE_TIME_FORMATTER);
+            endDate = LocalDate.parse(toDate, DATE_TIME_FORMATTER);
+
+            Page<Expenses> expenses = expenseService.getExpenses(userDetails,startDate, endDate,
                     PageRequest.of(
                             page - 1,
                             size,
@@ -70,6 +82,8 @@ public class ExpenseController {
                             expenses.getNumber(),
                             expenses.getContent()
                     )));
+        }catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Invalid date format! Use dd/MM/yy."));
         }catch (TrackerBadRequestException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         }catch (Exception ex) {

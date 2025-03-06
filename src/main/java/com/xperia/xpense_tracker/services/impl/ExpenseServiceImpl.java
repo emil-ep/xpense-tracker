@@ -54,10 +54,10 @@ public class ExpenseServiceImpl implements ExpenseService {
     private SyncStatusService syncStatusService;
 
     @Override
-    public Page<Expenses> getExpenses(UserDetails userDetails, PageRequest pageRequest) {
+    public Page<Expenses> getExpenses(UserDetails userDetails, LocalDate startDate, LocalDate endDate, PageRequest pageRequest) {
 
         TrackerUser user = (TrackerUser) userDetails;
-        return expensesRepository.getPaginatedExpensesByUser(user, pageRequest);
+        return expensesRepository.getPaginatedExpensesByUser(user, startDate, endDate, pageRequest);
     }
 
     @Override

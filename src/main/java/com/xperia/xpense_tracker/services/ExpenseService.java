@@ -10,11 +10,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ExpenseService {
 
-    Page<Expenses> getExpenses(UserDetails userDetails, PageRequest pageRequest);
+    Page<Expenses> getExpenses(UserDetails userDetails, LocalDate fromDate, LocalDate toDate, PageRequest pageRequest);
 
     List<Expenses> processExpenseFromFile(File file,
                                           StatementPreviewRequest request,
