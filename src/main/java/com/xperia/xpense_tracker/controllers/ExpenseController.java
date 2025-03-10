@@ -55,7 +55,7 @@ public class ExpenseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yy");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yy");
 
     @GetMapping
     public ResponseEntity<AbstractResponse> getExpenses(@RequestParam(value = "page", defaultValue = "1") int page,
