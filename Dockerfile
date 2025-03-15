@@ -14,7 +14,7 @@ WORKDIR /app
 # Copy the built JAR from the builder stage
 COPY --from=builder /app/target/*.jar /app.jar
 EXPOSE 8080
-ENV SPRING_DATASOURCE_URL=jdbc:postgresql://dpg-cv7dm0tumphs738h3tmg-a/xpense_tracker_gwtd
+ENV SPRING_DATASOURCE_URL=jdbc:postgresql://dpg-cv7dm0tumphs738h3tmg-a.singapore-postgres.render.com:5432/xpense_tracker_gwtd
 ENV SPRING_DATASOURCE_USERNAME=xpense_admin
 ENV SPRING_DATASOURCE_PASSWORD=eFflAfi2pd8oupIooXvGRoJTGqanCxhP
 ENTRYPOINT ["java", "-jar", "/app.jar"]
