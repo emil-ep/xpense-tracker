@@ -2,17 +2,17 @@ spring:
   application:
     name: xpense-tracker
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/xpense_tracker
-    username: xpense_admin
-    password: xpenseTracker1234
-    driver-class-name: org.postgresql.Driver
-
 #  datasource:
-#    url: jdbc:postgresql://xpense_admin:eFflAfi2pd8oupIooXvGRoJTGqanCxhP@dpg-cv7dm0tumphs738h3tmg-a.singapore-postgres.render.com/xpense_tracker_gwtd
+#    url: jdbc:postgresql://localhost:5432/xpense_tracker
 #    username: xpense_admin
-#    password: eFflAfi2pd8oupIooXvGRoJTGqanCxhP
+#    password: xpenseTracker1234
 #    driver-class-name: org.postgresql.Driver
+
+  datasource:
+    url: jdbc:postgresql://xpense_admin:eFflAfi2pd8oupIooXvGRoJTGqanCxhP@dpg-cv7dm0tumphs738h3tmg-a:5432/xpense_tracker_gwtd
+    username: xpense_admin
+    password: eFflAfi2pd8oupIooXvGRoJTGqanCxhP
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
