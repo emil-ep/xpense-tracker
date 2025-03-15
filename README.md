@@ -46,6 +46,9 @@ If you are deploying to new environment, follow the instructions
 
 1. Go to Dockerfile
 2. Update the Environment variables (Spring datasource) with the new details
+3. Also update the ENVIRONMENT VARIABLES of backend service in Render with the updated values of SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+
+If any of the above steps are not done, you are fucked when updating the database
 
 ### Flyway
 We are using Flyway for the database migration. You can install flyway CLI using `brew install flyway`
