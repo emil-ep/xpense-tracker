@@ -63,7 +63,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public List<Expenses> processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails, boolean isPreview) throws IOException {
         String extension = file.getName().split("\\.")[1];
-        FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
+        FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension.toLowerCase());
         if (fileProcessor == null) {
             throw new BadRequestException("File format is invalid. Please upload xlsx files only");
         }
