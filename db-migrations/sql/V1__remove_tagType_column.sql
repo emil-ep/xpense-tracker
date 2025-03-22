@@ -1,0 +1,1 @@
+ALTER TABLE public.tag DROP COLUMN tag_type;

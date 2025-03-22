@@ -4,12 +4,14 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestExce
 import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.SyncStatus;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.*;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
+import com.xperia.xpense_tracker.services.SyncStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +29,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -44,14 +50,26 @@ public class ExpenseController {
     @Autowired
     private StatementService statementService;
 
+    @Autowired
+    private SyncStatusService syncStatusService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yy");
 
     @GetMapping
     public ResponseEntity<AbstractResponse> getExpenses(@RequestParam(value = "page", defaultValue = "1") int page,
                                                         @RequestParam(value = "size", defaultValue = "10") int size,
+                                                        @RequestParam(value = "from") String fromDate,
+                                                        @RequestParam(value = "to") String toDate,
                                                         @AuthenticationPrincipal UserDetails userDetails){
         try{
-            Page<Expenses> expenses = expenseService.getExpenses(userDetails,
+            LocalDate startDate;
+            LocalDate endDate;
+            startDate = LocalDate.parse(fromDate, DATE_TIME_FORMATTER);
+            endDate = LocalDate.parse(toDate, DATE_TIME_FORMATTER);
+
+            Page<Expenses> expenses = expenseService.getExpenses(userDetails,startDate, endDate,
                     PageRequest.of(
                             page - 1,
                             size,
@@ -64,6 +82,8 @@ public class ExpenseController {
                             expenses.getNumber(),
                             expenses.getContent()
                     )));
+        }catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Invalid date format! Use dd/MM/yy."));
         }catch (TrackerBadRequestException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         }catch (Exception ex) {
@@ -88,7 +108,7 @@ public class ExpenseController {
             LOGGER.info("Saved expense fileName: {}, user: {}", fileName, userDetails.getUsername());
             return ResponseEntity.ok(new SuccessResponse("Saved expense"));
         } catch (Exception ex){
-            LOGGER.debug("Exception while saving expense fileName: {}, user: {}, ex: {}", fileName, userDetails.getUsername(), ex.getMessage());
+            LOGGER.debug("Exception while saving expense fileName: {}, user: {}", fileName, userDetails.getUsername(), ex);
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }
     }
@@ -177,12 +197,31 @@ public class ExpenseController {
             LOGGER.info("Sync operation initiated for user : {} - requestId : {}", user.getId(), requestId);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(new SuccessResponse(
-                            "Sync operation initiated for user - requestId : " + requestId)
-                    );
+                    .body(
+                            new SuccessResponse(
+                                    new SyncExpenseResponse(
+                                            "Sync operation initiated for user - requestId : " + requestId,
+                                            requestId)
+                            ));
         }catch (Exception ex){
             LOGGER.error("unable to sync expenses : {}", ex.getMessage());
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error syncing expenses"));
+        }
+    }
+
+    @GetMapping("/sync/status/{requestId}")
+    public ResponseEntity<AbstractResponse> syncStatus(@AuthenticationPrincipal UserDetails userDetails,
+                                                       @PathVariable("requestId") String requestId){
+        try{
+            Optional<SyncStatus> status = syncStatusService.fetchStatus(requestId);
+            if (status.isPresent()){
+                return ResponseEntity.ok(new SuccessResponse(status));
+            }else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("Status for the requestId not found"));
+            }
+        }catch (Exception ex){
+            LOGGER.error("unable to fetch sync status : {}", ex.getMessage());
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching sync status"));
         }
     }
  }

@@ -16,7 +16,9 @@ import java.util.Set;
 
 public interface ExpensesRepository extends JpaRepository<Expenses, String> {
 
-    @Query("SELECT e FROM expenses e WHERE e.user = :user AND e.transactionDate BETWEEN :fromDate AND :toDate")
+    @Query("SELECT e FROM expenses e WHERE e.user = :user " +
+            "AND (CAST(:fromDate AS date) IS NULL OR e.transactionDate >= :fromDate)" +
+            "AND (CAST(:toDate AS date) IS NULL OR e.transactionDate <= :toDate)")
     List<Expenses> findExpensesByUserAndTransactionDateBetween(
             @Param("user") TrackerUser user,
             @Param("fromDate") LocalDate fromDate,
@@ -26,7 +28,9 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
 
     Optional<Expenses> findExpensesById(String expenseId);
 
-    Page<Expenses> getPaginatedExpensesByUser(TrackerUser user, Pageable pageable);
+    @Query("SELECT e FROM expenses e WHERE e.user = :user AND e.transactionDate BETWEEN :fromDate AND :toDate")
+    Page<Expenses> getPaginatedExpensesByUser(TrackerUser user, @Param("fromDate") LocalDate fromDate,
+                                              @Param("toDate") LocalDate toDate, Pageable pageable);
 
     @Query("SELECT e FROM expenses e WHERE e.user = :user AND e.transactionDate IN :dates AND e.bankReferenceNo IN :bankReferenceNos")
     List<Expenses> findByUserAndTransactionDateInAndBankReferenceNoIn(TrackerUser user, Set<LocalDate> dates, Set<String> bankReferenceNos);

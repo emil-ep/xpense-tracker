@@ -1,9 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.Tag;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.*;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
@@ -11,6 +9,7 @@ import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
+import com.xperia.xpense_tracker.services.SyncStatusService;
 import com.xperia.xpense_tracker.services.TagService;
 import jakarta.persistence.Tuple;
 import org.apache.coyote.BadRequestException;
@@ -41,6 +40,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
     private static final DateTimeFormatter formatter_1 = DateTimeFormatter.ofPattern("dd MMM yyyy");
     private static final DateTimeFormatter formatter_2 = DateTimeFormatter.ofPattern("d MMM yyyy");
+    private static final DateTimeFormatter formatter_3 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseServiceImpl.class);
 
@@ -50,17 +50,20 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Autowired
     private TagService tagService;
 
+    @Autowired
+    private SyncStatusService syncStatusService;
+
     @Override
-    public Page<Expenses> getExpenses(UserDetails userDetails, PageRequest pageRequest) {
+    public Page<Expenses> getExpenses(UserDetails userDetails, LocalDate startDate, LocalDate endDate, PageRequest pageRequest) {
 
         TrackerUser user = (TrackerUser) userDetails;
-        return expensesRepository.getPaginatedExpensesByUser(user, pageRequest);
+        return expensesRepository.getPaginatedExpensesByUser(user, startDate, endDate, pageRequest);
     }
 
     @Override
     public List<Expenses> processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails, boolean isPreview) throws IOException {
         String extension = file.getName().split("\\.")[1];
-        FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
+        FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension.toLowerCase());
         if (fileProcessor == null) {
             throw new BadRequestException("File format is invalid. Please upload xlsx files only");
         }
@@ -84,9 +87,19 @@ public class ExpenseServiceImpl implements ExpenseService {
                             .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), compatibleDateFormatter))
                             .withDescription(transactionDescription)
                             .withBankReferenceNo(row.get(request.getBankReferenceNo()))
-                            .setDebit(row.get(request.getDebit()) != null ? Double.parseDouble(row.get(request.getDebit())) : 0.0)
-                            .setCredit(row.get(request.getCredit()) != null ? Double.parseDouble(row.get(request.getCredit())) : 0.0)
-                            .setClosingBalance(row.get(request.getClosingBalance()) != null ? Double.parseDouble(row.get(request.getClosingBalance())) : 0.0)
+                            .setDebit(
+                                    row.get(request.getDebit()) != null && !row.get(request.getDebit()).isEmpty()
+                                            ? Double.parseDouble(cleanAmountValue(row.get(request.getDebit())))
+                                            : 0.0
+                            )
+                            .setCredit(
+                                    row.get(request.getCredit()) != null && !row.get(request.getCredit()).isEmpty()
+                                            ? Double.parseDouble(cleanAmountValue(row.get(request.getCredit())))
+                                            : 0.0
+                            )
+                            .setClosingBalance(row.get(request.getClosingBalance()) != null
+                                    ? Double.parseDouble(cleanAmountValue(row.get(request.getClosingBalance())))
+                                    : 0.0)
                             .withTags(matchedTags)
                             .build();
                         }
@@ -185,6 +198,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     public void syncExpenses(UserDetails userDetails, String requestId) {
         TrackerUser user = (TrackerUser) userDetails;
         try{
+            SyncStatus inProgressStatus = new SyncStatus(requestId, SyncStatusEnum.IN_PROGRESS);
+            syncStatusService.saveStatus(inProgressStatus);
             List<Expenses> userExpenses = expensesRepository.getExpensesByUser(user);
             List<Tag> userTags = tagService.findAllTagsForUser(user);
             List<Expenses> updatesExpenses = userExpenses.stream()
@@ -196,15 +211,29 @@ public class ExpenseServiceImpl implements ExpenseService {
                     })
                     .toList();
             expensesRepository.saveAll(updatesExpenses);
+            SyncStatus completedStatus = new SyncStatus(requestId, SyncStatusEnum.COMPLETED);
+            syncStatusService.updateStatus(completedStatus);
         }catch (Exception ex){
+            SyncStatus failedStatus = new SyncStatus(requestId, SyncStatusEnum.FAILED);
+            syncStatusService.updateStatus(failedStatus);
             LOGGER.error("Failure while syncing expenses for user - requestId : {} : ex : {} ", requestId, ex.getMessage());
         }finally {
+            SyncStatus completedStatus = new SyncStatus(requestId, SyncStatusEnum.COMPLETED);
+            syncStatusService.updateStatus(completedStatus);
             LOGGER.info("completed sync request: {}", requestId);
         }
     }
 
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
         return date.toString() + "_" + bankReferenceNo + "_" + userId;
+    }
+
+    private String cleanAmountValue(String value){
+        String cleanedValue = value.replaceAll("[^0-9.]", "");
+        if (cleanedValue.isEmpty() || cleanedValue.isBlank()){
+            return "0.0";
+        }
+        return cleanedValue;
     }
 
     private DateTimeFormatter findCompatibleDateFormatter(List<HashMap<Integer, String>> parsedFile, Integer dateIndex){
@@ -226,6 +255,13 @@ public class ExpenseServiceImpl implements ExpenseService {
             LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_2);
             return formatter_2;
         }catch (DateTimeParseException ex){
+            LOGGER.error("Unable to parse transactionDate in the format d MMM yyyy");
+        }
+
+        try{
+            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_3);
+            return formatter_3;
+        }catch (DateTimeParseException ex){
             throw new TrackerBadRequestException("Unable to parse transaction date");
         }
     }
@@ -241,7 +277,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         try {
             if (row.get(request.getDebit()) != null) {
                 if (row.get(request.getDebit()) != null && !row.get(request.getDebit()).trim().isEmpty())
-                    Double.parseDouble(row.get(request.getDebit()));
+                    Double.parseDouble(cleanAmountValue(row.get(request.getDebit())));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("Debit cannot be parsed");
@@ -249,7 +285,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         try {
             if (row.get(request.getCredit()) != null) {
                 if (row.get(request.getCredit()) != null && !row.get(request.getCredit()).trim().isEmpty())
-                    Double.parseDouble(row.get(request.getCredit()));
+                    Double.parseDouble(cleanAmountValue(row.get(request.getCredit())));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("Credit cannot be parsed");
@@ -257,7 +293,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         try {
             if (row.get(request.getClosingBalance()) != null) {
                 if (row.get(request.getClosingBalance()) != null && !row.get(request.getClosingBalance()).trim().isEmpty())
-                    Double.parseDouble(row.get(request.getClosingBalance()));
+                    Double.parseDouble(cleanAmountValue(row.get(request.getClosingBalance())));
             }
         } catch (NumberFormatException ex) {
             throw new TrackerBadRequestException("ClosingBalance cannot be parsed");

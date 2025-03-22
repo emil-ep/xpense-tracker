@@ -1,10 +1,13 @@
 package com.xperia.xpense_tracker.models.metrics;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.Tag;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,6 +18,102 @@ import java.util.stream.Stream;
 @Getter
 public enum MetricDefinitions {
 
+    FIRST_EXPENSE_RECORDED_DATE(
+      "first_expense_recorded_date",
+      "",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
+                      Comparator.nullsLast(Comparator.naturalOrder())))
+              .map(expense -> {
+                  Expenses expenses = ((Expenses) expense);
+                  if (expenses.getTransactionDate() != null){
+                      return expenses.getTransactionDate().toString();
+                  }
+                  return "Not found";
+              })
+    ),
+    LAST_EXPENSE_RECORDED_DATE(
+            "last_expense_recorded_date",
+            "",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
+                            Comparator.nullsLast(Comparator.reverseOrder())))
+                    .map(expense -> {
+                        Expenses expenses = ((Expenses) expense);
+                        if (expenses.getTransactionDate() != null){
+                            return expenses.getTransactionDate().toString();
+                        }
+                        return "Not found";
+                    })
+    ),
+    TOTAL_EXPENSES_ENTRY(
+         "total_expenses_entry",
+            "SUM",
+            Stream::count
+    ),
+    TOTAL_UNTAGGED_EXPENSES_ENTRY(
+      "total_untagged_expenses_entry",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .filter(expense -> ((Expenses) expense).getTags() == null || ((Expenses) expense).getTags().isEmpty())
+              .count()
+    ),
+    TOTAL_TAGGED_EXPENSES_ENTRY(
+      "total_tagged_expenses_entry",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .filter(expense -> ((Expenses) expense).getTags() != null && !((Expenses) expense).getTags().isEmpty())
+              .count()
+    ),
+    HIGHEST_EXPENSE_RECORDED(
+      "highest_expense_recorded",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .max(Comparator.comparingDouble(e -> ((Expenses) e).getDebit()))
+              .map(e -> ((Expenses)e).getDebit())
+    ),
+    HIGHEST_EXPENSE_TAG(
+            "highest_expense_tag",
+            "SUM",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .max(Comparator.comparingDouble(e -> ((Expenses) e).getDebit()))
+                    .map(e -> {
+                        Set<Tag> tags = ((Expenses) e).getTags();
+                        if (tags != null && !tags.isEmpty()){
+                            return tags.stream().map(Tag::getName).reduce((t1, t2) -> t1 + "," + t2);
+                        }
+                        return "";
+                    })
+
+    ),
+    HIGHEST_CREDIT_RECORDED(
+      "highest_credit_recorded",
+      "SUM",
+      stream -> stream
+              .filter(Expenses.class::isInstance)
+              .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
+              .map(e -> ((Expenses)e).getCredit())
+    ),
+    HIGHEST_CREDIT_RECORDED_TAG(
+            "highest_credit_recorded_tag",
+            "SUM",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
+                    .map(e -> {
+                        Set<Tag> tags = ((Expenses) e).getTags();
+                        if (tags != null && !tags.isEmpty()){
+                            return tags.stream().map(Tag::getName).reduce((t1, t2) -> t1 + "," + t2);
+                        }
+                        return "";
+                    })
+    ),
     AGG_CREDIT(
             "credit_aggregate",
             "SUM",

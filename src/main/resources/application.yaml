@@ -2,21 +2,26 @@ spring:
   application:
     name: xpense-tracker
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/xpense_tracker
-    username: xpense_admin
-    password: xpenseTracker1234
-    driver-class-name: org.postgresql.Driver
-
 #  datasource:
-#    url: jdbc:postgresql://dpg-ctn3u6a3esus739turn0-a.singapore-postgres.render.com:5432/xpense_tracker
-#    username: xpense_tracker_user
-#    password: sNc0EtRaXVGBykLwtjxMtAitaU4wz6BY
+#    url: jdbc:postgresql://localhost:5432/xpense_tracker
+#    username: xpense_admin
+#    password: xpenseTracker1234
 #    driver-class-name: org.postgresql.Driver
 
+  datasource:
+    url: jdbc:postgresql://xpense_admin:eFflAfi2pd8oupIooXvGRoJTGqanCxhP@dpg-cv7dm0tumphs738h3tmg-a:5432/xpense_tracker_gwtd
+    username: xpense_admin
+    password: eFflAfi2pd8oupIooXvGRoJTGqanCxhP
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
 
 token:
   signing:
@@ -31,4 +36,5 @@ logging:
     root: INFO
     com.xperia.xpense_tracker: DEBUG
     org.springframework.web: ERROR
+
 
