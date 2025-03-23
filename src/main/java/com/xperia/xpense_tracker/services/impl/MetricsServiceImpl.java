@@ -41,6 +41,8 @@ public class MetricsServiceImpl implements MetricsService {
     /**
      * Very important function for processing metrics. NEED TO TEST COMPLETELY
      * There is spring cache implemented. please see @Cacheable annotation
+     * Currently there is no expiration set for the cache, we need to implement Caffeine for expiration.
+     * The second time user calls the function, it is returned from cache
      *
      * @param aggregationTimeframe the timeframe in which metrics needs to be fetched
      * @param metricToBeFetched    the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
