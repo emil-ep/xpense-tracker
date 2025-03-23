@@ -66,7 +66,7 @@ public class ExcelProcessor extends FileProcessor {
             }
             return bookMapList;
         }catch (IOException | InvalidFormatException e){
-            LOGGER.error("The file requested for parsing faced error, {}", e.getMessage());
+            LOGGER.error("The file requested for parsing faced error, {}", e.getMessage(), e);
             throw new TrackerBadRequestException("The file requested is not a valid excel file");
         }
     }
@@ -86,7 +86,7 @@ public class ExcelProcessor extends FileProcessor {
             }
             return headerValues;
         }catch (Exception ex){
-            LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage());
+            LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to fetch headers from the file");
         }
     }

@@ -52,10 +52,10 @@ public class PdfProcessor extends FileProcessor{
             }
             pdDocument.close();
         }catch (IOException ex){
-            LOGGER.error("Unable to load file as a PDDocument : {}", ex.getMessage());
+            LOGGER.error("Unable to load file as a PDDocument : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to load file : " + ex.getMessage());
         }catch (Exception ex){
-            LOGGER.error("Exception occurred while parsing pdf file : {}", ex.getMessage());
+            LOGGER.error("Exception occurred while parsing pdf file : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to fetch headers from the file");
         }
         if (!fileContents.isEmpty()){
@@ -97,10 +97,10 @@ public class PdfProcessor extends FileProcessor{
             }
             pdDocument.close();
         }catch (IOException ex){
-            LOGGER.error("Unable to load file as a PDDocument : {}", ex.getMessage());
+            LOGGER.error("Unable to load file as a PDDocument : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to load file : " + ex.getMessage());
         } catch (Exception ex){
-            LOGGER.error("Exception occurred while parsing pdf file : {}", ex.getMessage());
+            LOGGER.error("Exception occurred while parsing pdf file : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to fetch headers from the file");
         }
 

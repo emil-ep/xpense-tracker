@@ -40,7 +40,7 @@ public class DelimitedProcessor extends FileProcessor{
             dataList.remove(0);
             return dataList;
         }catch (IOException  ex){
-            LOGGER.error("The file requested for parsing faced error, {}", ex.getMessage());
+            LOGGER.error("The file requested for parsing faced error, {}", ex.getMessage(), ex);
             throw new TrackerBadRequestException("The file requested is not a valid excel file");
         }
     }
@@ -58,7 +58,7 @@ public class DelimitedProcessor extends FileProcessor{
                 }
             }
         }catch (Exception ex){
-            LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage());
+            LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to fetch headers from the file");
         }
         return null;
