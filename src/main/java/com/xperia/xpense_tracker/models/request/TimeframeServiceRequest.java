@@ -14,4 +14,12 @@ public class TimeframeServiceRequest {
     private LocalDate fromDate;
 
     private LocalDate toDate;
+
+    @Override
+    public String toString() {
+        return "TimeframeServiceRequest{" +
+                "fromDate=" + fromDate +
+                ", toDate=" + toDate +
+                '}';
+    }
 }

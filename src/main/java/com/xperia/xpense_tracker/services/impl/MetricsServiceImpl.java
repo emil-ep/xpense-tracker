@@ -8,7 +8,10 @@ import com.xperia.xpense_tracker.models.request.TimeframeServiceRequest;
 import com.xperia.xpense_tracker.models.response.AggregatedExpenseResponse;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.services.MetricsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,8 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Autowired
     private ExpensesRepository expensesRepository;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsServiceImpl.class);
 
     @Override
     public List<AggregatedExpenseResponse> fetchMetrics(MetricTimeFrame timeframe, int limit, UserDetails userDetails) {
@@ -35,6 +40,9 @@ public class MetricsServiceImpl implements MetricsService {
 
     /**
      * Very important function for processing metrics. NEED TO TEST COMPLETELY
+     * There is spring cache implemented. please see @Cacheable annotation
+     * Currently there is no expiration set for the cache, we need to implement Caffeine for expiration.
+     * The second time user calls the function, it is returned from cache
      *
      * @param aggregationTimeframe the timeframe in which metrics needs to be fetched
      * @param metricToBeFetched    the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
@@ -43,6 +51,8 @@ public class MetricsServiceImpl implements MetricsService {
      * @return returns the list of metrics aggregated by timeframe
      */
     @Override
+    @Cacheable(value = "metrics",
+            key = "T(org.springframework.util.StringUtils).arrayToCommaDelimitedString(#metricToBeFetched) + ':' + #aggregationTimeframe.toString() + ':' + #timeInterval.toString() + ':' + #userDetails.toString()")
     public List<Object> fetchMetricsV2(MetricTimeFrame aggregationTimeframe, String[] metricToBeFetched,
                                        UserDetails userDetails, TimeframeServiceRequest timeInterval) {
         TrackerUser user = (TrackerUser) userDetails;

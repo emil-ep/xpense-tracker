@@ -32,7 +32,7 @@ public class StatementServiceImpl implements StatementService {
         try{
             statementsRepository.save(statements);
         }catch (Exception ex){
-            LOGGER.error("Exception occurred while saving statement : {}", ex.getMessage());
+            LOGGER.error("Exception occurred while saving statement : {}", ex.getMessage(), ex);
             throw ex;
         }
     }
@@ -47,7 +47,7 @@ public class StatementServiceImpl implements StatementService {
         try{
             return fileProcessor.fetchHeaders(file);
         }catch (TrackerException ex){
-            LOGGER.error("unable to parse the file : {}", ex.getMessage());
+            LOGGER.error("unable to parse the file : {}", ex.getMessage(), ex);
             throw ex;
         }
     }

@@ -61,7 +61,7 @@ public class FileUploadServiceImpl implements UploadService {
             statementService.saveStatement(statement);
             return customFileName;
         }catch (IOException ex){
-            LOG.error("Error occurred while saving file : {}", ex.getMessage());
+            LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
             throw new IOException(ex.getMessage());
         }
     }

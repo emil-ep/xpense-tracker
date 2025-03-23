@@ -56,4 +56,10 @@ public enum MetricTimeFrame {
         ));
     }
 
+    @Override
+    public String toString() {
+        return "MetricTimeFrame{" +
+                "timeframe='" + timeframe +
+                '}';
+    }
 }

@@ -71,7 +71,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         try {
             parsedFile = fileProcessor.parseFile(file);
         } catch (TrackerBadRequestException ex) {
-            LOGGER.error("unable to parse the file : {}", ex.getMessage());
+            LOGGER.error("unable to parse the file : {}", ex.getMessage(), ex);
             throw ex;
         }
         DateTimeFormatter compatibleDateFormatter = findCompatibleDateFormatter(parsedFile, request.getTransactionDate());
@@ -216,7 +216,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         }catch (Exception ex){
             SyncStatus failedStatus = new SyncStatus(requestId, SyncStatusEnum.FAILED);
             syncStatusService.updateStatus(failedStatus);
-            LOGGER.error("Failure while syncing expenses for user - requestId : {} : ex : {} ", requestId, ex.getMessage());
+            LOGGER.error("Failure while syncing expenses for user - requestId : {} : ex : {} ", requestId, ex.getMessage(), ex);
         }finally {
             SyncStatus completedStatus = new SyncStatus(requestId, SyncStatusEnum.COMPLETED);
             syncStatusService.updateStatus(completedStatus);

@@ -71,4 +71,12 @@ public class TrackerUser implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "TrackerUser{" +
+                "id='" + id + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
