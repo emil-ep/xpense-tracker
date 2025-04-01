@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.controllers;
 
+import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
+
 @RestController
 @RequestMapping("/v1/expenses")
 public class ExpenseController {
@@ -52,6 +55,9 @@ public class ExpenseController {
 
     @Autowired
     private SyncStatusService syncStatusService;
+
+    @Autowired
+    private CacheService cacheManager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseController.class);
 
@@ -106,6 +112,7 @@ public class ExpenseController {
             }
             expenseService.processExpenseFromFile(file, request, userDetails, false);
             LOGGER.info("Saved expense fileName: {}, user: {}", fileName, userDetails.getUsername());
+            cacheManager.clearCache(METRICS_CACHE_NAME);
             return ResponseEntity.ok(new SuccessResponse("Saved expense"));
         } catch (Exception ex){
             LOGGER.debug("Exception while saving expense fileName: {}, user: {}", fileName, userDetails.getUsername(), ex);
