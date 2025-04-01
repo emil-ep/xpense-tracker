@@ -15,7 +15,7 @@ import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
 public class CaffeineCacheConfig {
 
     @Bean
-    public CacheManager cacheManager() {
+    public CaffeineCacheManager cacheManager() {
         //If you want to add more caches, implement the cache in CacheNames.java and include in the cacheNames param for CaffeineCacheManager
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(METRICS_CACHE_NAME);
         cacheManager.setCaffeine(Caffeine.newBuilder()
