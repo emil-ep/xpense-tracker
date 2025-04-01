@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
+
 @Service
 public class MetricsServiceImpl implements MetricsService {
 
@@ -40,8 +42,10 @@ public class MetricsServiceImpl implements MetricsService {
 
     /**
      * Very important function for processing metrics. NEED TO TEST COMPLETELY
-     * There is spring cache implemented. please see @Cacheable annotation
-     * Currently there is no expiration set for the cache, we need to implement Caffeine for expiration.
+     * This is a highly expensive function, there is a lot of calculation which wouldn't change for sometime
+     * The metrics changes only if the user uploaded a new statement for processing.
+     * Hence a cache is implemented in place to reduce the load on the server and database
+     * Caffeine cache implementation takes care of this caching
      * The second time user calls the function, it is returned from cache
      *
      * @param aggregationTimeframe the timeframe in which metrics needs to be fetched
@@ -51,7 +55,7 @@ public class MetricsServiceImpl implements MetricsService {
      * @return returns the list of metrics aggregated by timeframe
      */
     @Override
-    @Cacheable(value = "metrics",
+    @Cacheable(value = METRICS_CACHE_NAME,
             key = "T(org.springframework.util.StringUtils).arrayToCommaDelimitedString(#metricToBeFetched) + ':' + #aggregationTimeframe.toString() + ':' + #timeInterval.toString() + ':' + #userDetails.toString()")
     public List<Object> fetchMetricsV2(MetricTimeFrame aggregationTimeframe, String[] metricToBeFetched,
                                        UserDetails userDetails, TimeframeServiceRequest timeInterval) {
