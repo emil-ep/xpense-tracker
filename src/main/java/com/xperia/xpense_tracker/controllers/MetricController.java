@@ -63,7 +63,7 @@ public class MetricController {
             LOGGER.error("Error processing metrics : {}", ex.getMessage());
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         } catch (Exception ex){
-            LOGGER.debug("Exception while processing metrics - timeframe : {} , metrics : {} - ex: {}", timeframe, metrics, ex.getMessage());
+            LOGGER.debug("Exception while processing metrics - timeframe : {} , metrics : {} - ex: {}", timeframe, metrics, ex.getMessage(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error while processing metrics"));
         }
     }
