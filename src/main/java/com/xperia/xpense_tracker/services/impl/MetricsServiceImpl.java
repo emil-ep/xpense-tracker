@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.metrics.MetricDefinitions;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,6 +27,9 @@ public class MetricsServiceImpl implements MetricsService {
 
     @Autowired
     private ExpensesRepository expensesRepository;
+
+    @Autowired
+    private CacheService cacheService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsServiceImpl.class);
 
@@ -60,6 +65,14 @@ public class MetricsServiceImpl implements MetricsService {
     public List<Object> fetchMetricsV2(MetricTimeFrame aggregationTimeframe, String[] metricToBeFetched,
                                        UserDetails userDetails, TimeframeServiceRequest timeInterval) {
         TrackerUser user = (TrackerUser) userDetails;
+        String cacheKey = StringUtils.arrayToCommaDelimitedString(metricToBeFetched)
+                + ":"
+                + aggregationTimeframe.toString()
+                + ":"
+                + timeInterval.toString()
+                + ":"
+                + userDetails.toString();
+        cacheService.storeByUser(user.getId(), cacheKey, METRICS_CACHE_NAME);
         //converting the metrics received in request to the corresponding MetricDefinitions
         List<MetricDefinitions> metricDefinitions = Arrays.stream(metricToBeFetched)
                 .map(MetricDefinitions::findByMetricName)
