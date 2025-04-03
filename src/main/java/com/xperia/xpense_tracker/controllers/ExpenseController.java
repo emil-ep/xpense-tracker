@@ -112,7 +112,7 @@ public class ExpenseController {
             }
             expenseService.processExpenseFromFile(file, request, userDetails, false);
             LOGGER.info("Saved expense fileName: {}, user: {}", fileName, userDetails.getUsername());
-            cacheManager.clearCache(METRICS_CACHE_NAME);
+            cacheManager.clearCache(METRICS_CACHE_NAME, ((TrackerUser) userDetails).getId());
             return ResponseEntity.ok(new SuccessResponse("Saved expense"));
         } catch (Exception ex){
             LOGGER.debug("Exception while saving expense fileName: {}, user: {}", fileName, userDetails.getUsername(), ex);

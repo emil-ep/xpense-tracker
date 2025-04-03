@@ -36,13 +36,19 @@ public class CacheService {
             cacheByCacheName.put(cacheName, keyList);
             cacheByUser.put(userId, cacheByCacheName);
         }
-        LOGGER.info("Stored the cacheKey : {} for user : {}", key, userId);
+        LOGGER.debug("Stored the cacheKey : {} for user : {}", key, userId);
     }
 
-    public void clearCache(String cacheName){
+    public void clearCache(String cacheName, String userId){
         Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null){
-            cache.clear();
+        Map<String, List<String>> cacheKeyByCacheName = cacheByUser.get(userId);
+        List<String> cacheKeys = cacheKeyByCacheName.get(cacheName);
+        if (cache == null){
+            return;
+        }
+        for (String key: cacheKeys){
+            cache.evict(key);
+            LOGGER.debug("Cleared cacheKey : {} for user: {}", key, userId);
         }
     }
 
