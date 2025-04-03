@@ -18,17 +18,23 @@ public class CacheService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheService.class);
 
-    private final Map<String, List<String>> cacheByUser = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, List<String>>> cacheByUser = new ConcurrentHashMap<>();
 
     public void storeByUser(String userId, String key, String cacheName){
         if (cacheByUser.containsKey(userId)){
-            List<String> cacheKeys = cacheByUser.get(userId);
-            cacheKeys.add(key);
-            cacheByUser.replace(userId, cacheKeys);
+            Map<String, List<String>> cacheByCacheName = cacheByUser.get(userId);
+            List<String> cacheKeys = cacheByCacheName.get(cacheName);
+            if (!cacheKeys.contains(key)){
+                cacheKeys.add(key);
+            }
+            cacheByCacheName.replace(cacheName, cacheKeys);
+            cacheByUser.replace(userId, cacheByCacheName);
         }else{
+            Map<String, List<String>> cacheByCacheName = new ConcurrentHashMap<>();
             List<String> keyList = new ArrayList<>();
             keyList.add(key);
-            cacheByUser.put(userId, keyList);
+            cacheByCacheName.put(cacheName, keyList);
+            cacheByUser.put(userId, cacheByCacheName);
         }
         LOGGER.info("Stored the cacheKey : {} for user : {}", key, userId);
     }
