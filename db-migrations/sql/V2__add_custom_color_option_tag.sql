@@ -1,0 +1,1 @@
+ALTER TABLE public.tag ADD COLUMN color TEXT;

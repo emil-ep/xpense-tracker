@@ -69,7 +69,8 @@ public class TagServiceImpl implements TagService {
                 user,
                 tagRequest.getKeywords(),
                 tagRequest.isCanBeCountedAsExpense(),
-                tagCategory.get()
+                tagCategory.get(),
+                tagRequest.getColor()
         );
         return tagRepository.save(tag);
     }

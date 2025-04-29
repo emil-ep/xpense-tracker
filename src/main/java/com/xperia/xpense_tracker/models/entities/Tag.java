@@ -42,13 +42,16 @@ public class Tag {
     @JoinColumn(name = "category_id", nullable = false)
     private TagCategory category;
 
+    private String color;
+
     public Tag(String name, Tag parentTag, TrackerUser user, String[] keywords,
-               boolean canBeConsideredExpense, TagCategory category){
+               boolean canBeConsideredExpense, TagCategory category, String color){
         this.name = name;
         this.user = user;
         this.keywords = keywords;
         this.canBeConsideredExpense = canBeConsideredExpense;
         this.category = category;
+        this.color = color;
     }
 
     public boolean isEditable(){
