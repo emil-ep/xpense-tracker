@@ -154,6 +154,16 @@ public enum MetricDefinitions {
                                     entry.getValue().getCredit() + entry.getValue().getDebit()
                             )
                     ))
+    ),
+    AGG_EXPENSE("expense_aggregate",
+            "SUM",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .map(Expenses.class::cast)
+                    .filter(expense -> expense.getTags().stream()
+                            .anyMatch(tag -> tag.getCategory() != null && tag.getCategory().isExpense()))
+                    .mapToDouble(Expenses::getDebit)
+                    .sum()
     );
 
     // ADD MORE METRIC DEFINITIONS HERE
