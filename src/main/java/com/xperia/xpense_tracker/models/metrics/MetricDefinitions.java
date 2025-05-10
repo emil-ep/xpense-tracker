@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.models.metrics;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.entities.Tag;
+import com.xperia.xpense_tracker.models.entities.TransactionType;
 import lombok.Getter;
 
 import java.util.Comparator;
@@ -132,15 +133,37 @@ public enum MetricDefinitions {
             "tags_aggregate",
             "GROUP_BY_TAG",
             stream -> stream
-                    .filter(Expenses.class::isInstance) // Ensure the stream contains only Expenses
-                    .map(Expenses.class::cast)          // Safely cast each element to Expenses
-                    .flatMap(expense -> expense.getTags().stream()
-                            .map(tag -> Map.entry(tag.getName(), expense))) // Use Map.entry
+                    .filter(Expenses.class::isInstance)
+                    .map(Expenses.class::cast)
+                    .flatMap(expense -> {
+                        Set<Tag> tags = expense.getTags();
+                        if (tags == null || tags.isEmpty()) {
+                            if (expense.getType() == TransactionType.CREDIT){
+                                return Stream.of(Map.entry("UnTagged Credit", expense));
+                            }else{
+                                return Stream.of(Map.entry("UnTagged Debit", expense));
+                            }
+                        } else {
+                            return tags.stream()
+                                    .map(tag -> Map.entry(tag.getName(), expense));
+                        }
+                    })
                     .collect(Collectors.groupingBy(
                             Map.Entry::getKey,
                             Collectors.summingDouble(entry ->
-                                    entry.getValue().getCredit() + entry.getValue().getDebit())
+                                    entry.getValue().getCredit() + entry.getValue().getDebit()
+                            )
                     ))
+    ),
+    AGG_EXPENSE("expense_aggregate",
+            "SUM",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .map(Expenses.class::cast)
+                    .filter(expense -> expense.getTags().stream()
+                            .anyMatch(tag -> tag.getCategory() != null && tag.getCategory().isExpense()))
+                    .mapToDouble(Expenses::getDebit)
+                    .sum()
     );
 
     // ADD MORE METRIC DEFINITIONS HERE

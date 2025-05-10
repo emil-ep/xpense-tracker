@@ -4,7 +4,6 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestExce
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TagCategory;
-import com.xperia.xpense_tracker.models.entities.TagType;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
 import com.xperia.xpense_tracker.models.request.TagsEditRequest;
@@ -118,9 +117,10 @@ public class TagServiceImpl implements TagService {
             TagCategory category = tagCategoryRepository.findById(tagRequest.getCategory().getId())
                     .orElseThrow(() -> new TrackerBadRequestException("Tag category id provided for tag " + tagRequest.getName() + "is not correct"));
             tagToBeUpdated.setName(tagRequest.getName());
-            tagToBeUpdated.setKeywords(tagRequest.getKeywords().split(","));
+            tagToBeUpdated.setKeywords(tagRequest.getKeywords());
             tagToBeUpdated.setCanBeConsideredExpense(tagRequest.isCanBeCountedAsExpense());
             tagToBeUpdated.setCategory(category);
+            tagToBeUpdated.setColor(tagRequest.getColor());
             modifiedTags.add(tagToBeUpdated);
         });
         return tagRepository.saveAll(modifiedTags);

@@ -17,9 +17,11 @@ public class TagItemEditRequest {
 
     private String parentTagId;
 
-    private String keywords;
+    private String[] keywords;
 
     private boolean canBeCountedAsExpense;
 
     private TagCategoryRequestModel category;
+
+    private String color;
 }
