@@ -24,5 +24,7 @@ public class UpdateExpenseRequest {
 
     private Set<String> tagIds;
 
+    private String attachment;
+
 
 }

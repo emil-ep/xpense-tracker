@@ -168,6 +168,9 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .onDate(expenseRequest.getTransactionDate() != null
                         ? expenseRequest.getTransactionDate()
                         : existingExpense.getTransactionDate())
+                .withAttachment(expenseRequest.getAttachment() != null
+                        ? expenseRequest.getAttachment()
+                        : existingExpense.getAttachment())
                 .build(existingExpense.getId());
 
         return expensesRepository.save(expenseToUpdate);
