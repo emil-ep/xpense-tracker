@@ -9,4 +9,6 @@ import java.io.IOException;
 public interface UploadService {
 
     String uploadFile(MultipartFile file, UserDetails userDetails) throws IOException;
+
+    String uploadAttachment(MultipartFile file, UserDetails userDetails) throws IOException;
 }

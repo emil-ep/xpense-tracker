@@ -38,4 +38,17 @@ public class FileController {
           return ResponseEntity.internalServerError().body(new ErrorResponse(ex.getMessage()));
       }
     }
+
+    @PostMapping("/upload/attachment")
+    public ResponseEntity<AbstractResponse> uploadAttachment(@RequestParam("file") MultipartFile file,
+                                                             @AuthenticationPrincipal UserDetails userDetails){
+        try{
+            String fileName = uploadService.uploadAttachment(file, userDetails);
+            return ResponseEntity.ok().body(new SuccessResponse(new FileUploadResponse("File uploaded", fileName)));
+        }catch (IOException | IllegalArgumentException ex){
+            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+        }catch (Exception ex){
+            return ResponseEntity.internalServerError().body(new ErrorResponse(ex.getMessage()));
+        }
+    }
 }

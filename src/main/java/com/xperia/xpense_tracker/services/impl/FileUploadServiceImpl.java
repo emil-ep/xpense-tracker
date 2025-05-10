@@ -25,10 +25,15 @@ public class FileUploadServiceImpl implements UploadService {
     @Value("${file.upload.path}")
     private String fileUploadPath;
 
+    @Value("${file.upload.attachment.path}")
+    private String attachmentUploadPath;
+
     @Autowired
     private StatementService statementService;
 
     private static final String[] ALLOWED_FILE_TYPES = {"csv", "xlsx", "DELIMITED", "pdf"};
+
+    private static final String[] ALLOWED_ATTACHMENT_TYPE = {"jpeg", "jpg", "pdf", "png"};
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUploadServiceImpl.class);
 
@@ -59,6 +64,40 @@ public class FileUploadServiceImpl implements UploadService {
             file.transferTo(filePath.toFile());
             Statements statement = new Statements(customFileName, user, System.currentTimeMillis());
             statementService.saveStatement(statement);
+            return customFileName;
+        }catch (IOException ex){
+            LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
+            throw new IOException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public String uploadAttachment(MultipartFile file, UserDetails userDetails) throws IOException {
+
+        String fileName = file.getOriginalFilename();
+        String fileType = file.getContentType();
+        TrackerUser user = (TrackerUser) userDetails;
+
+        if(fileName == null || fileType == null){
+            LOG.error("file name or file type is empty");
+            throw new IllegalArgumentException("Invalid file uploaded");
+        }
+
+        String fileExtension = fileName.split("\\.")[1];
+        if(Arrays.stream(ALLOWED_ATTACHMENT_TYPE).noneMatch(allowedType -> allowedType.equals(fileExtension))){
+            LOG.error("Invalid file type is received for upload : fileType = {}", fileType);
+            throw new IllegalArgumentException("Invalid file uploaded");
+        }
+        String customFileName = user.getId() + "_" + Instant.now().getEpochSecond() + "_" + fileName;
+        try{
+            Path uploadPath = Paths.get(attachmentUploadPath);
+            if(!Files.exists(uploadPath)){
+                Files.createDirectories(uploadPath);
+            }
+            Path filePath = uploadPath.resolve(customFileName);
+            file.transferTo(filePath.toFile());
+//            Statements statement = new Statements(customFileName, user, System.currentTimeMillis());
+//            statementService.saveStatement(statement);
             return customFileName;
         }catch (IOException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
