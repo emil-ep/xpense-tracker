@@ -1,5 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
+import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
 import com.xperia.xpense_tracker.models.entities.Statements;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.services.StatementService;
@@ -8,11 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -96,12 +101,31 @@ public class FileUploadServiceImpl implements UploadService {
             }
             Path filePath = uploadPath.resolve(customFileName);
             file.transferTo(filePath.toFile());
-//            Statements statement = new Statements(customFileName, user, System.currentTimeMillis());
-//            statementService.saveStatement(statement);
             return customFileName;
         }catch (IOException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
             throw new IOException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public Resource fetchAttachment(String id) {
+       Path filePath = Paths.get(attachmentUploadPath).resolve(id).normalize();
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists()){
+                throw new TrackerNotFoundException("Couldn't locate requested file");
+            }
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+            return resource;
+        } catch (MalformedURLException e) {
+            LOG.error("Exception while creating resource : {}", e.getMessage(), e);
+            throw new TrackerUnknownException("Exception while fetching attachment");
+        } catch (IOException e) {
+            throw new TrackerUnknownException("Exception while probing content type");
         }
     }
 }
