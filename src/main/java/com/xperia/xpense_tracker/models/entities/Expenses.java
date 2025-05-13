@@ -53,6 +53,8 @@ public class Expenses {
     @JsonManagedReference
     private Set<Tag> tags = new HashSet<>();
 
+    private String attachment;
+
     private Expenses(ExpenseBuilder builder){
         this.description = builder.description;
         this.bankReferenceNo = builder.bankReferenceNo;
@@ -63,6 +65,7 @@ public class Expenses {
         this.type = builder.type;
         this.user = builder.user;
         this.tags = builder.tags;
+        this.attachment = builder.attachment;
     }
 
     private Expenses(String id, ExpenseBuilder builder){
@@ -76,6 +79,7 @@ public class Expenses {
         this.type = builder.type;
         this.user = builder.user;
         this.tags = builder.tags;
+        this.attachment = builder.attachment;
     }
 
     public static class ExpenseBuilder{
@@ -97,6 +101,8 @@ public class Expenses {
         private TrackerUser user;
 
         private Set<Tag> tags;
+
+        private String attachment;
 
         public ExpenseBuilder(TrackerUser user){
             this.user = user;
@@ -146,6 +152,11 @@ public class Expenses {
 
         public ExpenseBuilder withTags(Set<Tag> tags){
             this.tags = tags;
+            return this;
+        }
+
+        public ExpenseBuilder withAttachment(String attachment){
+            this.attachment = attachment;
             return this;
         }
 
