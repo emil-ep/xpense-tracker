@@ -164,6 +164,14 @@ public enum MetricDefinitions {
                             .anyMatch(tag -> tag.getCategory() != null && tag.getCategory().isExpense()))
                     .mapToDouble(Expenses::getDebit)
                     .sum()
+    ),
+    PROFIT_AND_LOSS("profile_and_loss",
+            "SUM",
+            stream -> stream
+                    .filter(Expenses.class::isInstance)
+                    .map(Expenses.class::cast)
+                    .mapToDouble(expense -> expense.getCredit() - expense.getDebit())
+                    .sum()
     );
 
     // ADD MORE METRIC DEFINITIONS HERE
