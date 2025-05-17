@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.models.metrics;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.entities.Tag;
+import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
 import com.xperia.xpense_tracker.models.entities.TransactionType;
 import lombok.Getter;
 
@@ -158,18 +159,9 @@ public enum MetricDefinitions {
     AGG_EXPENSE("expense_aggregate",
             "SUM",
             stream -> stream
-                    .filter(Expenses.class::isInstance)
                     .map(Expenses.class::cast)
-                    .filter(expense -> expense.getTags().stream()
-                            .anyMatch(tag -> tag.getCategory() != null && tag.getCategory().isExpense()))
-                    .mapToDouble(Expenses::getDebit)
-                    .sum()
-    ),
-    PROFIT_AND_LOSS("profile_and_loss",
-            "SUM",
-            stream -> stream
-                    .filter(Expenses.class::isInstance)
-                    .map(Expenses.class::cast)
+                    .filter(expenses -> expenses.getTags().stream().noneMatch(tag ->
+                            tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.SALARY.getName())))
                     .mapToDouble(expense -> expense.getCredit() - expense.getDebit())
                     .sum()
     );
