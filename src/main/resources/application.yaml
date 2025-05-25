@@ -39,4 +39,14 @@ logging:
     com.xperia.xpense_tracker: DEBUG
     org.springframework.web: ERROR
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ['prometheus']
+#        include: '*' #it allows all endpoints.
+  endpoint:
+    health:
+      show-details: always
+
 
