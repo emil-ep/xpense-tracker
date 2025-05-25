@@ -30,6 +30,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Pattern AUTH_PATTERN = Pattern.compile("/v1/auth/.*");
 
+    private static final Pattern ACTUATOR_EXTRAS_PATTERN = Pattern.compile("/actuator/.*");
+    private static final Pattern ACTUATOR_PATTERN = Pattern.compile("/actuator");
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -38,7 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        if (AUTH_PATTERN.matcher(request.getRequestURI()).matches()) {
+        if (AUTH_PATTERN.matcher(request.getRequestURI()).matches()
+                || ACTUATOR_PATTERN.matcher(request.getRequestURI()).matches()
+                || ACTUATOR_EXTRAS_PATTERN.matcher(request.getRequestURI()).matches()
+
+        ) {
             filterChain.doFilter(request, response); // Proceed with the filter chain
             return;
         }
