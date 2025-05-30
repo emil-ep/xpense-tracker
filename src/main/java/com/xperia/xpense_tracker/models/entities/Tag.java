@@ -39,7 +39,7 @@ public class Tag {
     private boolean canBeConsideredExpense;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private TagCategory category;
 
     private String color;
