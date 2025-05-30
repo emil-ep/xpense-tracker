@@ -2,7 +2,9 @@ package com.xperia.xpense_tracker.jobs;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component("MutualFundTrackerJob")
 public class MutualFundTrackerJob implements ScheduledJob{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MutualFundTrackerJob.class);
@@ -22,8 +24,4 @@ public class MutualFundTrackerJob implements ScheduledJob{
         return true;
     }
 
-    @Override
-    public String getCronExpression() {
-        return "";
-    }
 }
