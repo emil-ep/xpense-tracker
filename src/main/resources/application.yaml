@@ -52,4 +52,10 @@ management:
     health:
       show-details: always
 
+mutualFund:
+  api:
+    url: "https://api.mfapi.in/mf"
+  job:
+    enabled: false
+
 

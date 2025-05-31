@@ -118,6 +118,7 @@ public class Expenses {
             this.type = existing.getType();
             this.tags = new HashSet<>(existing.tags);
             this.user = existing.getUser();
+            this.attachment = existing.attachment;
         }
 
         public ExpenseBuilder onDate(LocalDate transactionDate){
