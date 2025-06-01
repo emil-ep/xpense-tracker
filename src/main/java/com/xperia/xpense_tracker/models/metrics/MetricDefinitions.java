@@ -161,9 +161,11 @@ public enum MetricDefinitions {
             stream -> stream
                     .map(Expenses.class::cast)
                     .filter(expenses -> expenses.getTags().stream().noneMatch(tag ->
-                            tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.SALARY.getName()) ||
-                            tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.BANK_SAVINGS.getName()) ||
-                                    tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.MUTUAL_FUND.getName())))
+                            tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.SALARY.getName())
+                                    || tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.BANK_SAVINGS.getName())
+                                    || tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.MUTUAL_FUND.getName())
+                                    || tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.OTHER_SAVINGS.getName())
+                            ))
                     .mapToDouble(expense -> expense.getCredit() - expense.getDebit())
                     .sum()
     );
