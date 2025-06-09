@@ -70,4 +70,10 @@ Prometheus will be available at endpoint http://localhost:9090 <br>
 Grafana will be available at endpoint http://localhost:3002 <br>
 
 
+### Kafka & Zookeeper
+
+Setting up kafka and zookeeper - https://medium.com/@erkndmrl/kafka-cluster-with-docker-compose-5864d50f677e
+
+
+
 
