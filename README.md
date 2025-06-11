@@ -74,6 +74,14 @@ Grafana will be available at endpoint http://localhost:3002 <br>
 
 Setting up kafka and zookeeper - https://medium.com/@erkndmrl/kafka-cluster-with-docker-compose-5864d50f677e
 
+The Xpense-Scheduler application requires Kafka to exchange messages with the consumers. For running and setting Kafka 
+on your machine, you need to run the `docker-compose up` inside the folder `docker/kafka`. 
+This will setup Kafka, Zookeeper and kafka-ui. <br>
+
+You can view the kafka-ui using http://localhost:8087 <br>
+
+
+
 
 
 
