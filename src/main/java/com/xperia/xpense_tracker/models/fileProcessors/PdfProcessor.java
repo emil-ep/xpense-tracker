@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+@Deprecated
 public class PdfProcessor extends FileProcessor{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfProcessor.class);
