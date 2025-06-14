@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -151,8 +152,14 @@ public enum MetricDefinitions {
                     })
                     .collect(Collectors.groupingBy(
                             Map.Entry::getKey,
-                            Collectors.summingDouble(entry ->
-                                    entry.getValue().getCredit() + entry.getValue().getDebit()
+                            Collector.of(
+                                    () -> new double[2],
+                                    (acc, e) -> {
+                                        acc[0] += e.getValue().getCredit();
+                                        acc[1] += e.getValue().getDebit();
+                                    },
+                                    (a, b) -> { a[0]+=b[0]; a[1]+=b[1]; return a; },
+                                    acc -> Math.abs(acc[0] - acc[1])
                             )
                     ))
     ),
