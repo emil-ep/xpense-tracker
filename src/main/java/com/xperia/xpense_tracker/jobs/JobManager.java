@@ -30,7 +30,7 @@ public class JobManager implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         scheduleJob("MutualFundTrackerJob", "*/5 * * * * *");
-        scheduleJob("FileCleanupJob", "*/50 * * * * *");
+        scheduleJob("FileCleanupJob", "0 */5 * * * *");
     }
 
     private void scheduleJob(String name, String cronExpression){
@@ -43,5 +43,6 @@ public class JobManager implements InitializingBean {
             ScheduledFuture<?> future = scheduler.schedule(job::execute, new CronTrigger(cronExpression));
             tasks.put(name, future);
         }
+        System.out.println(tasks);
     }
 }

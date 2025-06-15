@@ -1,17 +1,13 @@
 package com.xperia.xpense_tracker.jobs;
 
-import com.xperia.xpense_tracker.jobs.models.MutualFundScheme;
 import com.xperia.xpense_tracker.models.entities.JobStatus;
 import com.xperia.xpense_tracker.models.entities.JobStatusEnum;
 import com.xperia.xpense_tracker.services.JobStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
 
 @Component("MutualFundTrackerJob")
 public class MutualFundTrackerJob implements ScheduledJob{
@@ -22,11 +18,11 @@ public class MutualFundTrackerJob implements ScheduledJob{
 
     private final JobStatusService jobStatusService;
 
-    @Value("${mutualFund.api.url}")
-    private String mutualFundUrl;
-
-    @Value("${mutualFund.job.enabled}")
-    private boolean jobEnabled;
+//    @Value("${mutualFund.api.url}")
+//    private String mutualFundUrl;
+//
+//    @Value("${mutualFund.job.enabled}")
+//    private boolean jobEnabled;
 
     @Autowired
     public MutualFundTrackerJob(RestTemplate restTemplate, JobStatusService jobStatusService){
@@ -44,17 +40,17 @@ public class MutualFundTrackerJob implements ScheduledJob{
         LOGGER.info("Executing MutualFundTrackerJob");
         JobStatus jobStatus = new JobStatus("MutualFundTrackerJob", System.currentTimeMillis(), JobStatusEnum.STARTED);
         jobStatus = jobStatusService.saveStatus(jobStatus);
-        List<MutualFundScheme> response = restTemplate.getForObject(mutualFundUrl, List.class);
-        if (response != null){
-            LOGGER.info("got data : {}", response.size());
-        }
+//        List<MutualFundScheme> response = restTemplate.getForObject(mutualFundUrl, List.class);
+//        if (response != null){
+//            LOGGER.info("got data : {}", response.size());
+//        }
         jobStatus.setStatus(JobStatusEnum.COMPLETED);
         jobStatusService.saveStatus(jobStatus);
     }
 
     @Override
     public boolean isEnabled() {
-        return jobEnabled;
+        return false;
     }
 
 }

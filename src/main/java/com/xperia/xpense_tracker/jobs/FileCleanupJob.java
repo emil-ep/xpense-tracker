@@ -1,6 +1,8 @@
 package com.xperia.xpense_tracker.jobs;
 
+import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.entities.Statements;
+import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,9 @@ public class FileCleanupJob implements ScheduledJob{
     @Autowired
     private StatementService statementService;
 
+    @Autowired
+    private ExpenseService expenseService;
+
     @Override
     public String getName() {
         return "FileCleanupJob";
@@ -38,7 +43,7 @@ public class FileCleanupJob implements ScheduledJob{
     @Override
     public void execute() {
         Path uploadPath = Paths.get(fileUploadPath);
-
+        Path attachementPath = Paths.get(attachmentUploadPath);
         LOGGER.info("Starting FileCleanupJob ");
         try(Stream<Path> files = Files.list(uploadPath)){
             Set<String> statementFileNames = statementService.listAll()
@@ -62,7 +67,30 @@ public class FileCleanupJob implements ScheduledJob{
         }catch (IOException ex){
             LOGGER.error("Error while opening path : {}", fileUploadPath);
         }
-        LOGGER.info("Completed FileCleanupJob");
+
+        try(Stream<Path> files = Files.list(attachementPath)){
+            Set<String> attachmentFileNames = expenseService.listAll()
+                    .stream()
+                    .filter(expenses -> expenses.getAttachment() != null && !expenses.getAttachment().isEmpty())
+                    .map(Expenses::getAttachment)
+                    .collect(Collectors.toSet());
+            Set<Path> filesToRemove = files
+                    .filter(file -> !file.toFile().isDirectory())
+                    .filter(file -> !attachmentFileNames.contains(file.getFileName().toString()))
+                    .collect(Collectors.toSet());
+            LOGGER.info("Attachment files To remove count : {}", filesToRemove.size());
+            filesToRemove.forEach(toRemove -> {
+                try{
+                    Files.delete(toRemove);
+                    LOGGER.debug("Removed the attachment : {}", toRemove.getFileName().toString());
+                }catch (IOException ex){
+                    LOGGER.error("Error while removing attachment : {}", toRemove.getFileName().toString(), ex);
+                }
+            });
+            LOGGER.info("Completed FileCleanupJob");
+        }catch (IOException ex){
+            LOGGER.error("Error while opening path : {}", attachmentUploadPath);
+        }
     }
 
     @Override

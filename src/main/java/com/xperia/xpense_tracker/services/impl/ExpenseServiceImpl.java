@@ -227,6 +227,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
     }
 
+    @Override
+    public List<Expenses> listAll() {
+        return expensesRepository.findAll();
+    }
+
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
         return date.toString() + "_" + bankReferenceNo + "_" + userId;
     }
