@@ -1,5 +1,8 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.converter.AbstractImageProcessor;
+import com.xperia.xpense_tracker.converter.ImageProcessorFactory;
+import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
 import com.xperia.xpense_tracker.models.entities.Statements;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,7 +42,7 @@ public class FileUploadServiceImpl implements UploadService {
 
     private static final String[] ALLOWED_FILE_TYPES = {"csv", "xlsx", "DELIMITED", "pdf"};
 
-    private static final String[] ALLOWED_ATTACHMENT_TYPE = {"jpeg", "jpg", "pdf", "png"};
+    private static final String[] ALLOWED_ATTACHMENT_TYPE = {"heic","jpeg", "jpg", "pdf", "png"};
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUploadServiceImpl.class);
 
@@ -88,24 +92,29 @@ public class FileUploadServiceImpl implements UploadService {
             throw new IllegalArgumentException("Invalid file uploaded");
         }
 
-        String fileExtension = fileName.split("\\.")[1];
+        String fileExtension = fileName.split("\\.")[1].toLowerCase();
         if(Arrays.stream(ALLOWED_ATTACHMENT_TYPE).noneMatch(allowedType -> allowedType.equals(fileExtension))){
             LOG.error("Invalid file type is received for upload : fileType = {}", fileType);
             throw new IllegalArgumentException("Invalid file uploaded");
         }
         String customFileName = user.getId() + "_" + Instant.now().getEpochSecond() + "_" + fileName;
         try{
-            Path uploadPath = Paths.get(attachmentUploadPath);
-            if(!Files.exists(uploadPath)){
-                Files.createDirectories(uploadPath);
-            }
-            Path filePath = uploadPath.resolve(customFileName);
-            file.transferTo(filePath.toFile());
+            var imageProcessor = ImageProcessorFactory.findImageProcessor(fileExtension);
+            imageProcessor.saveImage(file, attachmentUploadPath, customFileName);
+//            Path uploadPath = Paths.get(attachmentUploadPath);
+//            if(!Files.exists(uploadPath)){
+//                Files.createDirectories(uploadPath);
+//            }
+//            Path filePath = uploadPath.resolve(customFileName);
+//            file.transferTo(filePath.toFile());
             return customFileName;
-        }catch (IOException ex){
+        }catch (TrackerException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
             throw new IOException(ex.getMessage());
+        }catch(Exception ex){
+            LOG.error("Error uploading file to server : {}", ex.getMessage(), ex);
         }
+        throw new TrackerUnknownException("Internal server error");
     }
 
     @Override
