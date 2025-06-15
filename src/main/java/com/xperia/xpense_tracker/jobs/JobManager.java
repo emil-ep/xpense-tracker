@@ -43,6 +43,5 @@ public class JobManager implements InitializingBean {
             ScheduledFuture<?> future = scheduler.schedule(job::execute, new CronTrigger(cronExpression));
             tasks.put(name, future);
         }
-        System.out.println(tasks);
     }
 }
