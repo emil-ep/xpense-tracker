@@ -31,4 +31,5 @@ public interface ExpenseService {
 
     void syncExpenses(UserDetails userDetails, String requestId);
 
+    List<Expenses> listAll();
 }
