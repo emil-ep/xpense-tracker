@@ -51,4 +51,9 @@ public class StatementServiceImpl implements StatementService {
             throw ex;
         }
     }
+
+    @Override
+    public List<Statements> listAll() {
+        return statementsRepository.findAll();
+    }
 }

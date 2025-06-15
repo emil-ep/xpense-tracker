@@ -10,4 +10,6 @@ public interface StatementService {
     void saveStatement(Statements statements);
 
     List<String> extractHeaderMapper(File file);
+
+    List<Statements> listAll();
 }

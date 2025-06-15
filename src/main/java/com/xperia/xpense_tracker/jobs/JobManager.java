@@ -30,6 +30,7 @@ public class JobManager implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         scheduleJob("MutualFundTrackerJob", "*/5 * * * * *");
+        scheduleJob("FileCleanupJob", "*/50 * * * * *");
     }
 
     private void scheduleJob(String name, String cronExpression){
