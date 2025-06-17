@@ -9,10 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 
 public class HEICProcessor extends AbstractImageProcessor<MultipartFile, BufferedImage> {
@@ -26,16 +23,18 @@ public class HEICProcessor extends AbstractImageProcessor<MultipartFile, Buffere
 
         File tempFile;
         try{
-            tempFile = File.createTempFile("temp", ".HEIC");
-            try(OutputStream out = new FileOutputStream(tempFile)) {
+            tempFile = File.createTempFile("temp", ".heic");
+            try(InputStream in = heicImage.getInputStream();
+                OutputStream out = new FileOutputStream(tempFile)) {
                 byte[] buffer = new byte[8192];
                 int bytesRead;
-                while ((bytesRead = heicImage.getInputStream().read(buffer)) != -1) {
+                while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                 }
             }
 
             grabber = new FFmpegFrameGrabber(tempFile);
+            grabber.setFormat("image2");
             grabber.start();
             Frame frame = grabber.grabImage();
             if (frame == null) {
