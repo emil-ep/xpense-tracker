@@ -91,7 +91,7 @@ public class FileUploadServiceImpl implements UploadService {
         }
 
         String fileName = file.split("\\.")[0].toLowerCase();
-        String fileExtension = fileName.split("\\.")[1].toLowerCase();
+        String fileExtension = file.split("\\.")[1].toLowerCase();
         if(Arrays.stream(ALLOWED_ATTACHMENT_TYPE).noneMatch(allowedType -> allowedType.equals(fileExtension))){
             LOG.error("Invalid file type is received for upload : fileType = {}", fileType);
             throw new IllegalArgumentException("Invalid file uploaded");
@@ -101,7 +101,7 @@ public class FileUploadServiceImpl implements UploadService {
                 : user.getId() + "_" + Instant.now().getEpochSecond() + "_" + file;
         try{
             var imageProcessor = ImageProcessorFactory.findImageProcessor(fileExtension);
-            imageProcessor.saveImage(file, attachmentUploadPath, customFileName);
+            imageProcessor.saveImage(multipartFile, attachmentUploadPath, customFileName);
             return customFileName;
         }catch (TrackerException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
