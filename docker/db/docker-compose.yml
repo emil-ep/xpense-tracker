@@ -1,8 +1,10 @@
-version: '3.8'
+volumes:
+  xpense_tracker_data_v2:
+    name: xpense_tracker_data_v2
+
 services:
   db:
     image: postgres
-    container_name: xpense-tracker-db
     environment:
       POSTGRES_USER: xpense_admin
       POSTGRES_PASSWORD: xpenseTracker1234
@@ -10,7 +12,4 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
-
-volumes:
-  db_data:
+      - xpense_tracker_data_v2:/var/lib/postgresql/data
