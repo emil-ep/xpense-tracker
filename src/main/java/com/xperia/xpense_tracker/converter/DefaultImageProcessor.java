@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 
 public class DefaultImageProcessor extends AbstractImageProcessor<MultipartFile, MultipartFile>{
     @Override
-    MultipartFile convertImage(MultipartFile image) {
+    MultipartFile convertImage(MultipartFile image, String path, String fileName) {
         //No conversion required
         return image;
     }

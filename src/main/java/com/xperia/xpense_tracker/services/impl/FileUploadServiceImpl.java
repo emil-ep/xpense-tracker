@@ -1,6 +1,5 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.converter.AbstractImageProcessor;
 import com.xperia.xpense_tracker.converter.ImageProcessorFactory;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,32 +79,29 @@ public class FileUploadServiceImpl implements UploadService {
     }
 
     @Override
-    public String uploadAttachment(MultipartFile file, UserDetails userDetails) throws IOException {
+    public String uploadAttachment(MultipartFile multipartFile, UserDetails userDetails) throws IOException {
 
-        String fileName = file.getOriginalFilename();
-        String fileType = file.getContentType();
+        String file = multipartFile.getOriginalFilename();
+        String fileType = multipartFile.getContentType();
         TrackerUser user = (TrackerUser) userDetails;
 
-        if(fileName == null || fileType == null){
+        if(file == null || fileType == null){
             LOG.error("file name or file type is empty");
             throw new IllegalArgumentException("Invalid file uploaded");
         }
 
+        String fileName = file.split("\\.")[0].toLowerCase();
         String fileExtension = fileName.split("\\.")[1].toLowerCase();
         if(Arrays.stream(ALLOWED_ATTACHMENT_TYPE).noneMatch(allowedType -> allowedType.equals(fileExtension))){
             LOG.error("Invalid file type is received for upload : fileType = {}", fileType);
             throw new IllegalArgumentException("Invalid file uploaded");
         }
-        String customFileName = user.getId() + "_" + Instant.now().getEpochSecond() + "_" + fileName;
+        String customFileName = fileExtension.equalsIgnoreCase("heic")
+                ? user.getId() + "_" + Instant.now().getEpochSecond() + "_" + fileName + ".png"
+                : user.getId() + "_" + Instant.now().getEpochSecond() + "_" + file;
         try{
             var imageProcessor = ImageProcessorFactory.findImageProcessor(fileExtension);
             imageProcessor.saveImage(file, attachmentUploadPath, customFileName);
-//            Path uploadPath = Paths.get(attachmentUploadPath);
-//            if(!Files.exists(uploadPath)){
-//                Files.createDirectories(uploadPath);
-//            }
-//            Path filePath = uploadPath.resolve(customFileName);
-//            file.transferTo(filePath.toFile());
             return customFileName;
         }catch (TrackerException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
