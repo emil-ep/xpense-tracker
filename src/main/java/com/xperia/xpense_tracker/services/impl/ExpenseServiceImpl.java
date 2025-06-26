@@ -1,6 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
+import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
 import com.xperia.xpense_tracker.models.entities.*;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
@@ -8,6 +9,7 @@ import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
+import com.xperia.xpense_tracker.repository.RemovedExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.SyncStatusService;
 import com.xperia.xpense_tracker.services.TagService;
@@ -27,10 +29,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +51,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Autowired
     private SyncStatusService syncStatusService;
+
+    @Autowired
+    private RemovedExpensesRepository removedExpensesRepository;
 
     @Override
     public Page<Expenses> getExpenses(UserDetails userDetails, LocalDate startDate, LocalDate endDate, PageRequest pageRequest) {
@@ -230,6 +232,17 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public List<Expenses> listAll() {
         return expensesRepository.findAll();
+    }
+
+    @Override
+    public void softDeleteExpense(String id) {
+        Optional<Expenses> expense = expensesRepository.findExpensesById(id);
+        if (expense.isEmpty()){
+            throw new TrackerNotFoundException("Expense with id : " + id + " not found");
+        }
+        RemovedExpense removedExpense = new RemovedExpense(expense.get());
+        expensesRepository.deleteById(id);
+        removedExpensesRepository.save(removedExpense);
     }
 
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
