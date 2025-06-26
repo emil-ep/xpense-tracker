@@ -42,6 +42,9 @@ public class CacheService {
     public void clearCache(String cacheName, String userId){
         Cache cache = cacheManager.getCache(cacheName);
         Map<String, List<String>> cacheKeyByCacheName = cacheByUser.get(userId);
+        if (cacheKeyByCacheName == null){
+            return;
+        }
         List<String> cacheKeys = cacheKeyByCacheName.get(cacheName);
         if (cache == null){
             return;

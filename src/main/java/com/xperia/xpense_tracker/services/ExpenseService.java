@@ -32,4 +32,6 @@ public interface ExpenseService {
     void syncExpenses(UserDetails userDetails, String requestId);
 
     List<Expenses> listAll();
+
+    void softDeleteExpense(String id);
 }

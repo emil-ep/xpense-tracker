@@ -231,4 +231,16 @@ public class ExpenseController {
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching sync status"));
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AbstractResponse> softDeleteExpense(@AuthenticationPrincipal UserDetails userDetails,
+                                                              @PathVariable("id") String id){
+        try{
+            expenseService.softDeleteExpense(id);
+            return ResponseEntity.ok(new SuccessResponse("Deleted expense"));
+        }catch (Exception ex){
+            LOGGER.error("Unable to soft delete expense : {}", id);
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error while deleting expense"));
+        }
+    }
  }

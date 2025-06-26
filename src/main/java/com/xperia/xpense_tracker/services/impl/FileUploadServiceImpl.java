@@ -38,7 +38,7 @@ public class FileUploadServiceImpl implements UploadService {
     @Autowired
     private StatementService statementService;
 
-    private static final String[] ALLOWED_FILE_TYPES = {"csv", "xlsx", "DELIMITED", "pdf"};
+    private static final String[] ALLOWED_FILE_TYPES = {"csv", "xlsx", "DELIMITED", "pdf", "txt"};
 
     private static final String[] ALLOWED_ATTACHMENT_TYPE = {"heic","jpeg", "jpg", "pdf", "png"};
 

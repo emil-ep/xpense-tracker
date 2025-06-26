@@ -12,7 +12,7 @@ public class FileProcessorFactory {
             case "xlsx" -> {
                 return new ExcelProcessor();
             }
-            case "delimited", "csv" -> {
+            case "delimited", "csv", "txt" -> {
                 return new DelimitedProcessor();
             }
             case "pdf" -> {
