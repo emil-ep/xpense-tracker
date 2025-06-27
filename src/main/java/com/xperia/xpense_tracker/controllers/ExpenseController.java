@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.controllers;
 
 import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
+import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -233,13 +235,17 @@ public class ExpenseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@expenseSecurity.isOwner(#id, authentication.name)")
     public ResponseEntity<AbstractResponse> softDeleteExpense(@AuthenticationPrincipal UserDetails userDetails,
                                                               @PathVariable("id") String id){
         try{
             expenseService.softDeleteExpense(id);
             return ResponseEntity.ok(new SuccessResponse("Deleted expense"));
-        }catch (Exception ex){
-            LOGGER.error("Unable to soft delete expense : {}", id);
+        }catch (TrackerException ex){
+            LOGGER.error("Unable to soft delete expense : {}", id, ex);
+            return ResponseEntity.status(ex.getHttpStatus()).body(new ErrorResponse(ex.getMessage()));
+        } catch (Exception ex){
+            LOGGER.error("Unable to soft delete expense : {}", id, ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error while deleting expense"));
         }
     }

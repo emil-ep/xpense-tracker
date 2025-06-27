@@ -240,7 +240,12 @@ public class ExpenseServiceImpl implements ExpenseService {
         if (expense.isEmpty()){
             throw new TrackerNotFoundException("Expense with id : " + id + " not found");
         }
+
         RemovedExpense removedExpense = new RemovedExpense(expense.get());
+        //Removing foreign key constraint
+        expense.get().getTags().clear();
+        expensesRepository.save(expense.get());
+        // done
         expensesRepository.deleteById(id);
         removedExpensesRepository.save(removedExpense);
     }
