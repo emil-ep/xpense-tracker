@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.controllers;
 
 import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
+import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.ExpenseAggregateType;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
@@ -238,8 +239,11 @@ public class ExpenseController {
         try{
             expenseService.softDeleteExpense(id);
             return ResponseEntity.ok(new SuccessResponse("Deleted expense"));
-        }catch (Exception ex){
-            LOGGER.error("Unable to soft delete expense : {}", id);
+        }catch (TrackerException ex){
+            LOGGER.error("Unable to soft delete expense : {}", id, ex);
+            return ResponseEntity.status(ex.getHttpStatus()).body(new ErrorResponse(ex.getMessage()));
+        } catch (Exception ex){
+            LOGGER.error("Unable to soft delete expense : {}", id, ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error while deleting expense"));
         }
     }

@@ -14,7 +14,6 @@ import java.time.LocalDate;
 public class RemovedExpense {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yy")
