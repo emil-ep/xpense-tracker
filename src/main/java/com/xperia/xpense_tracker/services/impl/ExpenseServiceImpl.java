@@ -11,6 +11,7 @@ import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.repository.RemovedExpensesRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
+import com.xperia.xpense_tracker.services.RemovedExpensesService;
 import com.xperia.xpense_tracker.services.SyncStatusService;
 import com.xperia.xpense_tracker.services.TagService;
 import jakarta.persistence.Tuple;
@@ -55,6 +56,10 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Autowired
     private RemovedExpensesRepository removedExpensesRepository;
 
+    @Autowired
+    private RemovedExpensesService removedExpensesService;
+
+
     @Override
     public Page<Expenses> getExpenses(UserDetails userDetails, LocalDate startDate, LocalDate endDate, PageRequest pageRequest) {
 
@@ -82,6 +87,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         List<Tag> userTags = tagService.findAllTagsForUser(user);
         List<Expenses> expensesList = parsedFile.stream()
                 .limit(isPreview ? 5 : parsedFile.size()) //limit processing to 5 elements if it's a preview
+                .filter(row -> !removedExpensesService.isRemovedExpense(row.get(request.getDescription()), row.get(request.getBankReferenceNo())))
                 .map(row -> {
                     String transactionDescription = row.get(request.getDescription());
                     Set<Tag> matchedTags = findMatchingTags(userTags, transactionDescription);

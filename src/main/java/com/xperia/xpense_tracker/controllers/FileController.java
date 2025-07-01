@@ -29,7 +29,6 @@ public class FileController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
 
     @PostMapping("/upload/statement")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AbstractResponse> uploadStatement(@RequestParam("file") MultipartFile file,
                                                             @AuthenticationPrincipal UserDetails userDetails){
       try{
