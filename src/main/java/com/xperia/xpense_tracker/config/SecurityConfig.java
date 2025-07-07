@@ -74,8 +74,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://xpense-tracker-ui.onrender.com",
-                "http://localhost:8080", "http://localhost:3001", "http://9.20.198.82:3000"));
+//        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://xpense-tracker-ui.onrender.com",
+//                "http://localhost:8080", "http://localhost:3001", "http://9.20.198.82:3000"));
+        corsConfiguration.setAllowedOriginPatterns(List.of("*"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(List.of("*"));
