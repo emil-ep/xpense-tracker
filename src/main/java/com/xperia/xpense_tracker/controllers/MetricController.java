@@ -30,6 +30,7 @@ public class MetricController {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricController.class);
 
     @PostMapping
+    @Deprecated
     public ResponseEntity<AbstractResponse> fetchMetrics(@RequestParam("timeframe") String timeframe,
                                                          @RequestParam("limit") int limit,
                                                          @AuthenticationPrincipal UserDetails userDetails){
