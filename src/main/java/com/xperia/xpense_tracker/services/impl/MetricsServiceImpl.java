@@ -95,14 +95,7 @@ public class MetricsServiceImpl implements MetricsService {
                     .parallelStream()
                     .collect(Collectors.toMap(
                             MetricDefinitions::getMetricName,
-                            definition -> {
-                                //Expenses are returned negative. This is for converting them back to positive
-                                Object value = definition.process(group.stream());
-                                if (value instanceof Number number){
-                                    return Math.abs(number.doubleValue());
-                                }
-                                return value;
-                            }
+                            definition -> definition.process(group.stream())
                     ));
 
             Map<String, Object> result = new HashMap<>();
