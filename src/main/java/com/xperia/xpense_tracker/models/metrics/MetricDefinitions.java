@@ -174,6 +174,8 @@ public enum MetricDefinitions {
                                     || tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.OTHER_SAVINGS.getName())
                             ))
                     .mapToDouble(expense -> expense.getCredit() - expense.getDebit())
+                    //any expense greater than 0 means credit on the day was higher than debit, so we can ignore that as an expense
+                    .filter(expense -> expense < 0.0)
                     .sum()
     );
 
