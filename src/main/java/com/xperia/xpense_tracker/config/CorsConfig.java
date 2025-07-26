@@ -1,12 +1,12 @@
 package com.xperia.xpense_tracker.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
 
@@ -14,17 +14,33 @@ import java.util.List;
 public class CorsConfig {
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000",
-                "http://localhost:8080", "http://localhost:3001", "http://9.20.198.82:3000", "http://10.51.3.224:3000",
-                "http://9.20.198.82:8085", "http://10.51.3.224:8085"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setMaxAge(3600L);
+    public CorsConfiguration corsConfiguration() {
+        CorsConfiguration cors = new CorsConfiguration();
+        cors.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://localhost:8080",
+                "http://localhost:3001",
+                "http://9.20.198.82:3000",
+                "http://10.51.3.224:3000",
+                "http://9.20.198.82:8085",
+                "http://10.51.3.224:8085"
+        ));
+        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        cors.setAllowedHeaders(List.of("*"));
+        cors.setAllowCredentials(true);
+        cors.setMaxAge(3600L);
+        return cors;
+    }
+
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistration() {
+        // wrap your CorsConfiguration in a UrlBasedCorsConfigurationSource
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);
-        return source;
+        source.registerCorsConfiguration("/**", corsConfiguration());
+
+        CorsFilter corsFilter = new CorsFilter(source);
+        FilterRegistrationBean<CorsFilter> reg = new FilterRegistrationBean<>(corsFilter);
+        reg.setOrder(Ordered.HIGHEST_PRECEDENCE);  // run before any other filter
+        return reg;
     }
 }
