@@ -17,7 +17,8 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000",
-                "http://localhost:8080", "http://localhost:3001", "http://9.20.198.82:3000"));
+                "http://localhost:8080", "http://localhost:3001", "http://9.20.198.82:3000", "http://10.51.3.224:3000",
+                "http://9.20.198.82:8085", "http://10.51.3.224:8085"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
         corsConfiguration.setAllowCredentials(false);
         corsConfiguration.setAllowedHeaders(List.of("*"));
@@ -26,19 +27,4 @@ public class CorsConfig {
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
-
-    @Bean
-    public WebMvcConfigurer webMvcConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://9.20.198.82:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(false);
-            }
-        };
-    }
-
 }
