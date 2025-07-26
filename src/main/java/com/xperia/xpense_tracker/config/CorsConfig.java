@@ -20,7 +20,7 @@ public class CorsConfig {
                 "http://localhost:8080", "http://localhost:3001", "http://9.20.198.82:3000", "http://10.51.3.224:3000",
                 "http://9.20.198.82:8085", "http://10.51.3.224:8085"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
-        corsConfiguration.setAllowCredentials(false);
+        corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
