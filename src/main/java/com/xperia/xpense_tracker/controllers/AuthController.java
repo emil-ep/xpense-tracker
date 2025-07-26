@@ -12,10 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/auth")
@@ -23,6 +20,11 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @RequestMapping(value = "/signIn", method = RequestMethod.OPTIONS)
+    public ResponseEntity<?> handleOptions() {
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping(value = "/signIn", produces = "application/json")
     public ResponseEntity<AbstractResponse> signIn(@Valid @RequestBody SignInRequest signInRequest) {
