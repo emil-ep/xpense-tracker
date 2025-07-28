@@ -39,11 +39,9 @@ file:
 
 logging:
   level:
-#    root: INFO
-#    com.xperia.xpense_tracker: DEBUG
-#    org.springframework.web: ERROR
-    org.springframework.web.cors: DEBUG
-    org.springframework.security: DEBUG
+    root: INFO
+    com.xperia.xpense_tracker: DEBUG
+    org.springframework.web: ERROR
 
 management:
   endpoints:
