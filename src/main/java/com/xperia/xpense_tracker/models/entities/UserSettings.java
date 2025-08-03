@@ -24,7 +24,8 @@ public class UserSettings {
     @Enumerated(EnumType.STRING)
     private SettingsType type;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private TrackerUser user;
 
     @Column(columnDefinition = "jsonb")
