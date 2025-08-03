@@ -8,8 +8,8 @@ import java.util.Optional;
 @Getter
 public enum SettingsType{
 
-    CURRENCY("currency", "The currency preferred by the user"),
-    SAVINGS_TAGS("savingsTags", "The tags preferred by the user to be computed as savings. The debit incurred by these tags are not considered in computing expense");
+    CURRENCY("currency", "The currency preferred by the user");
+//    SAVINGS_TAGS("savingsTags", "The tags preferred by the user to be computed as savings. The debit incurred by these tags are not considered in computing expense");
 
     private final String type;
     private final String description;

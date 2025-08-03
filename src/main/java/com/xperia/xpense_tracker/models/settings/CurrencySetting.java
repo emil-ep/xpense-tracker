@@ -9,8 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CurrencySetting {
 
-    private String[] availableCurrencies;
-
     private String userCurrency;
 
 
