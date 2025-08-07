@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class UserSettingsFactory {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsFactory.class);
 
     public static JsonNode createUserSettings(SettingsType type){
