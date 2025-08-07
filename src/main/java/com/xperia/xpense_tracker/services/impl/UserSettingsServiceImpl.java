@@ -1,13 +1,16 @@
 package com.xperia.xpense_tracker.services.impl;
 
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.settings.SettingsType;
 import com.xperia.xpense_tracker.repository.UserSettingRepository;
 import com.xperia.xpense_tracker.services.UserService;
 import com.xperia.xpense_tracker.services.UserSettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +25,8 @@ public class UserSettingsServiceImpl implements UserSettingsService {
     @Autowired
     private UserService userService;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public List<UserSettings> fetchUserSettings(String username) {
         Optional<TrackerUser> user = userService.findUserByEmail(username);
@@ -29,5 +34,21 @@ public class UserSettingsServiceImpl implements UserSettingsService {
             throw new TrackerNotFoundException("User not found");
         }
         return userSettingRepository.findAllByUserId(user.get().getId());
+    }
+
+    @Override
+    public UserSettings updateUserSettings(SettingsType type, Object payload, UserDetails userDetails) {
+        Optional<TrackerUser> user = userService.findUserByEmail(userDetails.getUsername());
+        if (user.isEmpty()){
+            throw new TrackerNotFoundException("User not found");
+        }
+        Optional<UserSettings> userSettings = userSettingRepository.findByUserAndType(user.get(), type);
+
+        if (userSettings.isEmpty()){
+            throw new TrackerNotFoundException("The provided settingsType is not available");
+        }
+        JsonNode node = objectMapper.valueToTree(payload);
+        userSettings.get().setPayload(node);
+        return userSettingRepository.save(userSettings.get());
     }
 }

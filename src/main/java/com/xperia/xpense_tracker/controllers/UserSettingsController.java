@@ -1,9 +1,11 @@
 package com.xperia.xpense_tracker.controllers;
-
+import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.request.UserSettingUpdateRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
+import com.xperia.xpense_tracker.models.settings.SettingsType;
 import com.xperia.xpense_tracker.models.settings.UserSettingsFactory;
 import com.xperia.xpense_tracker.services.UserSettingsService;
 import org.slf4j.Logger;
@@ -12,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,6 +35,23 @@ public class UserSettingsController {
         }catch (Exception ex){
             LOGGER.error("Error fetching user settings : {}", ex.getMessage(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching user settings"));
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<AbstractResponse> updateUserSettings(@RequestBody UserSettingUpdateRequest request,
+                                                               @AuthenticationPrincipal UserDetails userDetails){
+        try{
+            SettingsType type = SettingsType.findByType(request.getType());
+            if (type == null){
+                throw new TrackerBadRequestException("Provided type value is not available");
+            }
+
+            UserSettings settings = userSettingsService.updateUserSettings(type, request.getPayload(), userDetails);
+            return ResponseEntity.ok(new SuccessResponse(settings));
+        }catch (Exception ex){
+            LOGGER.error("Error while updating user settings : {}", ex.getMessage(), ex);
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error updating user settings"));
         }
     }
 }
