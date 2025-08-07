@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.xperia.xpense_tracker.models.JsonNodeReadConverter;
 import com.xperia.xpense_tracker.models.settings.SettingsType;
@@ -26,6 +27,7 @@ public class UserSettings {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private TrackerUser user;
 
     @Column(columnDefinition = "jsonb")

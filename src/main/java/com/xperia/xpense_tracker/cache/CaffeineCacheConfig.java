@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
+import static com.xperia.xpense_tracker.cache.CacheNames.USER_SETTINGS_CACHE_NAME;
 
 @Configuration
 @EnableCaching
@@ -16,7 +17,7 @@ public class CaffeineCacheConfig {
     @Bean
     public CaffeineCacheManager cacheManager() {
         //If you want to add more caches, implement the cache in CacheNames.java and include in the cacheNames param for CaffeineCacheManager
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager(METRICS_CACHE_NAME);
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager(METRICS_CACHE_NAME, USER_SETTINGS_CACHE_NAME);
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(30, TimeUnit.MINUTES) // Cache expires after 30 minutes
                 .maximumSize(1000) // Limit cache size
