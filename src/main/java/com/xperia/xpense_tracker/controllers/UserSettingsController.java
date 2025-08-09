@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.controllers;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
+import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.UserSettings;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
@@ -46,10 +47,12 @@ public class UserSettingsController {
             if (type == null){
                 throw new TrackerBadRequestException("Provided type value is not available");
             }
-
             UserSettings settings = userSettingsService.updateUserSettings(type, request.getPayload(), userDetails);
             return ResponseEntity.ok(new SuccessResponse(settings));
-        }catch (Exception ex){
+        }catch (TrackerException ex){
+            LOGGER.error("Faced error in updating user settings : {}", ex.getMessage());
+            throw ex;
+        } catch (Exception ex){
             LOGGER.error("Error while updating user settings : {}", ex.getMessage(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error updating user settings"));
         }
