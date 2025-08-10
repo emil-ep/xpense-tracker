@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.controllers;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.request.UserSettingUpdateItem;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
@@ -43,11 +44,18 @@ public class UserSettingsController {
     public ResponseEntity<AbstractResponse> updateUserSettings(@RequestBody UserSettingUpdateRequest request,
                                                                @AuthenticationPrincipal UserDetails userDetails){
         try{
-            SettingsType type = SettingsType.findByType(request.getType());
-            if (type == null){
-                throw new TrackerBadRequestException("Provided type value is not available");
+            List<UserSettingUpdateItem> itemsToUpdate = request.getItems();
+            if (itemsToUpdate == null || itemsToUpdate.isEmpty()){
+                throw new TrackerBadRequestException("No items to update");
             }
-            UserSettings settings = userSettingsService.updateUserSettings(type, request.getPayload(), userDetails);
+            itemsToUpdate.forEach(item -> {
+                SettingsType type = SettingsType.findByType(item.getType());
+                if (type == null) {
+                    throw new TrackerBadRequestException("Provided type value is not available");
+                }
+            });
+
+            List<UserSettings> settings = userSettingsService.updateUserSettings(itemsToUpdate, userDetails);
             return ResponseEntity.ok(new SuccessResponse(settings));
         }catch (TrackerException ex){
             LOGGER.error("Faced error in updating user settings : {}", ex.getMessage());
