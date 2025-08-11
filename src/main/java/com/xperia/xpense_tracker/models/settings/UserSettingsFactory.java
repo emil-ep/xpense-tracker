@@ -25,7 +25,7 @@ public class UserSettingsFactory {
                     return objectMapper.readTree(settingAsString);
                 }catch (JsonProcessingException ex){
                     LOGGER.error("Error while parsing CURRENCY settings : {}", ex.getMessage(), ex);
-                    throw new TrackerException("test", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    throw new TrackerException("unable to parse setting", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 }
             }
             case SAVINGS_TAGS -> {
@@ -35,7 +35,17 @@ public class UserSettingsFactory {
                     return objectMapper.readTree(settingAsString);
                 }catch (JsonProcessingException ex){
                     LOGGER.error("Error while parsing SAVINGS_TAG settings : {}", ex.getMessage(), ex);
-                    throw new TrackerException("test", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    throw new TrackerException("unable to parse setting", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                }
+            }
+            case USERNAME -> {
+                UsernameSetting setting = new UsernameSetting("");
+                try{
+                    String settingAsString = objectMapper.writeValueAsString(setting);
+                    return objectMapper.readTree(settingAsString);
+                }catch (JsonProcessingException ex){
+                    LOGGER.error("Error while parsing USERNAME settings : {}", ex.getMessage(), ex);
+                    throw new TrackerException("unable to parse setting", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 }
             }
             case null, default -> {

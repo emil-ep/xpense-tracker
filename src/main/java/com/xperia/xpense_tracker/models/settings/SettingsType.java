@@ -10,7 +10,8 @@ public enum SettingsType{
 
     CURRENCY("currency", "The currency preferred by the user", CurrencySetting.class),
     SAVINGS_TAGS("savingsTags", "The tags preferred by the user to be computed as savings. " +
-            "The debit incurred by these tags are not considered in computing expense", SavingsTagSetting.class);
+            "The debit incurred by these tags are not considered in computing expense", SavingsTagSetting.class),
+    USERNAME("username", "The username preferred by the user. This will be used across the product.", UsernameSetting.class);
 
     private final String type;
     private final String description;
