@@ -136,6 +136,6 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<TagCategory> fetchTagCategories() {
         List<TagCategory> categories = tagCategoryRepository.findAll();
-        return categories;
+        return categories.stream().sorted(Comparator.comparing(TagCategory::getName)).toList();
     }
 }
