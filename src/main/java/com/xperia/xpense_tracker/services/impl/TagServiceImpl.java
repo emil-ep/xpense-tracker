@@ -13,10 +13,7 @@ import com.xperia.xpense_tracker.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -31,7 +28,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<Tag> findAllTagsForUser(TrackerUser user) {
         List<Tag> userTags = tagRepository.findAllByUser(user);
-        return userTags;
+        return userTags.stream().sorted(Comparator.comparing(Tag::getName)).toList();
     }
 
     @Override
