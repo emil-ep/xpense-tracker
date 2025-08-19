@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,5 +17,7 @@ public class StatementHeaderMapResponse {
     private List<String> header;
 
     private List<String> entityMap;
+
+    private Map<String, String> possibleMatches;
 
 }

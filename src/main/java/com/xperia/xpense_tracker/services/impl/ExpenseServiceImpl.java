@@ -256,6 +256,18 @@ public class ExpenseServiceImpl implements ExpenseService {
         removedExpensesRepository.save(removedExpense);
     }
 
+    @Override
+    public Map<String, String> matchHeaders(List<String> headers) {
+        Map<String, String> possibleMatches = new HashMap<>();
+        for (String header: headers){
+            ExpenseFields matchingField = ExpenseFields.findMatchingField(header);
+            if (matchingField != null){
+                possibleMatches.put(matchingField.getFieldName(), header);
+            }
+        }
+        return possibleMatches;
+    }
+
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {
         return date.toString() + "_" + bankReferenceNo + "_" + userId;
     }
