@@ -35,10 +35,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
 
@@ -157,7 +154,8 @@ public class ExpenseController {
                     ExpenseFields.CREDIT.getFieldName(),
                     ExpenseFields.CLOSING_BALANCE.getFieldName()
                     );
-            return ResponseEntity.ok(new SuccessResponse(new StatementHeaderMapResponse(header, entityMap)));
+            Map<String, String> possibleMatches = expenseService.matchHeaders(header);
+            return ResponseEntity.ok(new SuccessResponse(new StatementHeaderMapResponse(header, entityMap, possibleMatches)));
         }catch (IOException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }

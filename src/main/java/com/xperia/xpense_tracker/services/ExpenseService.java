@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface ExpenseService {
 
@@ -34,4 +35,6 @@ public interface ExpenseService {
     List<Expenses> listAll();
 
     void softDeleteExpense(String id);
+
+    Map<String, String> matchHeaders(List<String> headers);
 }
