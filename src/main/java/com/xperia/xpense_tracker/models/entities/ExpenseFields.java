@@ -6,12 +6,12 @@ import java.util.List;
 
 public enum ExpenseFields {
 
-    TRANSACTION_DATE("transactionDate", Arrays.asList("txnDate", "date", "txn date")),
-    DESCRIPTION("description", Arrays.asList("narration", "description")),
-    BANK_REF_NO("bankReferenceNo", Arrays.asList("Chq/Ref Number", "Ref Number")),
-    DEBIT("debit", Arrays.asList("debit", "debit amount", "debit amnt")),
-    CREDIT("credit", Arrays.asList("credit", "credit amnt", "credit amount")),
-    CLOSING_BALANCE("closingBalance", Arrays.asList("closing balance", "closing bal"));
+    TRANSACTION_DATE("transactionDate", Arrays.asList("txnDate", "date", "txn date", "Tran date")),
+    DESCRIPTION("description", Arrays.asList("narration", "description", "particulars")),
+    BANK_REF_NO("bankReferenceNo", Arrays.asList("Chq/Ref Number", "Ref Number", "Ref No./Cheque No.", "Chq no", "Cheque No")),
+    DEBIT("debit", Arrays.asList("debit", "debit amount", "debit amnt", "withdrawals")),
+    CREDIT("credit", Arrays.asList("credit", "credit amnt", "credit amount", "deposits")),
+    CLOSING_BALANCE("closingBalance", Arrays.asList("closing balance", "closing bal", "Balance"));
 
 
     private final String fieldName;
