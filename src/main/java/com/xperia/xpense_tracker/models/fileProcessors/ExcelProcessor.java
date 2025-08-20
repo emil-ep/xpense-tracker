@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.models.fileProcessors;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
+import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -76,15 +77,24 @@ public class ExcelProcessor extends FileProcessor {
         try {
             Workbook workbook = new XSSFWorkbook(file);
             Sheet sheet = workbook.getSheetAt(0);
-            Row headerRow = sheet.getRow(0);
-            Iterator<Cell> cellIterator = headerRow.cellIterator();
-            List<String> headerValues = new LinkedList<>();
-            while (cellIterator.hasNext()){
-                Cell cell = cellIterator.next();
-                String value = String.valueOf(getValueFromCell(cell));
-                headerValues.add(value);
+            Iterator<Row> rowIterator = sheet.rowIterator();
+            while(rowIterator.hasNext()){
+                Row row = rowIterator.next();
+                Iterator<Cell> cellIterator = row.cellIterator();
+                List<String> headerValues = new LinkedList<>();
+                while (cellIterator.hasNext()){
+                    Cell cell = cellIterator.next();
+                    String value = String.valueOf(getValueFromCell(cell));
+                    headerValues.add(value);
+                }
+                List<String> matchedValues = headerValues.stream()
+                        .filter(header -> ExpenseFields.findMatchingField(header.trim()) != null)
+                        .toList();
+                if (matchedValues.size() > HEADER_MATCH_THRESHOLD){
+                    return headerValues;
+                }
             }
-            return headerValues;
+            throw new TrackerBadRequestException("Required headers not found in the statement uploaded");
         }catch (Exception ex){
             LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to fetch headers from the file");

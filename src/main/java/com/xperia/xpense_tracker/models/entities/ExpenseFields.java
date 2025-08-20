@@ -8,9 +8,9 @@ public enum ExpenseFields {
 
     TRANSACTION_DATE("transactionDate", Arrays.asList("txnDate", "date", "txn date", "Tran date")),
     DESCRIPTION("description", Arrays.asList("narration", "description", "particulars")),
-    BANK_REF_NO("bankReferenceNo", Arrays.asList("Chq/Ref Number", "Ref Number", "Ref No./Cheque No.", "Chq no", "Cheque No")),
-    DEBIT("debit", Arrays.asList("debit", "debit amount", "debit amnt", "withdrawals")),
-    CREDIT("credit", Arrays.asList("credit", "credit amnt", "credit amount", "deposits")),
+    BANK_REF_NO("bankReferenceNo", Arrays.asList("Chq/Ref Number", "Ref Number", "Ref No./Cheque No.", "Chq no", "Cheque No", "Chq./Ref.No.")),
+    DEBIT("debit", Arrays.asList("debit", "debit amount", "debit amnt", "withdrawals", "withdrawal amt.")),
+    CREDIT("credit", Arrays.asList("credit", "credit amnt", "credit amount", "deposits", "deposit amt.")),
     CLOSING_BALANCE("closingBalance", Arrays.asList("closing balance", "closing bal", "Balance"));
 
 

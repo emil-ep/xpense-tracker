@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.models.fileProcessors;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
+import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,15 @@ public class DelimitedProcessor extends FileProcessor{
         }
     }
 
+    /**
+     * This function goes through the statement and matches each line with the header dictionary in ExpenseFields
+     * If any line contains column names which matches with the dictionary, it is returned as system identified header
+     * We are keeping a threshold of HEADER_MATCH_THRESHOLD, so atleast this number of column name should be matched to
+     * identify as a valid header
+     * @param file the statement file
+     * @return
+     * @throws TrackerException
+     */
     @Override
     public List<String> fetchHeaders(File file) throws TrackerException {
         String delimiter = ",";
@@ -54,13 +64,19 @@ public class DelimitedProcessor extends FileProcessor{
                 if (line.isEmpty()) continue;
                 String[] columns = line.split(delimiter);
                 if (columns.length > 0){
-                    return Arrays.stream(columns).map(String::trim).toList();
+                    List<String> matches  = Arrays.stream(columns)
+                            .filter(column -> ExpenseFields.findMatchingField(column.trim()) != null)
+                            .toList();
+                    //checking if there is a match, else continue to next line
+                    if (matches.size() > HEADER_MATCH_THRESHOLD){
+                        return Arrays.stream(columns).map(String::trim).toList();
+                    }
                 }
             }
+            throw new TrackerBadRequestException("Required headers not found in the statement uploaded");
         }catch (Exception ex){
             LOGGER.error("Unable to fetch headers from the file : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to fetch headers from the file");
         }
-        return null;
     }
 }
