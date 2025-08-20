@@ -9,6 +9,7 @@ import java.util.List;
 
 public abstract class FileProcessor {
 
+    protected static final int HEADER_MATCH_THRESHOLD = 3;
 
     public abstract List<HashMap<Integer, String>> parseFile(File file) throws TrackerBadRequestException;
 
