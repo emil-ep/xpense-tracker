@@ -66,7 +66,7 @@ public class PdfProcessor extends FileProcessor{
     }
 
     @Override
-    public List<String> fetchHeaders(File file) throws TrackerException {
+    public FileHeader fetchHeaders(File file) throws TrackerException {
         PDDocument pdDocument;
         List<String> headerValues = new LinkedList<>();
         int pageCount = 1;
@@ -104,7 +104,6 @@ public class PdfProcessor extends FileProcessor{
             LOGGER.error("Exception occurred while parsing pdf file : {}", ex.getMessage(), ex);
             throw new TrackerUnknownException("Unable to fetch headers from the file");
         }
-
-        return headerValues;
+        return new FileHeader(0, headerValues);
     }
 }

@@ -13,6 +13,6 @@ public abstract class FileProcessor {
 
     public abstract List<HashMap<Integer, String>> parseFile(File file) throws TrackerBadRequestException;
 
-    public abstract List<String> fetchHeaders(File file) throws TrackerException;
+    public abstract FileHeader fetchHeaders(File file) throws TrackerException;
 
 }
