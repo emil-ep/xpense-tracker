@@ -56,10 +56,11 @@ public class DelimitedProcessor extends FileProcessor{
      * @throws TrackerException
      */
     @Override
-    public List<String> fetchHeaders(File file) throws TrackerException {
+    public FileHeader fetchHeaders(File file) throws TrackerException {
         String delimiter = ",";
         try(BufferedReader bufferedReader = new BufferedReader(new FileReader(file.getPath()))){
             String line;
+            int rowCount = 0;
             while ((line = bufferedReader.readLine()) != null){
                 if (line.isEmpty()) continue;
                 String[] columns = line.split(delimiter);
@@ -69,9 +70,10 @@ public class DelimitedProcessor extends FileProcessor{
                             .toList();
                     //checking if there is a match, else continue to next line
                     if (matches.size() > HEADER_MATCH_THRESHOLD){
-                        return Arrays.stream(columns).map(String::trim).toList();
+                        return new FileHeader(rowCount, Arrays.stream(columns).map(String::trim).toList());
                     }
                 }
+                rowCount ++;
             }
             throw new TrackerBadRequestException("Required headers not found in the statement uploaded");
         }catch (Exception ex){

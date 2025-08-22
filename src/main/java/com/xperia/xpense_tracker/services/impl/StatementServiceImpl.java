@@ -45,7 +45,7 @@ public class StatementServiceImpl implements StatementService {
             throw new TrackerBadRequestException("Unable to find relevant processor to parse the file");
         }
         try{
-            return fileProcessor.fetchHeaders(file);
+            return fileProcessor.fetchHeaders(file).getHeaders();
         }catch (TrackerException ex){
             LOGGER.error("unable to parse the file : {}", ex.getMessage(), ex);
             throw ex;

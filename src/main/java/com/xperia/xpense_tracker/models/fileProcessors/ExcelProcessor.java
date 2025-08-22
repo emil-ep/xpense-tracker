@@ -72,13 +72,13 @@ public class ExcelProcessor extends FileProcessor {
         }
     }
 
-    //TODO return the indices of start and end
     @Override
-    public List<String> fetchHeaders(File file) throws TrackerException {
+    public FileHeader fetchHeaders(File file) throws TrackerException {
         try {
             Workbook workbook = new XSSFWorkbook(file);
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = sheet.rowIterator();
+            int rowCount = 0;
             while(rowIterator.hasNext()){
                 Row row = rowIterator.next();
                 Iterator<Cell> cellIterator = row.cellIterator();
@@ -92,8 +92,9 @@ public class ExcelProcessor extends FileProcessor {
                         .filter(header -> ExpenseFields.findMatchingField(header.trim()) != null)
                         .toList();
                 if (matchedValues.size() > HEADER_MATCH_THRESHOLD){
-                    return headerValues;
+                    return new FileHeader(rowCount, headerValues);
                 }
+                rowCount ++;
             }
             throw new TrackerBadRequestException("Required headers not found in the statement uploaded");
         }catch (Exception ex){
