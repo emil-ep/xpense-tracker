@@ -21,7 +21,7 @@ public class DelimitedProcessor extends FileProcessor{
     private static final Logger LOGGER = LoggerFactory.getLogger(DelimitedProcessor.class);
 
     @Override
-    public List<HashMap<Integer, String>> parseFile(File file) throws TrackerBadRequestException {
+    public List<HashMap<Integer, String>> parseFile(File file, Integer headerStartIndex) throws TrackerBadRequestException {
         try{
             BufferedReader reader = new BufferedReader(new FileReader(file.getPath()));
             String line;
@@ -38,7 +38,9 @@ public class DelimitedProcessor extends FileProcessor{
                 }
             }
             //removing the headers from the data
-            dataList.remove(0);
+            for (int i = 0; i <= headerStartIndex; i++){
+                dataList.remove(i);
+            }
             return dataList;
         }catch (IOException  ex){
             LOGGER.error("The file requested for parsing faced error, {}", ex.getMessage(), ex);

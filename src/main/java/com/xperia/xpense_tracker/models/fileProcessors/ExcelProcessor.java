@@ -45,13 +45,15 @@ public class ExcelProcessor extends FileProcessor {
     }
 
     @Override
-    public List<HashMap<Integer, String>> parseFile(File file) throws TrackerBadRequestException {
+    public List<HashMap<Integer, String>> parseFile(File file, Integer headerStartIndex) throws TrackerBadRequestException {
 
         try{
             Workbook workbook = new XSSFWorkbook(file);
             Sheet sheet = workbook.getSheetAt(0);
-            Row topRow = sheet.getRow(0);
-            sheet.removeRow(topRow);
+            for (int i = 0; i <= headerStartIndex; i++){
+                Row row = sheet.getRow(i);
+                sheet.removeRow(row);
+            }
             Iterator<Row> rowIterator = sheet.rowIterator();
             List<HashMap<Integer, String>> bookMapList = new ArrayList<>();
             while(rowIterator.hasNext()){
