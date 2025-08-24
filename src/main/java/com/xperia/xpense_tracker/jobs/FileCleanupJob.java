@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.jobs;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.entities.Statements;
+import com.xperia.xpense_tracker.repository.StatementsRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,6 +36,8 @@ public class FileCleanupJob implements ScheduledJob{
 
     @Autowired
     private ExpenseService expenseService;
+    @Autowired
+    private StatementsRepository statementsRepository;
 
     @Override
     public String getName() {
@@ -46,14 +50,20 @@ public class FileCleanupJob implements ScheduledJob{
         Path attachementPath = Paths.get(attachmentUploadPath);
         LOGGER.info("Starting FileCleanupJob ");
         try(Stream<Path> files = Files.list(uploadPath)){
-            Set<String> statementFileNames = statementService.listAll()
+            List<String> distinctStatementFileNames = expenseService.findDistinctStatementsOfExpenses()
                     .stream()
                     .map(Statements::getFileName)
-                    .collect(Collectors.toSet());
+                    .toList();
 
+            List<Statements> notRequiredStatements = statementService.listAll()
+                    .stream()
+                    .filter(statement -> !distinctStatementFileNames.contains(statement.getFileName()))
+                    .toList();
+            LOGGER.info("Not required statements count : {}", notRequiredStatements.size());
+            statementsRepository.deleteAll(notRequiredStatements);
             Set<Path> filesToRemove = files
                     .filter(file -> !file.toFile().isDirectory())
-                    .filter(file -> !statementFileNames.contains(file.getFileName().toString()))
+                    .filter(file -> !distinctStatementFileNames.contains(file.getFileName().toString()))
                     .collect(Collectors.toSet());
             LOGGER.info("Statement files To remove count : {}", filesToRemove.size());
             filesToRemove.forEach(toRemove -> {

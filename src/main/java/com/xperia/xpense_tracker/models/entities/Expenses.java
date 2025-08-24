@@ -55,6 +55,9 @@ public class Expenses {
 
     private String attachment;
 
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Statements statement;
+
     private Expenses(ExpenseBuilder builder){
         this.description = builder.description;
         this.bankReferenceNo = builder.bankReferenceNo;
@@ -66,6 +69,7 @@ public class Expenses {
         this.user = builder.user;
         this.tags = builder.tags;
         this.attachment = builder.attachment;
+        this.statement = builder.statement;
     }
 
     private Expenses(String id, ExpenseBuilder builder){
@@ -103,6 +107,8 @@ public class Expenses {
         private Set<Tag> tags;
 
         private String attachment;
+
+        private Statements statement;
 
         public ExpenseBuilder(TrackerUser user){
             this.user = user;
@@ -158,6 +164,11 @@ public class Expenses {
 
         public ExpenseBuilder withAttachment(String attachment){
             this.attachment = attachment;
+            return this;
+        }
+
+        public ExpenseBuilder ofStatement(Statements statement){
+            this.statement = statement;
             return this;
         }
 
