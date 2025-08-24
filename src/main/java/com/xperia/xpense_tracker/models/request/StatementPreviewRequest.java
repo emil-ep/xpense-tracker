@@ -23,5 +23,7 @@ public class StatementPreviewRequest {
     private Integer credit;
 
     private Integer closingBalance;
+
+    private Integer headerStartIndex;
     
 }
