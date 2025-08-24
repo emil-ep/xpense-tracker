@@ -4,13 +4,14 @@ import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestExce
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -44,40 +45,59 @@ public class ExcelProcessor extends FileProcessor {
         return null;
     }
 
-    @Override
-    public List<HashMap<Integer, String>> parseFile(File file, Integer headerStartIndex) throws TrackerBadRequestException {
-
+    /**
+     * Apache POI deals with formats differently. xls formats is from 2003-2007
+     * xlxs format is 2007 +
+     * @param file The file in question
+     * @return the appropriate workbook
+     */
+    private Workbook findRelevantWorkBook(File file){
         try{
-            Workbook workbook = new XSSFWorkbook(file);
-            Sheet sheet = workbook.getSheetAt(0);
-            for (int i = 0; i <= headerStartIndex; i++){
-                Row row = sheet.getRow(i);
-                sheet.removeRow(row);
+            String extension = file.getName().split("\\.")[1].toLowerCase();
+            FileInputStream fis = new FileInputStream(file);
+            Workbook workbook;
+            if (extension.equalsIgnoreCase("xls")){
+                workbook = new HSSFWorkbook(fis);
+            }else{
+                workbook = new XSSFWorkbook(fis);
             }
-            Iterator<Row> rowIterator = sheet.rowIterator();
-            List<HashMap<Integer, String>> bookMapList = new ArrayList<>();
-            while(rowIterator.hasNext()){
-                Row currentRow = rowIterator.next();
-                Iterator<Cell> cellIterator = currentRow.cellIterator();
-                HashMap<Integer, String> cellValueMap = new HashMap<>();
-                while(cellIterator.hasNext()){
-                    Cell cell = cellIterator.next();
-                    Object value = getValueFromCell(cell);
-                    cellValueMap.put(cell.getColumnIndex(), value != null ? String.valueOf(value) : null);
-                }
-                bookMapList.add(cellValueMap);
-            }
-            return bookMapList;
-        }catch (IOException | InvalidFormatException e){
-            LOGGER.error("The file requested for parsing faced error, {}", e.getMessage(), e);
+
+            return workbook;
+        } catch (IOException ex){
+            LOGGER.error("The file requested for parsing faced error, {}", ex.getMessage(), ex);
             throw new TrackerBadRequestException("The file requested is not a valid excel file");
         }
     }
 
     @Override
+    public List<HashMap<Integer, String>> parseFile(File file, Integer headerStartIndex) throws TrackerBadRequestException {
+
+        Workbook workbook = findRelevantWorkBook(file);
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 0; i <= headerStartIndex; i++){
+            Row row = sheet.getRow(i);
+            sheet.removeRow(row);
+        }
+        Iterator<Row> rowIterator = sheet.rowIterator();
+        List<HashMap<Integer, String>> bookMapList = new ArrayList<>();
+        while(rowIterator.hasNext()){
+            Row currentRow = rowIterator.next();
+            Iterator<Cell> cellIterator = currentRow.cellIterator();
+            HashMap<Integer, String> cellValueMap = new HashMap<>();
+            while(cellIterator.hasNext()){
+                Cell cell = cellIterator.next();
+                Object value = getValueFromCell(cell);
+                cellValueMap.put(cell.getColumnIndex(), value != null ? String.valueOf(value) : null);
+            }
+            bookMapList.add(cellValueMap);
+        }
+        return bookMapList;
+    }
+
+    @Override
     public FileHeader fetchHeaders(File file) throws TrackerException {
         try {
-            Workbook workbook = new XSSFWorkbook(file);
+            Workbook workbook = findRelevantWorkBook(file);
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = sheet.rowIterator();
             int rowCount = 0;
