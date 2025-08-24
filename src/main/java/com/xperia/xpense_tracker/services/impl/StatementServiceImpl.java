@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StatementServiceImpl implements StatementService {
@@ -56,5 +57,10 @@ public class StatementServiceImpl implements StatementService {
     @Override
     public List<Statements> listAll() {
         return statementsRepository.findAll();
+    }
+
+    @Override
+    public Optional<Statements> findByFileName(String fileName) {
+        return statementsRepository.findByFileName(fileName);
     }
 }

@@ -11,10 +11,7 @@ import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
 import com.xperia.xpense_tracker.repository.RemovedExpensesRepository;
-import com.xperia.xpense_tracker.services.ExpenseService;
-import com.xperia.xpense_tracker.services.RemovedExpensesService;
-import com.xperia.xpense_tracker.services.SyncStatusService;
-import com.xperia.xpense_tracker.services.TagService;
+import com.xperia.xpense_tracker.services.*;
 import jakarta.persistence.Tuple;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
@@ -60,6 +57,9 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Autowired
     private RemovedExpensesService removedExpensesService;
 
+    @Autowired
+    private StatementService statementService;
+
 
     @Override
     public Page<Expenses> getExpenses(UserDetails userDetails, LocalDate startDate, LocalDate endDate, PageRequest pageRequest) {
@@ -72,6 +72,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     public List<Expenses> processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails,
                                                  boolean isPreview) throws IOException {
         String extension = file.getName().split("\\.")[1];
+        Optional<Statements> statement = statementService.findByFileName(file.getName());
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension.toLowerCase());
         if (fileProcessor == null) {
             throw new BadRequestException("File format is invalid. Please upload xlsx files only");
@@ -122,6 +123,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 ? Double.parseDouble(cleanAmountValue(row.get(request.getClosingBalance())))
                                 : 0.0)
                         .withTags(matchedTags)
+                        .ofStatement(statement.orElse(null))
                         .build();
                 expensesList.add(expense);
             });
@@ -279,6 +281,11 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
         }
         return possibleMatches;
+    }
+
+    @Override
+    public List<Statements> findDistinctStatementsOfExpenses() {
+        return expensesRepository.findDistinctStatements();
     }
 
     private String generateIdentifier(LocalDate date, String bankReferenceNo, String userId) {

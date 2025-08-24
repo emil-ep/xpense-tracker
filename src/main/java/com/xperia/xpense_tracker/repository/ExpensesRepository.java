@@ -1,6 +1,7 @@
 package com.xperia.xpense_tracker.repository;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.Statements;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
@@ -59,4 +60,7 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
             "GROUP BY timeFrame\n" +
             "ORDER BY timeFrame")
     List<Object[]> aggregateExpensesByMetricTimeFrame(@Param("metricTimeFrame") String metricTimeFrame, TrackerUser user);
+
+    @Query("SELECT DISTINCT statement FROM expenses")
+    List<Statements> findDistinctStatements();
 }
