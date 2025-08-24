@@ -20,7 +20,7 @@ public class PdfProcessor extends FileProcessor{
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfProcessor.class);
 
     @Override
-    public List<HashMap<Integer, String>> parseFile(File file) throws TrackerBadRequestException {
+    public List<HashMap<Integer, String>> parseFile(File file, Integer headerStartIndex) throws TrackerBadRequestException {
         PDDocument pdDocument;
         List<HashMap<Integer, String>> fileContents = new ArrayList<>();
         try{

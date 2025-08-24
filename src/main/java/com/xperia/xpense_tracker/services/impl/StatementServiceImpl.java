@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.services.impl;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.Statements;
+import com.xperia.xpense_tracker.models.fileProcessors.FileHeader;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.repository.StatementsRepository;
@@ -38,14 +39,14 @@ public class StatementServiceImpl implements StatementService {
     }
 
     @Override
-    public List<String> extractHeaderMapper(File file) {
+    public FileHeader extractHeaderMapper(File file) {
         String extension = file.getName().split("\\.")[1].toLowerCase();
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension);
         if (fileProcessor == null){
             throw new TrackerBadRequestException("Unable to find relevant processor to parse the file");
         }
         try{
-            return fileProcessor.fetchHeaders(file).getHeaders();
+            return fileProcessor.fetchHeaders(file);
         }catch (TrackerException ex){
             LOGGER.error("unable to parse the file : {}", ex.getMessage(), ex);
             throw ex;

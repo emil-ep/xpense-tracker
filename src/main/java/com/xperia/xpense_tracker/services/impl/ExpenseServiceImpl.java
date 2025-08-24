@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
+import com.xperia.xpense_tracker.models.ParsedRowData;
 import com.xperia.xpense_tracker.models.entities.*;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
@@ -68,7 +69,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public List<Expenses> processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails, boolean isPreview) throws IOException {
+    public List<Expenses> processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails,
+                                                 boolean isPreview) throws IOException {
         String extension = file.getName().split("\\.")[1];
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension.toLowerCase());
         if (fileProcessor == null) {
@@ -76,42 +78,53 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
         List<HashMap<Integer, String>> parsedFile;
         try {
-            parsedFile = fileProcessor.parseFile(file);
+            parsedFile = fileProcessor.parseFile(file, request.getHeaderStartIndex());
         } catch (TrackerBadRequestException ex) {
             LOGGER.error("unable to parse the file : {}", ex.getMessage(), ex);
             throw ex;
         }
-        DateTimeFormatter compatibleDateFormatter = findCompatibleDateFormatter(parsedFile, request.getTransactionDate());
-        validatePreviewInputs(parsedFile, request, compatibleDateFormatter);
+        //Here we return the row index and the compatible date time formatter for valid data
+        ParsedRowData parsedRowData = findCompatibleDateFormatter(parsedFile, request.getTransactionDate());
+        validatePreviewInputs(parsedFile, request, parsedRowData);
         TrackerUser user = (TrackerUser) userDetails;
         List<Tag> userTags = tagService.findAllTagsForUser(user);
-        List<Expenses> expensesList = parsedFile.stream()
-                .limit(isPreview ? 5 : parsedFile.size()) //limit processing to 5 elements if it's a preview
-                .filter(row -> !removedExpensesService.isRemovedExpense(row.get(request.getDescription()), row.get(request.getBankReferenceNo())))
-                .map(row -> {
-                    String transactionDescription = row.get(request.getDescription());
-                    Set<Tag> matchedTags = findMatchingTags(userTags, transactionDescription);
-                    return new Expenses.ExpenseBuilder(user)
-                            .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), compatibleDateFormatter))
-                            .withDescription(transactionDescription)
-                            .withBankReferenceNo(row.get(request.getBankReferenceNo()))
-                            .setDebit(
-                                    row.get(request.getDebit()) != null && !row.get(request.getDebit()).isEmpty()
-                                            ? Double.parseDouble(cleanAmountValue(row.get(request.getDebit())))
-                                            : 0.0
-                            )
-                            .setCredit(
-                                    row.get(request.getCredit()) != null && !row.get(request.getCredit()).isEmpty()
-                                            ? Double.parseDouble(cleanAmountValue(row.get(request.getCredit())))
-                                            : 0.0
-                            )
-                            .setClosingBalance(row.get(request.getClosingBalance()) != null
-                                    ? Double.parseDouble(cleanAmountValue(row.get(request.getClosingBalance())))
-                                    : 0.0)
-                            .withTags(matchedTags)
-                            .build();
-                        }
-                ).toList();
+        List<Expenses> expensesList = new ArrayList<>();
+        parsedFile.stream()
+            .limit(isPreview ? 5 : parsedFile.size()) //limit processing to 5 elements if it's a preview
+            .filter(row -> !removedExpensesService.isRemovedExpense(row.get(request.getDescription()),
+                    row.get(request.getBankReferenceNo())))
+            .forEach(row -> {
+                //There are situations where there is invalid entries (like row separator or end of file details,
+                //In this case, we need to skip the line
+                try{
+                    LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), parsedRowData.getDateTimeFormatter());
+                }catch (DateTimeParseException ex){
+                    LOGGER.error("Unable to parse date from this row. Skipping this line ..");
+                    return;
+                }
+                String transactionDescription = row.get(request.getDescription());
+                Set<Tag> matchedTags = findMatchingTags(userTags, transactionDescription);
+                Expenses expense = new Expenses.ExpenseBuilder(user)
+                        .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), parsedRowData.getDateTimeFormatter()))
+                        .withDescription(transactionDescription)
+                        .withBankReferenceNo(row.get(request.getBankReferenceNo()))
+                        .setDebit(
+                                row.get(request.getDebit()) != null && !row.get(request.getDebit()).isEmpty()
+                                        ? Double.parseDouble(cleanAmountValue(row.get(request.getDebit())))
+                                        : 0.0
+                        )
+                        .setCredit(
+                                row.get(request.getCredit()) != null && !row.get(request.getCredit()).isEmpty()
+                                        ? Double.parseDouble(cleanAmountValue(row.get(request.getCredit())))
+                                        : 0.0
+                        )
+                        .setClosingBalance(row.get(request.getClosingBalance()) != null
+                                ? Double.parseDouble(cleanAmountValue(row.get(request.getClosingBalance())))
+                                : 0.0)
+                        .withTags(matchedTags)
+                        .build();
+                expensesList.add(expense);
+            });
         LOGGER.debug("Total expenses found from the parsed file : {}", expensesList.size());
         if (isPreview) {
             return expensesList;
@@ -280,41 +293,46 @@ public class ExpenseServiceImpl implements ExpenseService {
         return cleanedValue;
     }
 
-    private DateTimeFormatter findCompatibleDateFormatter(List<HashMap<Integer, String>> parsedFile, Integer dateIndex){
-        HashMap<Integer, String> row = parsedFile.getFirst();
-        try {
-            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter);
-            return formatter;
-        } catch (DateTimeParseException ex) {
-            LOGGER.error("Unable to parse transactionDate in the format dd/MM/yy");
-        }
-        try{
-            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_1);
-            return formatter_1;
-        }catch (DateTimeParseException ex){
-            LOGGER.error("Unable to parse transactionDate in the format dd MMM yyyy");
-        }
+    private ParsedRowData findCompatibleDateFormatter(List<HashMap<Integer, String>> parsedFile, Integer dateIndex){
+        int rowIndex = 0;
+        for (HashMap<Integer, String> row: parsedFile){
+            try {
+                LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter);
+                return new ParsedRowData(rowIndex, formatter);
+            } catch (DateTimeParseException ex) {
+                LOGGER.error("Unable to parse transactionDate in the format dd/MM/yy");
+            }
+            try{
+                LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_1);
+                return new ParsedRowData(rowIndex, formatter_1);
+            }catch (DateTimeParseException ex){
+                LOGGER.error("Unable to parse transactionDate in the format dd MMM yyyy");
+            }
 
-        try{
-            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_2);
-            return formatter_2;
-        }catch (DateTimeParseException ex){
-            LOGGER.error("Unable to parse transactionDate in the format d MMM yyyy");
-        }
+            try{
+                LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_2);
+                return new ParsedRowData(rowIndex, formatter_2);
+            }catch (DateTimeParseException ex){
+                LOGGER.error("Unable to parse transactionDate in the format d MMM yyyy");
+            }
 
-        try{
-            LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_3);
-            return formatter_3;
-        }catch (DateTimeParseException ex){
-            throw new TrackerBadRequestException("Unable to parse transaction date");
+            try{
+                LocalDate.parse(String.valueOf(row.get(dateIndex)), formatter_3);
+                return new ParsedRowData(rowIndex, formatter_3);
+            }catch (DateTimeParseException ex){
+                LOGGER.error("Unable to parse transactionDate in the format dd/MM/yyyy");
+            }
+            rowIndex ++;
         }
+        throw new TrackerBadRequestException("Unable to parse transaction date");
     }
 
-    private void validatePreviewInputs(List<HashMap<Integer, String>> parsedFile, StatementPreviewRequest request, DateTimeFormatter formatter) {
-        HashMap<Integer, String> row = parsedFile.getFirst();
+    private void validatePreviewInputs(List<HashMap<Integer, String>> parsedFile, StatementPreviewRequest request,
+                                       ParsedRowData parsedRowData) {
+        HashMap<Integer, String> row = parsedFile.get(parsedRowData.getParsedRowIndex());
 
         try {
-            LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), formatter);
+            LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), parsedRowData.getDateTimeFormatter());
         } catch (DateTimeParseException ex) {
             throw new TrackerBadRequestException("unable to parse transactionDate");
         }

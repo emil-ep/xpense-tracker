@@ -14,6 +14,8 @@ import java.util.Map;
 @Setter
 public class StatementHeaderMapResponse {
 
+    private int headerStartIndex;
+
     private List<String> header;
 
     private List<String> entityMap;

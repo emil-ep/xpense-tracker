@@ -8,6 +8,7 @@ import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.entities.SyncStatus;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.fileProcessors.FileHeader;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.*;
@@ -145,7 +146,7 @@ public class ExpenseController {
             if (!file.exists()){
                 throw new IOException("File not found");
             }
-            List<String> header = statementService.extractHeaderMapper(file);
+            FileHeader header = statementService.extractHeaderMapper(file);
             List<String> entityMap = Arrays.asList(
                     ExpenseFields.TRANSACTION_DATE.getFieldName(),
                     ExpenseFields.DESCRIPTION.getFieldName(),
@@ -154,8 +155,9 @@ public class ExpenseController {
                     ExpenseFields.CREDIT.getFieldName(),
                     ExpenseFields.CLOSING_BALANCE.getFieldName()
                     );
-            Map<String, String> possibleMatches = expenseService.matchHeaders(header);
-            return ResponseEntity.ok(new SuccessResponse(new StatementHeaderMapResponse(header, entityMap, possibleMatches)));
+            Map<String, String> possibleMatches = expenseService.matchHeaders(header.getHeaders());
+            return ResponseEntity.ok(new SuccessResponse(new StatementHeaderMapResponse(header.getRowIndex(),
+                    header.getHeaders(), entityMap, possibleMatches)));
         }catch (IOException ex){
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }

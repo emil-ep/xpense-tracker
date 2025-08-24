@@ -9,7 +9,7 @@ public class FileProcessorFactory {
      */
     public static FileProcessor createFileProcessor(String fileExtension){
         switch (fileExtension){
-            case "xlsx" -> {
+            case "xlsx", "xls" -> {
                 return new ExcelProcessor();
             }
             case "delimited", "csv", "txt" -> {

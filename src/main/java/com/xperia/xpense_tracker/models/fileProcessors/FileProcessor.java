@@ -11,7 +11,7 @@ public abstract class FileProcessor {
 
     protected static final int HEADER_MATCH_THRESHOLD = 3;
 
-    public abstract List<HashMap<Integer, String>> parseFile(File file) throws TrackerBadRequestException;
+    public abstract List<HashMap<Integer, String>> parseFile(File file, Integer headerStartIndex) throws TrackerBadRequestException;
 
     public abstract FileHeader fetchHeaders(File file) throws TrackerException;
 
