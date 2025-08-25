@@ -80,6 +80,14 @@ This will setup Kafka, Zookeeper and kafka-ui. <br>
 
 You can view the kafka-ui using http://localhost:8087 <br>
 
+# LATEST UPDATE!
+
+Application now supports .xls format in raw. You don't have to remove any junk data from the file. Application now 
+intelligently parses data from rows and columns. This saves a lot of time of the user. 
+Also application with AI intelligence matches the statement headers with the application header, which is a huge 
+step in automation
+
+
 
 
 
