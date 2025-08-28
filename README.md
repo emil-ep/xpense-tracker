@@ -88,7 +88,7 @@ Also application with AI intelligence matches the statement headers with the app
 step in automation
 
 # COMING SOON!
-AI assistant
+AI assistant -> More updates will be provided soon
 
 
 
