@@ -100,7 +100,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 try{
                     LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), parsedRowData.getDateTimeFormatter());
                 }catch (DateTimeParseException ex){
-                    LOGGER.error("Unable to parse date from this row. Skipping this line ..");
+                    LOGGER.debug("Unable to parse date from this row. Skipping this line ..");
                     return;
                 }
                 String transactionDescription = row.get(request.getDescription());
