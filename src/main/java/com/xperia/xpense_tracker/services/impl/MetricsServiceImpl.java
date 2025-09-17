@@ -1,14 +1,22 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
+import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.metrics.MetricContext;
 import com.xperia.xpense_tracker.models.metrics.MetricDefinitions;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TimeframeServiceRequest;
 import com.xperia.xpense_tracker.models.response.AggregatedExpenseResponse;
+import com.xperia.xpense_tracker.models.settings.SettingsType;
 import com.xperia.xpense_tracker.repository.ExpensesRepository;
+import com.xperia.xpense_tracker.repository.TagRepository;
+import com.xperia.xpense_tracker.repository.UserSettingRepository;
 import com.xperia.xpense_tracker.services.MetricsService;
+import com.xperia.xpense_tracker.services.UserSettingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
 
@@ -32,6 +41,14 @@ public class MetricsServiceImpl implements MetricsService {
     private CacheService cacheService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsServiceImpl.class);
+    @Autowired
+    private TagRepository tagRepository;
+
+    @Autowired
+    private UserSettingRepository userSettingRepository;
+
+    @Autowired
+    private UserSettingsService userSettingsService;
 
     @Override
     public List<AggregatedExpenseResponse> fetchMetrics(MetricTimeFrame timeframe, int limit, UserDetails userDetails) {
@@ -86,6 +103,9 @@ public class MetricsServiceImpl implements MetricsService {
                 );
         Map<String, List<Expenses>> groupedByTimeframe = new TreeMap<>(aggregationTimeframe
                 .groupBy(expenses.stream(), Expenses::getTransactionDate));
+
+        List<TagCategoryEnum> savingsCategories = findUserSavingsTagCategories(userDetails);
+
         for (Map.Entry<String, List<Expenses>> entry : groupedByTimeframe.entrySet()) {
             String currentTimeframe = entry.getKey();
             List<Expenses> group = entry.getValue();
@@ -95,7 +115,7 @@ public class MetricsServiceImpl implements MetricsService {
                     .parallelStream()
                     .collect(Collectors.toMap(
                             MetricDefinitions::getMetricName,
-                            definition -> definition.process(group.stream())
+                            definition -> definition.process(group.stream(), new MetricContext(savingsCategories))
                     ));
 
             Map<String, Object> result = new HashMap<>();
@@ -104,5 +124,25 @@ public class MetricsServiceImpl implements MetricsService {
             results.add(result);
         }
         return results;
+    }
+
+    /**
+     * This function returns the tag categories that can be considered as a savings tag for the particular user
+     * The savings tags will be saved under user settings
+     * @param userDetails the user details
+     * @return returns the TagCategoryEnum's that is specified in the user settings
+     */
+    private List<TagCategoryEnum> findUserSavingsTagCategories(UserDetails userDetails){
+
+        UserSettings savingsCategoriesOfUser = userSettingsService.findUserSettingsByType(SettingsType.SAVINGS_TAGS, userDetails);
+        JsonNode payload =  savingsCategoriesOfUser.getPayload();
+        Set<String> categories = StreamSupport
+                .stream(payload.get("tags").spliterator(), false)
+                .map(JsonNode::asText)
+                .collect(Collectors.toSet());
+        List<TagCategoryEnum> savingsCategories = Arrays.stream(TagCategoryEnum.values())
+                .filter(category -> categories.stream().anyMatch(tag -> category.getName().equalsIgnoreCase(tag)))
+                .toList();
+        return savingsCategories;
     }
 }

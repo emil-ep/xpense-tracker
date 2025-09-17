@@ -2,7 +2,6 @@ package com.xperia.xpense_tracker.models.metrics;
 
 import com.xperia.xpense_tracker.models.entities.Expenses;
 import com.xperia.xpense_tracker.models.entities.Tag;
-import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
 import com.xperia.xpense_tracker.models.entities.TransactionType;
 import lombok.Getter;
 
@@ -24,7 +23,7 @@ public enum MetricDefinitions {
     FIRST_EXPENSE_RECORDED_DATE(
       "first_expense_recorded_date",
       "",
-      stream -> stream
+      (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
                       Comparator.nullsLast(Comparator.naturalOrder())))
@@ -39,7 +38,7 @@ public enum MetricDefinitions {
     LAST_EXPENSE_RECORDED_DATE(
             "last_expense_recorded_date",
             "",
-            stream -> stream
+            (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
                             Comparator.nullsLast(Comparator.reverseOrder())))
@@ -54,12 +53,12 @@ public enum MetricDefinitions {
     TOTAL_EXPENSES_ENTRY(
          "total_expenses_entry",
             "SUM",
-            Stream::count
+            (objectStream, context) -> objectStream.count()
     ),
     TOTAL_UNTAGGED_EXPENSES_ENTRY(
       "total_untagged_expenses_entry",
       "SUM",
-      stream -> stream
+      (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .filter(expense -> ((Expenses) expense).getTags() == null || ((Expenses) expense).getTags().isEmpty())
               .count()
@@ -67,7 +66,7 @@ public enum MetricDefinitions {
     TOTAL_TAGGED_EXPENSES_ENTRY(
       "total_tagged_expenses_entry",
       "SUM",
-      stream -> stream
+      (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .filter(expense -> ((Expenses) expense).getTags() != null && !((Expenses) expense).getTags().isEmpty())
               .count()
@@ -75,7 +74,7 @@ public enum MetricDefinitions {
     HIGHEST_EXPENSE_RECORDED(
       "highest_expense_recorded",
       "SUM",
-      stream -> stream
+      (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .max(Comparator.comparingDouble(e -> ((Expenses) e).getDebit()))
               .map(e -> ((Expenses)e).getDebit())
@@ -83,7 +82,7 @@ public enum MetricDefinitions {
     HIGHEST_EXPENSE_TAG(
             "highest_expense_tag",
             "SUM",
-            stream -> stream
+            (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .max(Comparator.comparingDouble(e -> ((Expenses) e).getDebit()))
                     .map(e -> {
@@ -98,7 +97,7 @@ public enum MetricDefinitions {
     HIGHEST_CREDIT_RECORDED(
       "highest_credit_recorded",
       "SUM",
-      stream -> stream
+      (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
               .map(e -> ((Expenses)e).getCredit())
@@ -106,7 +105,7 @@ public enum MetricDefinitions {
     HIGHEST_CREDIT_RECORDED_TAG(
             "highest_credit_recorded_tag",
             "SUM",
-            stream -> stream
+            (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
                     .map(e -> {
@@ -120,21 +119,21 @@ public enum MetricDefinitions {
     AGG_CREDIT(
             "credit_aggregate",
             "SUM",
-            stream -> stream
+            (stream, context) -> stream
                     .filter(Objects::nonNull)
                     .mapToDouble(value -> ((Expenses) value).getCredit())
                     .sum()),
     AGG_DEBIT(
             "debit_aggregate",
             "SUM",
-            stream -> stream
+            (stream, context) -> stream
                     .filter(Objects::nonNull)
                     .mapToDouble(value -> ((Expenses) value).getDebit())
                     .sum()),
     AGG_BY_TAG(
             "tags_aggregate",
             "GROUP_BY_TAG",
-            stream -> stream
+            (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .map(Expenses.class::cast)
                     .flatMap(expense -> {
@@ -165,14 +164,14 @@ public enum MetricDefinitions {
     ),
     AGG_EXPENSE("expense_aggregate",
             "SUM",
-            stream -> stream
+            (stream, context) -> stream
                     .map(Expenses.class::cast)
-                    .filter(expenses -> expenses.getTags().stream().noneMatch(tag ->
-                            tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.SALARY.getName())
-                                    || tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.BANK_SAVINGS.getName())
-                                    || tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.MUTUAL_FUND.getName())
-                                    || tag.getCategory().getName().equalsIgnoreCase(TagCategoryEnum.OTHER_SAVINGS.getName())
-                            ))
+                    .filter(expenses -> expenses.getTags()
+                            .stream()
+                            .noneMatch(tag -> context.getUserSavingsCategories()
+                                    .stream()
+                                    .anyMatch(category -> category.getName().equalsIgnoreCase(tag.getCategory().getName()))
+                    ))
                     .mapToDouble(expense -> expense.getCredit() - expense.getDebit())
                     .sum()
     );
@@ -199,7 +198,7 @@ public enum MetricDefinitions {
     }
 
     @SuppressWarnings("unchecked")
-    public <T, R> R  process(Stream<T> values) {
-        return ((MetricProcessor<T, R>) processor).process(values);
+    public <T, R> R  process(Stream<T> values, MetricContext context) {
+        return ((MetricProcessor<T, R>) processor).process(values, context);
     }
 }
