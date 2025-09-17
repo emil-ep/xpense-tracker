@@ -15,4 +15,6 @@ public interface UserSettingsService {
     List<UserSettings> updateUserSettings(List<UserSettingUpdateItem> items, UserDetails userDetails);
 
     UserSettings updateUserSettings(SettingsType type, Object payload, UserDetails userDetails);
+
+    UserSettings findUserSettingsByType(SettingsType type, UserDetails userDetails);
 }
