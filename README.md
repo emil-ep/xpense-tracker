@@ -82,11 +82,11 @@ You can view the kafka-ui using http://localhost:8087 <br>
 
 # LATEST UPDATE!
 
-Application now supports .xls format in raw. You don't have to remove any junk data from the file. Application now 
+- Application now supports .xls format in raw. You don't have to remove any junk data from the file. Application now 
 intelligently parses data from rows and columns. This saves a lot of time of the user. 
 Also application with AI intelligence matches the statement headers with the application header, which is a huge 
 step in automation
-
+- The ability for user to select the categories that would be counted as a "Saving". The categories selected by the user will be excluded when computing expenses
 # COMING SOON!
 AI assistant -> More updates will be provided soon
 
