@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
 import com.xperia.xpense_tracker.models.ParsedRowData;
@@ -31,6 +32,8 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
+
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
 
@@ -59,6 +62,9 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Autowired
     private StatementService statementService;
+
+    @Autowired
+    private CacheService cache;
 
 
     @Override
@@ -256,7 +262,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public void softDeleteExpense(String id) {
+    public void softDeleteExpense(String id, UserDetails userDetails) {
         Optional<Expenses> expense = expensesRepository.findExpensesById(id);
         if (expense.isEmpty()){
             throw new TrackerNotFoundException("Expense with id : " + id + " not found");
@@ -268,6 +274,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         expensesRepository.save(expense.get());
         // done
         expensesRepository.deleteById(id);
+        cache.clearCache(METRICS_CACHE_NAME, ((TrackerUser) userDetails).getId());
         removedExpensesRepository.save(removedExpense);
     }
 

@@ -35,7 +35,7 @@ public interface ExpenseService {
 
     List<Expenses> listAll();
 
-    void softDeleteExpense(String id);
+    void softDeleteExpense(String id, UserDetails userDetails);
 
     Map<String, String> matchHeaders(List<String> headers);
 
