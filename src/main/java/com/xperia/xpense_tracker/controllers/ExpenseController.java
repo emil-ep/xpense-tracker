@@ -239,7 +239,7 @@ public class ExpenseController {
     public ResponseEntity<AbstractResponse> softDeleteExpense(@AuthenticationPrincipal UserDetails userDetails,
                                                               @PathVariable("id") String id){
         try{
-            expenseService.softDeleteExpense(id);
+            expenseService.softDeleteExpense(id, userDetails);
             return ResponseEntity.ok(new SuccessResponse("Deleted expense"));
         }catch (TrackerException ex){
             LOGGER.error("Unable to soft delete expense : {}", id, ex);

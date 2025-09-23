@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.Tag;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.xperia.xpense_tracker.cache.CacheNames.METRICS_CACHE_NAME;
+
 @Service
 public class TagServiceImpl implements TagService {
 
@@ -23,6 +26,9 @@ public class TagServiceImpl implements TagService {
 
     @Autowired
     private TagCategoryRepository tagCategoryRepository;
+
+    @Autowired
+    private CacheService cache;
 
 
     @Override
@@ -68,6 +74,7 @@ public class TagServiceImpl implements TagService {
                 tagCategory.get(),
                 tagRequest.getColor()
         );
+        cache.clearCache(METRICS_CACHE_NAME, user.getId());
         return tagRepository.save(tag);
     }
 
@@ -90,6 +97,7 @@ public class TagServiceImpl implements TagService {
         existingTag.setParentTag(parentTag);
         existingTag.setKeywords(tagRequest.getKeywords());
         existingTag.setCanBeConsideredExpense(tagRequest.isCanBeCountedAsExpense());
+        cache.clearCache(METRICS_CACHE_NAME, user.getId());
         return tagRepository.save(existingTag);
     }
 
@@ -120,6 +128,7 @@ public class TagServiceImpl implements TagService {
             tagToBeUpdated.setColor(tagRequest.getColor());
             modifiedTags.add(tagToBeUpdated);
         });
+        cache.clearCache(METRICS_CACHE_NAME, user.getId());
         return tagRepository.saveAll(modifiedTags);
     }
 
@@ -129,7 +138,7 @@ public class TagServiceImpl implements TagService {
         if(tagsByUser.stream().noneMatch(tag -> tagId.equals(tag.getId()))){
             throw new TrackerBadRequestException("Tag Id is not valid");
         }
-
+        cache.clearCache(METRICS_CACHE_NAME, user.getId());
         tagRepository.deleteById(tagId);
     }
 
