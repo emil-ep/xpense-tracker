@@ -58,6 +58,8 @@ public class Expenses {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Statements statement;
 
+    private String notes;
+
     private Expenses(ExpenseBuilder builder){
         this.description = builder.description;
         this.bankReferenceNo = builder.bankReferenceNo;
@@ -70,6 +72,7 @@ public class Expenses {
         this.tags = builder.tags;
         this.attachment = builder.attachment;
         this.statement = builder.statement;
+
     }
 
     private Expenses(String id, ExpenseBuilder builder){
@@ -84,6 +87,7 @@ public class Expenses {
         this.user = builder.user;
         this.tags = builder.tags;
         this.attachment = builder.attachment;
+        this.notes = builder.notes;
     }
 
     public static class ExpenseBuilder{
@@ -110,6 +114,8 @@ public class Expenses {
 
         private Statements statement;
 
+        private String notes;
+
         public ExpenseBuilder(TrackerUser user){
             this.user = user;
         }
@@ -125,6 +131,7 @@ public class Expenses {
             this.tags = new HashSet<>(existing.tags);
             this.user = existing.getUser();
             this.attachment = existing.attachment;
+            this.notes = existing.notes;
         }
 
         public ExpenseBuilder onDate(LocalDate transactionDate){
@@ -169,6 +176,11 @@ public class Expenses {
 
         public ExpenseBuilder ofStatement(Statements statement){
             this.statement = statement;
+            return this;
+        }
+
+        public ExpenseBuilder withNote(String note){
+            this.notes = note;
             return this;
         }
 
