@@ -32,7 +32,7 @@ token:
 
 file:
   upload:
-    path: ./uploads
+    path: /Users/emil/Documents/projects/xpense-tracker/uploads
     attachment:
       path: ./uploads/attachment
 
