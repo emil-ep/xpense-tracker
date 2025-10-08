@@ -3,11 +3,11 @@ package com.xperia.xpense_tracker.models.settings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.Currency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.xperia.exception.TrackerException;
 
 import java.util.ArrayList;
 

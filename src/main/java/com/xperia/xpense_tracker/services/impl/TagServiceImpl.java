@@ -1,8 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.cache.CacheService;
-import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
-import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TagCategory;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
@@ -13,6 +11,8 @@ import com.xperia.xpense_tracker.repository.TagRepository;
 import com.xperia.xpense_tracker.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.xperia.exception.TrackerBadRequestException;
+import org.xperia.exception.TrackerException;
 
 import java.util.*;
 
@@ -38,7 +38,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Tag addNewTag(TagRequest tagRequest, TrackerUser user) throws TrackerException{
+    public Tag addNewTag(TagRequest tagRequest, TrackerUser user) throws TrackerException {
         Tag parentTag = null;
         Optional<TagCategory> tagCategory = Optional.empty();
         if(tagRequest.getParentTagId() != null){

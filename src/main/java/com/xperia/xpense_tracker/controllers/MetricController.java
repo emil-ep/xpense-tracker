@@ -1,6 +1,5 @@
 package com.xperia.xpense_tracker.controllers;
 
-import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
 import com.xperia.xpense_tracker.models.request.TimeframeRequest;
 import com.xperia.xpense_tracker.models.request.TimeframeServiceRequest;
@@ -15,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.xperia.exception.TrackerBadRequestException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -70,7 +70,7 @@ public class MetricController {
     }
 
 
-    private TimeframeServiceRequest validateTimeframeRequest(TimeframeRequest request) throws TrackerBadRequestException{
+    private TimeframeServiceRequest validateTimeframeRequest(TimeframeRequest request) throws TrackerBadRequestException {
 
         if (request.getFromDate() == null){
             if (request.getToDate() == null){

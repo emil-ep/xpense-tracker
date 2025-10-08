@@ -1,6 +1,4 @@
 package com.xperia.xpense_tracker.controllers;
-
-import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.FileUploadResponse;
@@ -11,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.xperia.exception.TrackerException;
 
 import java.io.IOException;
 
