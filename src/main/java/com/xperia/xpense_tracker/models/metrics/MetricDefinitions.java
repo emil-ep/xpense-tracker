@@ -5,10 +5,9 @@ import com.xperia.xpense_tracker.models.entities.Tag;
 import com.xperia.xpense_tracker.models.entities.TransactionType;
 import lombok.Getter;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -174,6 +173,49 @@ public enum MetricDefinitions {
                     ))
                     .mapToDouble(expense -> expense.getCredit() - expense.getDebit())
                     .sum()
+    ),
+    MEAN_DAILY_EXPENSE(
+            "mean_daily_expense",
+            "SUM",
+            (stream, context) -> {
+                List<Expenses> expensesList = stream
+                        .map(Expenses.class::cast)
+                        .filter(expenses -> expenses.getTags()
+                                .stream()
+                                .noneMatch(tag -> context.getUserSavingsCategories()
+                                        .stream()
+                                        .anyMatch(category -> category.getName()
+                                                .equalsIgnoreCase(tag.getCategory().getName()))
+                                ))
+                        .toList();
+
+                if (expensesList.isEmpty()) return 0.0;
+
+                // Compute total expenses
+                double totalExpense = expensesList.stream()
+                        .mapToDouble(expense -> expense.getCredit() - expense.getDebit())
+                        .sum();
+
+                // Find first and last expense dates
+                LocalDate minDate = expensesList.stream()
+                        .map(Expenses::getTransactionDate)
+                        .filter(Objects::nonNull)
+                        .min(LocalDate::compareTo)
+                        .orElse(null);
+
+                LocalDate maxDate = expensesList.stream()
+                        .map(Expenses::getTransactionDate)
+                        .filter(Objects::nonNull)
+                        .max(LocalDate::compareTo)
+                        .orElse(null);
+
+                if (minDate == null || maxDate == null) return 0.0;
+
+                long days = ChronoUnit.DAYS.between(minDate, maxDate) + 1; // inclusive of both dates
+
+                double meanValue =  days > 0 ? Math.round((totalExpense / days) * 100.0) / 100.0 : 0.0;
+                return Math.abs(meanValue);
+            }
     );
 
     // ADD MORE METRIC DEFINITIONS HERE
