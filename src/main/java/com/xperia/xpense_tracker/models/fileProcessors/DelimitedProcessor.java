@@ -1,11 +1,11 @@
 package com.xperia.xpense_tracker.models.fileProcessors;
 
-import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
-import com.xperia.xpense_tracker.exception.customexception.TrackerException;
-import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
 import com.xperia.xpense_tracker.models.entities.ExpenseFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xperia.exception.TrackerBadRequestException;
+import org.xperia.exception.TrackerException;
+import org.xperia.exception.TrackerUnknownException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,7 +55,7 @@ public class DelimitedProcessor extends FileProcessor{
      * identify as a valid header
      * @param file the statement file
      * @return
-     * @throws TrackerException
+     * @throws org.xperia.exception.TrackerException
      */
     @Override
     public FileHeader fetchHeaders(File file) throws TrackerException {

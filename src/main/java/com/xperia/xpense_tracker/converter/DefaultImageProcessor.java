@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.converter;
 
-import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
 import org.springframework.web.multipart.MultipartFile;
+import org.xperia.exception.TrackerUnknownException;
 
 import java.io.IOException;
 import java.nio.file.Files;

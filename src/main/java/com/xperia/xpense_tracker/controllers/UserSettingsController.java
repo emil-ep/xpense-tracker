@@ -1,6 +1,4 @@
 package com.xperia.xpense_tracker.controllers;
-import com.xperia.xpense_tracker.exception.customexception.TrackerBadRequestException;
-import com.xperia.xpense_tracker.exception.customexception.TrackerException;
 import com.xperia.xpense_tracker.models.entities.UserSettings;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateItem;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateRequest;
@@ -17,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.xperia.exception.TrackerBadRequestException;
+import org.xperia.exception.TrackerException;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class UserSettingsController {
             List<UserSettings> settings = userSettingsService.updateUserSettings(itemsToUpdate, userDetails);
             return ResponseEntity.ok(new SuccessResponse(settings));
         }catch (TrackerException ex){
-            LOGGER.error("Faced error in updating user settings : {}", ex.getMessage());
+            LOGGER.error("Faced error in updating user settings : {}", ex.getMessage(), ex);
             throw ex;
         } catch (Exception ex){
             LOGGER.error("Error while updating user settings : {}", ex.getMessage(), ex);

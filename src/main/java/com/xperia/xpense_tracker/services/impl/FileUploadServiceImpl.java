@@ -1,9 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.converter.ImageProcessorFactory;
-import com.xperia.xpense_tracker.exception.customexception.TrackerException;
-import com.xperia.xpense_tracker.exception.customexception.TrackerNotFoundException;
-import com.xperia.xpense_tracker.exception.customexception.TrackerUnknownException;
 import com.xperia.xpense_tracker.models.entities.Statements;
 import com.xperia.xpense_tracker.models.entities.TrackerUser;
 import com.xperia.xpense_tracker.services.StatementService;
@@ -17,6 +14,9 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.xperia.exception.TrackerException;
+import org.xperia.exception.TrackerNotFoundException;
+import org.xperia.exception.TrackerUnknownException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
