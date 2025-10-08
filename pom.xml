@@ -103,6 +103,11 @@
 			<artifactId>caffeine</artifactId>
 			<version>3.1.8</version> <!-- Use latest version -->
 		</dependency>
+		<dependency>
+			<groupId>org.xperia</groupId>
+			<artifactId>xpense-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
