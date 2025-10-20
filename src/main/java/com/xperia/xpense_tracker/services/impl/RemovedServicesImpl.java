@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.models.entities.RemovedExpense;
-import com.xperia.xpense_tracker.repository.RemovedExpensesRepository;
+import com.xperia.xpense_tracker.models.entities.tracker.RemovedExpense;
+import com.xperia.xpense_tracker.repository.tracker.RemovedExpensesRepository;
 import com.xperia.xpense_tracker.services.RemovedExpensesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

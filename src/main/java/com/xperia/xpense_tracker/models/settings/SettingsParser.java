@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.models.settings;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 
 public class SettingsParser {
 

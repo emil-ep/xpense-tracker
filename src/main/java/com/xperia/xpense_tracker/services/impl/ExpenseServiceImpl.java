@@ -2,14 +2,14 @@ package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.models.ParsedRowData;
-import com.xperia.xpense_tracker.models.entities.*;
+import com.xperia.xpense_tracker.models.entities.tracker.*;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;
-import com.xperia.xpense_tracker.repository.ExpensesRepository;
-import com.xperia.xpense_tracker.repository.RemovedExpensesRepository;
+import com.xperia.xpense_tracker.repository.tracker.ExpensesRepository;
+import com.xperia.xpense_tracker.repository.tracker.RemovedExpensesRepository;
 import com.xperia.xpense_tracker.services.*;
 import jakarta.persistence.Tuple;
 import org.apache.coyote.BadRequestException;

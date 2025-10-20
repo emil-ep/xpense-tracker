@@ -1,13 +1,13 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.cache.CacheService;
-import com.xperia.xpense_tracker.models.entities.Tag;
-import com.xperia.xpense_tracker.models.entities.TagCategory;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.Tag;
+import com.xperia.xpense_tracker.models.entities.tracker.TagCategory;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
 import com.xperia.xpense_tracker.models.request.TagsEditRequest;
-import com.xperia.xpense_tracker.repository.TagCategoryRepository;
-import com.xperia.xpense_tracker.repository.TagRepository;
+import com.xperia.xpense_tracker.repository.tracker.TagCategoryRepository;
+import com.xperia.xpense_tracker.repository.tracker.TagRepository;
 import com.xperia.xpense_tracker.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

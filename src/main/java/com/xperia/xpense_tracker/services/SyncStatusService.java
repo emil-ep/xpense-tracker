@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.services;
 
 
-import com.xperia.xpense_tracker.models.entities.SyncStatus;
+import com.xperia.xpense_tracker.models.entities.tracker.SyncStatus;
 
 import java.util.Optional;
 

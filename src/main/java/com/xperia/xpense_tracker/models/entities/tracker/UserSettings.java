@@ -1,4 +1,4 @@
-package com.xperia.xpense_tracker.models.entities;
+package com.xperia.xpense_tracker.models.entities.tracker;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;

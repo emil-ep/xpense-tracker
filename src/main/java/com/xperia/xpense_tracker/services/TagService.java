@@ -1,8 +1,8 @@
 package com.xperia.xpense_tracker.services;
 
-import com.xperia.xpense_tracker.models.entities.Tag;
-import com.xperia.xpense_tracker.models.entities.TagCategory;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.Tag;
+import com.xperia.xpense_tracker.models.entities.tracker.TagCategory;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
 import com.xperia.xpense_tracker.models.request.TagsEditRequest;
 

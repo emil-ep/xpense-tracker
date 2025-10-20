@@ -1,5 +1,5 @@
 package com.xperia.xpense_tracker.controllers;
-import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateItem;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;

@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.models.response;
 
-import com.xperia.xpense_tracker.models.entities.Expenses;
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

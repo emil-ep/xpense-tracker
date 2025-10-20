@@ -1,16 +1,16 @@
 package com.xperia.xpense_tracker.initializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xperia.xpense_tracker.models.entities.TagCategory;
-import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
-import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.entities.tracker.TagCategory;
+import com.xperia.xpense_tracker.models.entities.tracker.TagCategoryEnum;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 import com.xperia.xpense_tracker.models.settings.SettingsType;
 import com.xperia.xpense_tracker.models.settings.UserSettingsFactory;
-import com.xperia.xpense_tracker.repository.TagCategoryRepository;
-import com.xperia.xpense_tracker.repository.TagRepository;
-import com.xperia.xpense_tracker.repository.UserRepository;
-import com.xperia.xpense_tracker.repository.UserSettingRepository;
+import com.xperia.xpense_tracker.repository.tracker.TagCategoryRepository;
+import com.xperia.xpense_tracker.repository.tracker.TagRepository;
+import com.xperia.xpense_tracker.repository.tracker.UserRepository;
+import com.xperia.xpense_tracker.repository.tracker.UserSettingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

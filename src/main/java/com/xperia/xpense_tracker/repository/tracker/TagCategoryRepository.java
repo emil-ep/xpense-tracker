@@ -1,6 +1,6 @@
-package com.xperia.xpense_tracker.repository;
+package com.xperia.xpense_tracker.repository.tracker;
 
-import com.xperia.xpense_tracker.models.entities.TagCategory;
+import com.xperia.xpense_tracker.models.entities.tracker.TagCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

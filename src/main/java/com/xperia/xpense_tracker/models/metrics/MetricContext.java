@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.models.metrics;
 
 
-import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
+import com.xperia.xpense_tracker.models.entities.tracker.TagCategoryEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

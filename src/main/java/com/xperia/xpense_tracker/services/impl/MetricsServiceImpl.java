@@ -2,19 +2,19 @@ package com.xperia.xpense_tracker.services.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.xperia.xpense_tracker.cache.CacheService;
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.TagCategoryEnum;
-import com.xperia.xpense_tracker.models.entities.UserSettings;
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
+import com.xperia.xpense_tracker.models.entities.tracker.TagCategoryEnum;
+import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 import com.xperia.xpense_tracker.models.metrics.MetricContext;
 import com.xperia.xpense_tracker.models.metrics.MetricDefinitions;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TimeframeServiceRequest;
 import com.xperia.xpense_tracker.models.response.AggregatedExpenseResponse;
 import com.xperia.xpense_tracker.models.settings.SettingsType;
-import com.xperia.xpense_tracker.repository.ExpensesRepository;
-import com.xperia.xpense_tracker.repository.TagRepository;
-import com.xperia.xpense_tracker.repository.UserSettingRepository;
+import com.xperia.xpense_tracker.repository.tracker.ExpensesRepository;
+import com.xperia.xpense_tracker.repository.tracker.TagRepository;
+import com.xperia.xpense_tracker.repository.tracker.UserSettingRepository;
 import com.xperia.xpense_tracker.services.MetricsService;
 import com.xperia.xpense_tracker.services.UserSettingsService;
 import org.slf4j.Logger;
@@ -112,7 +112,7 @@ public class MetricsServiceImpl implements MetricsService {
 
             // Aggregate the group's values
             Map<String, Object> aggregatedMetrics = metricDefinitions
-                    .parallelStream()
+                    .stream()
                     .collect(Collectors.toMap(
                             MetricDefinitions::getMetricName,
                             definition -> definition.process(group.stream(), new MetricContext(savingsCategories))

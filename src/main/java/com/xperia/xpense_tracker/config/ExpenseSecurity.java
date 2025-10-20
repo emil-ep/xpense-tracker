@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.config;
 
-import com.xperia.xpense_tracker.repository.ExpensesRepository;
+import com.xperia.xpense_tracker.repository.tracker.ExpensesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
