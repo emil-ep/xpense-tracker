@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.services;
 
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Optional;

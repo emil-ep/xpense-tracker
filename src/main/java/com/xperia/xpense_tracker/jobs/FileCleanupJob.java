@@ -1,8 +1,8 @@
 package com.xperia.xpense_tracker.jobs;
 
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.Statements;
-import com.xperia.xpense_tracker.repository.StatementsRepository;
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
+import com.xperia.xpense_tracker.models.entities.tracker.Statements;
+import com.xperia.xpense_tracker.repository.tracker.StatementsRepository;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import com.xperia.xpense_tracker.services.StatementService;
 import org.slf4j.Logger;

@@ -1,10 +1,10 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.models.entities.Statements;
+import com.xperia.xpense_tracker.models.entities.tracker.Statements;
 import com.xperia.xpense_tracker.models.fileProcessors.FileHeader;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessor;
 import com.xperia.xpense_tracker.models.fileProcessors.FileProcessorFactory;
-import com.xperia.xpense_tracker.repository.StatementsRepository;
+import com.xperia.xpense_tracker.repository.tracker.StatementsRepository;
 import com.xperia.xpense_tracker.services.StatementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

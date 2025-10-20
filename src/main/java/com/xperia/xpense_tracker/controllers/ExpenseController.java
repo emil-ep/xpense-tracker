@@ -2,10 +2,10 @@ package com.xperia.xpense_tracker.controllers;
 
 import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.models.ExpenseAggregateType;
-import com.xperia.xpense_tracker.models.entities.ExpenseFields;
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.SyncStatus;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.ExpenseFields;
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
+import com.xperia.xpense_tracker.models.entities.tracker.SyncStatus;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.fileProcessors.FileHeader;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;

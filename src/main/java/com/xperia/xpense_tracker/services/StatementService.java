@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.services;
 
-import com.xperia.xpense_tracker.models.entities.Statements;
+import com.xperia.xpense_tracker.models.entities.tracker.Statements;
 import com.xperia.xpense_tracker.models.fileProcessors.FileHeader;
 
 import java.io.File;

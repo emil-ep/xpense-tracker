@@ -1,8 +1,8 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.converter.ImageProcessorFactory;
-import com.xperia.xpense_tracker.models.entities.Statements;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.Statements;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.services.StatementService;
 import com.xperia.xpense_tracker.services.UploadService;
 import org.slf4j.Logger;

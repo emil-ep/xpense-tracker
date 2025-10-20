@@ -1,4 +1,4 @@
-package com.xperia.xpense_tracker.models.entities;
+package com.xperia.xpense_tracker.models.entities.tracker;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

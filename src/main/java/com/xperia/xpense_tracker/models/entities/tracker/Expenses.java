@@ -1,4 +1,4 @@
-package com.xperia.xpense_tracker.models.entities;
+package com.xperia.xpense_tracker.models.entities.tracker;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -43,7 +43,7 @@ public class Expenses {
     @JoinColumn(name = "user_id", nullable = false)
     private TrackerUser user;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "expense_tags",
             joinColumns = @JoinColumn(name = "expense_id"),
@@ -55,7 +55,7 @@ public class Expenses {
 
     private String attachment;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Statements statement;
 
     private String notes;

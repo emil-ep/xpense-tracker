@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.models.fileProcessors;
 
-import com.xperia.xpense_tracker.models.entities.ExpenseFields;
+import com.xperia.xpense_tracker.models.entities.tracker.ExpenseFields;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;

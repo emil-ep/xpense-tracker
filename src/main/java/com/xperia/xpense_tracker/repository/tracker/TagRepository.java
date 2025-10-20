@@ -1,7 +1,7 @@
-package com.xperia.xpense_tracker.repository;
+package com.xperia.xpense_tracker.repository.tracker;
 
-import com.xperia.xpense_tracker.models.entities.Tag;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.Tag;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

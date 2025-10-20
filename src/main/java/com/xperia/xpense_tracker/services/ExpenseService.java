@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.services;
 
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.Statements;
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
+import com.xperia.xpense_tracker.models.entities.tracker.Statements;
 import com.xperia.xpense_tracker.models.request.StatementPreviewRequest;
 import com.xperia.xpense_tracker.models.request.UpdateExpenseRequest;
 import com.xperia.xpense_tracker.models.response.MonthlyDebitSummary;

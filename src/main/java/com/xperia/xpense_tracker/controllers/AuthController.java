@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.controllers;
 
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.request.SignInRequest;
 import com.xperia.xpense_tracker.models.request.SignUpRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;

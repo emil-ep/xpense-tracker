@@ -1,6 +1,6 @@
-package com.xperia.xpense_tracker.repository;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
-import com.xperia.xpense_tracker.models.entities.UserSettings;
+package com.xperia.xpense_tracker.repository.tracker;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 import com.xperia.xpense_tracker.models.settings.SettingsType;
 import org.springframework.data.jpa.repository.JpaRepository;
 

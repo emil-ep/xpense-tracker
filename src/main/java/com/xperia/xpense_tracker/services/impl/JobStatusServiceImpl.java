@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.models.entities.JobStatus;
-import com.xperia.xpense_tracker.repository.JobStatusRepository;
+import com.xperia.xpense_tracker.models.entities.tracker.JobStatus;
+import com.xperia.xpense_tracker.repository.tracker.JobStatusRepository;
 import com.xperia.xpense_tracker.services.JobStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

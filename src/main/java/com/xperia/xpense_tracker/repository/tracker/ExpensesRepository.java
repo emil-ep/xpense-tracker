@@ -1,8 +1,8 @@
-package com.xperia.xpense_tracker.repository;
+package com.xperia.xpense_tracker.repository.tracker;
 
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.Statements;
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
+import com.xperia.xpense_tracker.models.entities.tracker.Statements;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

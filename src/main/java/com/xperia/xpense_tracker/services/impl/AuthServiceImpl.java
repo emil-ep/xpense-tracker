@@ -1,9 +1,9 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.models.entities.TrackerUser;
-import com.xperia.xpense_tracker.models.entities.UserRole;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserRole;
 import com.xperia.xpense_tracker.models.request.SignUpRequest;
-import com.xperia.xpense_tracker.repository.UserRepository;
+import com.xperia.xpense_tracker.repository.tracker.UserRepository;
 import com.xperia.xpense_tracker.services.AuthService;
 import com.xperia.xpense_tracker.services.JwtService;
 import org.apache.coyote.BadRequestException;

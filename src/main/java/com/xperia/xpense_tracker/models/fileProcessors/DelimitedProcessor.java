@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.models.fileProcessors;
 
-import com.xperia.xpense_tracker.models.entities.ExpenseFields;
+import com.xperia.xpense_tracker.models.entities.tracker.ExpenseFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xperia.exception.TrackerBadRequestException;

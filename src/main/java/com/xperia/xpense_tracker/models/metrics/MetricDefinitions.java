@@ -1,8 +1,8 @@
 package com.xperia.xpense_tracker.models.metrics;
 
-import com.xperia.xpense_tracker.models.entities.Expenses;
-import com.xperia.xpense_tracker.models.entities.Tag;
-import com.xperia.xpense_tracker.models.entities.TransactionType;
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
+import com.xperia.xpense_tracker.models.entities.tracker.Tag;
+import com.xperia.xpense_tracker.models.entities.tracker.TransactionType;
 import lombok.Getter;
 
 import java.time.LocalDate;

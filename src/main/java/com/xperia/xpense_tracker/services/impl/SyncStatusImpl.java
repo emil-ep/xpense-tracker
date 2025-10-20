@@ -1,7 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.models.entities.SyncStatus;
-import com.xperia.xpense_tracker.repository.SyncStatusRepository;
+import com.xperia.xpense_tracker.models.entities.tracker.SyncStatus;
+import com.xperia.xpense_tracker.repository.tracker.SyncStatusRepository;
 import com.xperia.xpense_tracker.services.SyncStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
