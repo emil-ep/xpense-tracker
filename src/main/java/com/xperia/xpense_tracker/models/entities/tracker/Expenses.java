@@ -43,7 +43,7 @@ public class Expenses {
     @JoinColumn(name = "user_id", nullable = false)
     private TrackerUser user;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "expense_tags",
             joinColumns = @JoinColumn(name = "expense_id"),
