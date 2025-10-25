@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "com.xperia.xpense_tracker.repository.mf",
+        basePackages = "org.xperia.repository.mf",
         entityManagerFactoryRef = "mfEntityManagerFactory",
         transactionManagerRef = "mfTransactionManager"
 )
@@ -37,7 +37,7 @@ public class MfDatasourceConfig {
 
         return builder
                 .dataSource(dataSource)
-                .packages("com.xperia.xpense_tracker.models.entities.mf")
+                .packages("org.xperia.entities.mf")
                 .persistenceUnit("mf")
                 .build();
     }
