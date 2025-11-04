@@ -7,7 +7,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication(scanBasePackages = {
 		"com.xperia.xpense_tracker",
-		"org.xperia.repository"
+		"org.xperia.repository",
+		"org.xperia.service"
 })
 @EnableAsync
 @EnableCaching
