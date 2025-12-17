@@ -7,6 +7,7 @@ public class CacheNames {
 
     public static final String METRICS_CACHE_NAME = "metricsCaches";
     public static final String USER_SETTINGS_CACHE_NAME = "userSettingsCache";
+    public static final String MUTUAL_FUND_CACHE_NAME = "mutualFundsCache";
 
 
 }

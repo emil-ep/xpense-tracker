@@ -18,7 +18,27 @@ public class CacheService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheService.class);
 
+    //cache lookup by user. In the format <userId : cacheName : ListOf(cacheKeys)>
     private final Map<String, Map<String, List<String>>> cacheByUser = new ConcurrentHashMap<>();
+
+    //cache lookup by cacheName. In the format <cacheName : cacheKeys>
+    private final Map<String, List<String>> cacheByName = new ConcurrentHashMap<>();
+
+    public void storeByCacheName(String cacheName, String key){
+        List<String> cacheKeys = cacheByName.get(cacheName);
+        if (cacheKeys == null){
+            cacheKeys = new ArrayList<>();
+        }
+        cacheKeys.add(key);
+    }
+
+    public void clearCache(String cacheName){
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null){
+            cache.clear();
+        }
+    }
+
 
     public void storeByUser(String userId, String key, String cacheName){
         if (cacheByUser.containsKey(userId)){
