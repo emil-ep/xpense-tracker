@@ -10,5 +10,5 @@ public interface AuthService {
 
     TrackerUser signUpUser(SignUpRequest signUpRequest) throws BadRequestException;
 
-
+    void logoutUser(TrackerUser user);
 }

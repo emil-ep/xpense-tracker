@@ -1,5 +1,7 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.cache.CacheNames;
+import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.tracker.UserRole;
 import com.xperia.xpense_tracker.models.request.SignUpRequest;
@@ -7,6 +9,8 @@ import com.xperia.xpense_tracker.repository.tracker.UserRepository;
 import com.xperia.xpense_tracker.services.AuthService;
 import com.xperia.xpense_tracker.services.JwtService;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private CacheService cacheService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private void validateSignIn(String email) throws BadRequestException {
         if(userRepository.findByEmail(email).isEmpty()){
@@ -53,5 +62,11 @@ public class AuthServiceImpl implements AuthService {
         validateSignUp(signUpRequest.getEmail());
         return userRepository.save(new TrackerUser(signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()), signUpRequest.getName(), UserRole.USER));
+    }
+
+    @Override
+    public void logoutUser(TrackerUser user) {
+        cacheService.clearCache(CacheNames.METRICS_CACHE_NAME, user.getId());
+        LOGGER.info("User {} logged out", user.getEmail());
     }
 }
