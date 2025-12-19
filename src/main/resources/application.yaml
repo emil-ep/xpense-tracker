@@ -54,7 +54,6 @@ logging:
     root: INFO
     com.xperia.xpense_tracker: DEBUG
     org.springframework.web: ERROR
-    com.zaxxer.hikari: DEBUG
 
 management:
   endpoints:
