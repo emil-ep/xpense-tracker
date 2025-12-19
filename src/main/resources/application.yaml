@@ -7,21 +7,27 @@ spring:
     name: xpense-tracker
   datasource:
     tracker:
-      jdbc-url: jdbc:postgresql://localhost:5432/xpense_tracker
-      username: xpense_admin
-      password: xpenseTracker1234
-      driver-class-name: org.postgresql.Driver
+      hikari:
+        jdbc-url: jdbc:postgresql://localhost:5432/xpense_tracker
+        username: xpense_admin
+        password: xpenseTracker1234
+        driver-class-name: org.postgresql.Driver
+        maximum-pool-size: 30
+        minimum-idle: 10
+        connection-timeout: 30000
+        idle-timeout: 60000
+        max-lifetime: 1800000
     mf:
-      jdbc-url: jdbc:postgresql://localhost:5432/mf
-      username: xpense_admin
-      password: xpenseTracker1234
-      driver-class-name: org.postgresql.Driver
-
-#  datasource:
-#    url: jdbc:postgresql://dpg-cv7dm0tumphs738h3tmg-a.singapore-postgres.render.com/xpense_tracker_gwtd
-#    username: xpense_admin
-#    password:
-#    driver-class-name: org.postgresql.Driver
+      hikari:
+        jdbc-url: jdbc:postgresql://localhost:5432/mf
+        username: xpense_admin
+        password: xpenseTracker1234
+        driver-class-name: org.postgresql.Driver
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 60000
+        max-lifetime: 1800000
   jpa:
     hibernate:
       ddl-auto: update
@@ -48,6 +54,7 @@ logging:
     root: INFO
     com.xperia.xpense_tracker: DEBUG
     org.springframework.web: ERROR
+    com.zaxxer.hikari: DEBUG
 
 management:
   endpoints:

@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.config.datasource;
 
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -25,9 +26,11 @@ import javax.sql.DataSource;
 public class MfDatasourceConfig {
 
     @Bean(name = "mfDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.mf")
+    @ConfigurationProperties(prefix = "spring.datasource.mf.hikari")
     public DataSource mfDatasource(){
-        return DataSourceBuilder.create().build();
+        return DataSourceBuilder
+                .create().type(HikariDataSource.class)
+                .build();
     }
 
 
