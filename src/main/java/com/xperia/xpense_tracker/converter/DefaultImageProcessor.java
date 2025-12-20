@@ -1,5 +1,7 @@
 package com.xperia.xpense_tracker.converter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.xperia.exception.TrackerUnknownException;
 
@@ -8,15 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class DefaultImageProcessor extends AbstractImageProcessor<MultipartFile, MultipartFile>{
+public class DefaultImageProcessor extends AbstractAttachmentProcessor<MultipartFile, MultipartFile> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultImageProcessor.class);
+
     @Override
-    MultipartFile convertImage(MultipartFile image, String path, String fileName) {
+    MultipartFile convertAttachment(MultipartFile attachment, String path, String fileName) {
         //No conversion required
-        return image;
+        return attachment;
     }
 
     @Override
-    public void saveImage(MultipartFile imageToSave, String path, String fileName) {
+    public void saveAttachment(MultipartFile attachmentToSave, String path, String fileName) {
         Path uploadPath = Paths.get(path);
         if(!Files.exists(uploadPath)){
             try {
@@ -27,9 +32,10 @@ public class DefaultImageProcessor extends AbstractImageProcessor<MultipartFile,
         }
         Path filePath = uploadPath.resolve(fileName);
         try {
-            imageToSave.transferTo(filePath.toFile());
+            attachmentToSave.transferTo(filePath.toFile());
         } catch (IOException e) {
-            throw new TrackerUnknownException("Error while transferring file to directory : " + path);
+            LOGGER.error("Error while transferring file using DefaultImageProcessor : {}", e.getMessage(), e);
+            throw new TrackerUnknownException("Error while transferring file to directory : " + path, e);
         }
     }
 }

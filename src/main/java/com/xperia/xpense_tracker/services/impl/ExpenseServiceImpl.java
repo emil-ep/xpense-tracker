@@ -200,6 +200,9 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .withAttachment(expenseRequest.getAttachment() != null
                         ? expenseRequest.getAttachment()
                         : existingExpense.getAttachment())
+                .withNote(expenseRequest.getNotes() != null
+                        ? expenseRequest.getNotes()
+                        : existingExpense.getNotes())
                 .build(existingExpense.getId());
 
         return expensesRepository.save(expenseToUpdate);

@@ -101,7 +101,7 @@ public class FileUploadServiceImpl implements UploadService {
                 : user.getId() + "_" + Instant.now().getEpochSecond() + "_" + file;
         try{
             var imageProcessor = ImageProcessorFactory.findImageProcessor(fileExtension);
-            imageProcessor.saveImage(multipartFile, attachmentUploadPath, customFileName);
+            imageProcessor.saveAttachment(multipartFile, attachmentUploadPath, customFileName);
             return customFileName;
         }catch (TrackerException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);
