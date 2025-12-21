@@ -4,8 +4,12 @@ import com.xperia.xpense_tracker.cache.CacheNames;
 import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.tracker.UserRole;
+import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 import com.xperia.xpense_tracker.models.request.SignUpRequest;
+import com.xperia.xpense_tracker.models.settings.SettingsType;
+import com.xperia.xpense_tracker.models.settings.UserSettingsFactory;
 import com.xperia.xpense_tracker.repository.tracker.UserRepository;
+import com.xperia.xpense_tracker.repository.tracker.UserSettingRepository;
 import com.xperia.xpense_tracker.services.AuthService;
 import com.xperia.xpense_tracker.services.JwtService;
 import org.apache.coyote.BadRequestException;
@@ -14,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -27,6 +34,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private UserSettingRepository userSettingRepository;
 
     @Autowired
     private CacheService cacheService;
@@ -60,8 +70,17 @@ public class AuthServiceImpl implements AuthService {
 
     public TrackerUser signUpUser(SignUpRequest signUpRequest) throws BadRequestException{
         validateSignUp(signUpRequest.getEmail());
-        return userRepository.save(new TrackerUser(signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()), signUpRequest.getName(), UserRole.USER));
+        TrackerUser user = new TrackerUser(signUpRequest.getEmail(),
+                encoder.encode(signUpRequest.getPassword()), signUpRequest.getName(), UserRole.USER);
+        userRepository.save(user);
+        Arrays.stream(SettingsType.values()).forEach(type -> {
+            Optional<UserSettings> userSetting = userSettingRepository.findByUserAndType(user, type);
+            if (userSetting.isEmpty()){
+                UserSettings newUserSetting = new UserSettings(type, user, UserSettingsFactory.createUserSettings(type));
+                userSettingRepository.save(newUserSetting);
+            }
+        });
+        return user;
     }
 
     @Override
