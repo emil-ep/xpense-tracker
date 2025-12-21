@@ -10,9 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class DefaultImageProcessor extends AbstractAttachmentProcessor<MultipartFile, MultipartFile> {
+public class PdfProcessor extends AbstractAttachmentProcessor<MultipartFile, MultipartFile>{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultImageProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PdfProcessor.class);
 
     @Override
     MultipartFile convertAttachment(MultipartFile attachment, String path, String fileName) {
@@ -34,7 +34,7 @@ public class DefaultImageProcessor extends AbstractAttachmentProcessor<Multipart
         try {
             attachmentToSave.transferTo(filePath.toFile());
         } catch (IOException e) {
-            LOGGER.error("Error while transferring file using DefaultImageProcessor : {}", e.getMessage(), e);
+            LOGGER.error("Error while transferring file using PdfProcessor : {}", e.getMessage(), e);
             throw new TrackerUnknownException("Error while transferring file to directory : " + path, e);
         }
     }

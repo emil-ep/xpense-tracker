@@ -46,7 +46,7 @@ file:
   upload:
     path: /Users/emil/Documents/projects/xpense-tracker/uploads
     attachment:
-      path: ./uploads/attachment
+      path: /Users/emil/Documents/projects/xpense-tracker/uploads/attachment
 
 
 logging:

@@ -26,5 +26,7 @@ public class UpdateExpenseRequest {
 
     private String attachment;
 
+    private String notes;
+
 
 }

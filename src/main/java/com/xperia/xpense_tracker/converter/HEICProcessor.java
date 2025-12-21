@@ -10,12 +10,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
 
 
-public class HEICProcessor extends AbstractImageProcessor<MultipartFile, InputStream> {
+public class HEICProcessor extends AbstractAttachmentProcessor<MultipartFile, InputStream> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HEICProcessor.class);
 
     @Override
-    InputStream convertImage(MultipartFile heicImage, String path, String fileName) {
+    InputStream convertAttachment(MultipartFile heicImage, String path, String fileName) {
 
         try{
             Path tempHeic = Files.createTempFile(heicImage.getName() + "_", ".heic");
@@ -29,7 +29,6 @@ public class HEICProcessor extends AbstractImageProcessor<MultipartFile, InputSt
                     out.write(buf, 0, r);
                 }
             }
-            String tempFileName = path + "/temp_" + fileName;
             ProcessBuilder pb = HeicConverterUtil.useImageMagick()
                     ? new ProcessBuilder("magick", heicFile.getAbsolutePath(), tempPng.toString())
                     : new ProcessBuilder("ffmpeg", "-y", "-i",
@@ -62,8 +61,8 @@ public class HEICProcessor extends AbstractImageProcessor<MultipartFile, InputSt
     }
 
     @Override
-    public void saveImage(MultipartFile heicImage, String path, String fileName) {
-        InputStream reader = convertImage(heicImage, path, fileName);
+    public void saveAttachment(MultipartFile heicImage, String path, String fileName) {
+        InputStream reader = convertAttachment(heicImage, path, fileName);
         if (reader == null){
             LOGGER.error("Save image failed for file : {}", fileName);
         }

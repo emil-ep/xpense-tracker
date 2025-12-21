@@ -1,6 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.xperia.xpense_tracker.converter.ImageProcessorFactory;
+import com.xperia.xpense_tracker.converter.AttachmentProcessorFactory;
 import com.xperia.xpense_tracker.models.entities.tracker.Statements;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.services.StatementService;
@@ -100,8 +100,8 @@ public class FileUploadServiceImpl implements UploadService {
                 ? user.getId() + "_" + Instant.now().getEpochSecond() + "_" + fileName + ".png"
                 : user.getId() + "_" + Instant.now().getEpochSecond() + "_" + file;
         try{
-            var imageProcessor = ImageProcessorFactory.findImageProcessor(fileExtension);
-            imageProcessor.saveImage(multipartFile, attachmentUploadPath, customFileName);
+            var attachmentProcessor = AttachmentProcessorFactory.findImageProcessor(fileExtension);
+            attachmentProcessor.saveAttachment(multipartFile, attachmentUploadPath, customFileName);
             return customFileName;
         }catch (TrackerException ex){
             LOG.error("Error occurred while saving file : {}", ex.getMessage(), ex);

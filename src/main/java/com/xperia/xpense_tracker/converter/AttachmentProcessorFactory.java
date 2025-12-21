@@ -1,12 +1,15 @@
 package com.xperia.xpense_tracker.converter;
 
-public class ImageProcessorFactory<T, R> {
+public class AttachmentProcessorFactory<T, R> {
 
-    public static AbstractImageProcessor findImageProcessor(String fileExtension){
+    public static AbstractAttachmentProcessor findImageProcessor(String fileExtension){
 
         switch (fileExtension){
             case "heic" -> {
                 return new HEICProcessor();
+            }
+            case "pdf" -> {
+                return new PdfProcessor();
             }
             case null, default -> {
                 return new DefaultImageProcessor();
