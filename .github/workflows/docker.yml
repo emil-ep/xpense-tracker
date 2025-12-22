@@ -23,4 +23,4 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ghcr.io/emilpradeep/expense-backend:1.0.0
+          tags: ghcr.io/emil-ep/expense-backend:1.0.0
