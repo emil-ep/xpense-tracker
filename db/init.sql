@@ -1,0 +1,5 @@
+CREATE DATABASE xpense_tracker;
+CREATE DATABASE mf;
+
+GRANT ALL PRIVILEGES ON DATABASE xpense_tracker TO xpense_admin;
+GRANT ALL PRIVILEGES ON DATABASE mf TO xpense_admin;
