@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/expense
+    username: expense
+    password: expense
+  jpa:
+    hibernate:
+      ddl-auto: update

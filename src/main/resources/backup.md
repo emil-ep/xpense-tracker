@@ -20,7 +20,5 @@ pg_restore \
   -p 5432 \
   -U xpense_admin \
   -d xpense_tracker \
-  --clean \
-  --if-exists \
   xpense_2025-12-21.dump
 ```
