@@ -12,6 +12,11 @@ jobs:
       packages: write
 
     steps:
+      - name: Get version from pom.xml
+        id: get_version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
       - uses: actions/checkout@v4
 
       - uses: docker/login-action@v3
@@ -23,7 +28,7 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ghcr.io/emil-ep/expense-backend:1.0.0
+          tags: ghcr.io/emil-ep/xpense-backend:${{ env.VERSION }}
           build-args: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             GITHUB_ACTOR=${{ github.actor }}
