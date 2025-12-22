@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>org.xperia</groupId>
 			<artifactId>xpense-common</artifactId>
-			<version>2.1.12</version>
+			<version>2.1.14</version>
 		</dependency>
 	</dependencies>
 
@@ -130,6 +130,13 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/emil-ep/xpense-common</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
