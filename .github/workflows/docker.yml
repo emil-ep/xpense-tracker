@@ -30,8 +30,8 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/emil-ep/expense-backend:${{ env.VERSION }}
-            ghcr.io/emil-ep/expense-backend:latest
+            ghcr.io/emil-ep/xpense-backend:${{ env.VERSION }}
+            ghcr.io/emil-ep/xpense-backend:latest
           build-args: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             GITHUB_ACTOR=${{ github.actor }}
