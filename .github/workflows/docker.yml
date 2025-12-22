@@ -24,3 +24,6 @@ jobs:
         with:
           push: true
           tags: ghcr.io/emil-ep/expense-backend:1.0.0
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            GITHUB_ACTOR=${{ github.actor }}
