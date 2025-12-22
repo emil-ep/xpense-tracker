@@ -1,8 +1,68 @@
+server:
+  port: 8085
+  address: 0.0.0.0
+
 spring:
+  application:
+    name: xpense-tracker
   datasource:
-    url: jdbc:postgresql://db:5432/xpense_tracker
-    username: xpense_admin
-    password: xpenseTracker1234
+    tracker:
+      hikari:
+        jdbc-url: jdbc:postgresql://postgres:5432/xpense_tracker
+        username: xpense_admin
+        password: xpenseTracker1234
+        driver-class-name: org.postgresql.Driver
+        maximum-pool-size: 30
+        minimum-idle: 10
+        connection-timeout: 30000
+        idle-timeout: 60000
+        max-lifetime: 1800000
+    mf:
+      hikari:
+        jdbc-url: jdbc:postgresql://postgres:5432/mf
+        username: xpense_admin
+        password: xpenseTracker1234
+        driver-class-name: org.postgresql.Driver
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 60000
+        max-lifetime: 1800000
   jpa:
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+token:
+  signing:
+    key: 413F4428472B4B6250655368566D5970337336763979244226452948404D6351
+
+file:
+  upload:
+    path: /Users/emil/Documents/projects/xpense-tracker/uploads
+    attachment:
+      path: /Users/emil/Documents/projects/xpense-tracker/uploads/attachment
+
+
+logging:
+  level:
+    root: INFO
+    com.xperia.xpense_tracker: DEBUG
+    org.springframework.web: ERROR
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ['prometheus']
+  #        include: '*' #it allows all endpoints.
+  endpoint:
+    health:
+      show-details: always
+
+
