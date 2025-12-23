@@ -8,7 +8,7 @@ spring:
   datasource:
     tracker:
       hikari:
-        jdbc-url: jdbc:postgresql://localhost:5432/xpense_tracker
+        jdbc-url: jdbc:postgresql://postgres:5432/xpense_tracker
         username: xpense_admin
         password: xpenseTracker1234
         driver-class-name: org.postgresql.Driver
@@ -19,7 +19,7 @@ spring:
         max-lifetime: 1800000
     mf:
       hikari:
-        jdbc-url: jdbc:postgresql://localhost:5432/mf
+        jdbc-url: jdbc:postgresql://postgres:5432/mf
         username: xpense_admin
         password: xpenseTracker1234
         driver-class-name: org.postgresql.Driver
