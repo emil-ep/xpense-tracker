@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.xperia</groupId>
 	<artifactId>xpense-tracker</artifactId>
-	<version>1.0.5</version>
+	<version>1.0.6</version>
 	<name>xpense-tracker</name>
 	<description>Application to track expenses of the user</description>
 	<url/>
