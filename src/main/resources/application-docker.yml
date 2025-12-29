@@ -44,9 +44,9 @@ token:
 
 file:
   upload:
-    path: /Users/emil/Documents/projects/xpense-tracker/uploads
+    path: /data/uploads
     attachment:
-      path: /Users/emil/Documents/projects/xpense-tracker/uploads/attachment
+      path: /data/uploads/attachment
 
 
 logging:
