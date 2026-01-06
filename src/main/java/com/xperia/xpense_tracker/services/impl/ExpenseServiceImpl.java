@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.DescriptionNormaliser;
 import com.xperia.xpense_tracker.cache.CacheService;
 import com.xperia.xpense_tracker.models.ParsedRowData;
 import com.xperia.xpense_tracker.models.entities.tracker.*;
@@ -235,6 +236,8 @@ public class ExpenseServiceImpl implements ExpenseService {
         try{
             SyncStatus inProgressStatus = new SyncStatus(requestId, SyncStatusEnum.IN_PROGRESS);
             syncStatusService.saveStatus(inProgressStatus);
+            Long startTime = System.currentTimeMillis();
+            LOGGER.info("--- Started syncing expenses v1 ---");
             List<Expenses> userExpenses = expensesRepository.getExpensesByUser(user);
             List<Tag> userTags = tagService.findAllTagsForUser(user);
             List<Expenses> updatesExpenses = userExpenses.stream()
@@ -245,6 +248,8 @@ public class ExpenseServiceImpl implements ExpenseService {
                                 .build(expenses.getId());
                     })
                     .toList();
+            Long endTime = System.currentTimeMillis();
+            LOGGER.info("--- Completed syncing in {} seconds ----", (endTime - startTime)/1000);
             expensesRepository.saveAll(updatesExpenses);
             SyncStatus completedStatus = new SyncStatus(requestId, SyncStatusEnum.COMPLETED);
             syncStatusService.updateStatus(completedStatus);
@@ -257,6 +262,69 @@ public class ExpenseServiceImpl implements ExpenseService {
             syncStatusService.updateStatus(completedStatus);
             LOGGER.info("completed sync request: {}", requestId);
         }
+    }
+
+    /**
+     * This algorithm needs to be further refined. Currently under investigation.
+     * Did not see marginal difference in synchorinising time. This should not be called by any chance,
+     * also the save method is commented out to prevent saving this to database
+     * @param userDetails The user who is triggering the sync functionality
+     * @param requestId the requestId generated for tracking purposes
+     */
+    @Override
+    public void syncExpensesV2(UserDetails userDetails, String requestId) {
+        TrackerUser user = (TrackerUser) userDetails;
+        try{
+            SyncStatus inProgressStatus = new SyncStatus(requestId, SyncStatusEnum.IN_PROGRESS);
+            syncStatusService.saveStatus(inProgressStatus);
+            long startTime = System.currentTimeMillis();
+            LOGGER.info("--- Started syncing expenses v2 ---");
+            List<Expenses> userExpenses = expensesRepository.getExpensesByUser(user);
+            List<Tag> userTags = tagService.findAllTagsForUser(user);
+            Map<String, Set<Tag>> keywordTagMap = new HashMap<>();
+            for (Tag tag: userTags){
+                for (String keyword: tag.getKeywords()){
+                    if (!keywordTagMap.containsKey(keyword)){
+                        keywordTagMap.computeIfAbsent(keyword, k -> new HashSet<>()).add(tag);
+                    }else {
+                        keywordTagMap.computeIfPresent(keyword, (k, tags) -> {
+                            tags.add(tag);
+                            return tags;
+                        });
+                    }
+                }
+            }
+            List<Expenses> expenseList = new ArrayList<>();
+            for (Expenses expenses : userExpenses){
+                String normalised = DescriptionNormaliser.normalize(expenses.getDescription());
+                List<String> tokens = tokenize(normalised);
+                Set<Tag> matchedTags = new HashSet<>();
+                for (String token: tokens){
+                    if (keywordTagMap.containsKey(token)){
+                        matchedTags.addAll(keywordTagMap.get(token));
+                    }
+                }
+                Expenses newExpense = new Expenses.ExpenseBuilder(expenses)
+                        .withTags(matchedTags)
+                        .build(expenses.getId());
+                expenseList.add(newExpense);
+            }
+            LOGGER.info("--- Completed syncing v2 in {} seconds ----", (System.currentTimeMillis() - startTime)/1000);
+//            expensesRepository.saveAll(expenseList);
+
+        }catch (Exception ex){
+            SyncStatus failedStatus = new SyncStatus(requestId, SyncStatusEnum.FAILED);
+            syncStatusService.updateStatus(failedStatus);
+            LOGGER.error("Failure while syncing expenses for user - requestId : {} : ex : {} ", requestId, ex.getMessage(), ex);
+        }finally {
+            SyncStatus completedStatus = new SyncStatus(requestId, SyncStatusEnum.COMPLETED);
+            syncStatusService.updateStatus(completedStatus);
+            LOGGER.info("completed sync request: {}", requestId);
+        }
+    }
+
+    public static List<String> tokenize(String normalized) {
+        return Arrays.asList(normalized.split(" "));
     }
 
     @Override
