@@ -4,10 +4,7 @@ import com.xperia.xpense_tracker.mcp.models.McpRequest;
 import com.xperia.xpense_tracker.mcp.models.McpResponse;
 import com.xperia.xpense_tracker.mcp.tool.McpTool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/mcp")
@@ -15,6 +12,11 @@ public class McpController {
 
     @Autowired
     private McpToolRegistry toolRegistry;
+
+    @GetMapping
+    public String healthCheck(){
+        return "MCP server is up";
+    }
 
     @PostMapping
     public McpResponse<?> execute(@RequestBody McpRequest request){

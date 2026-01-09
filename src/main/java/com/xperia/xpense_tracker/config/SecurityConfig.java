@@ -37,7 +37,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers("/v1/auth/**", "/actuator/**", "/actuator").permitAll()
+                                //TODO the "/v1/mcp/ should be removed once ai integrated within product.
+                                //TODO this is added only for testing purposes
+                                .requestMatchers("/v1/auth/**", "/actuator/**", "/actuator", "/v1/mcp/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
