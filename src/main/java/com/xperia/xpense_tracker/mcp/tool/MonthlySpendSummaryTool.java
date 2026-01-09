@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.mcp.tool;
 
+import com.xperia.xpense_tracker.mcp.models.McpResponse;
 import com.xperia.xpense_tracker.services.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ public class MonthlySpendSummaryTool implements McpTool{
 
     @Override
     public Object execute(Map<String, Object> arguments) {
-        return null;
+        String totalUsage = "100 Rs";
+        return McpResponse.success(totalUsage);
     }
 }
