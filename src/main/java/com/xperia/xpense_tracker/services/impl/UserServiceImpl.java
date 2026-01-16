@@ -28,4 +28,9 @@ public class UserServiceImpl implements UserService {
     public Optional<TrackerUser> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    @Override
+    public Optional<TrackerUser> findUserByUserId(String userId) {
+        return userRepository.findById(userId);
+    }
 }

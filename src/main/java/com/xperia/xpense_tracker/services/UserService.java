@@ -10,4 +10,6 @@ public interface UserService {
     UserDetailsService userDetailsService();
 
     Optional<TrackerUser> findUserByEmail(String email);
+
+    Optional<TrackerUser> findUserByUserId(String userId);
 }

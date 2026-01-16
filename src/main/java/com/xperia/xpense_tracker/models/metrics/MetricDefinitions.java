@@ -21,7 +21,6 @@ public enum MetricDefinitions {
 
     FIRST_EXPENSE_RECORDED_DATE(
       "first_expense_recorded_date",
-      "",
       (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
@@ -36,7 +35,6 @@ public enum MetricDefinitions {
     ),
     LAST_EXPENSE_RECORDED_DATE(
             "last_expense_recorded_date",
-            "",
             (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .min(Comparator.comparing(expense -> ((Expenses) expense).getTransactionDate(),
@@ -51,12 +49,10 @@ public enum MetricDefinitions {
     ),
     TOTAL_EXPENSES_ENTRY(
          "total_expenses_entry",
-            "SUM",
             (objectStream, context) -> objectStream.count()
     ),
     TOTAL_UNTAGGED_EXPENSES_ENTRY(
       "total_untagged_expenses_entry",
-      "SUM",
       (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .filter(expense -> ((Expenses) expense).getTags() == null || ((Expenses) expense).getTags().isEmpty())
@@ -64,7 +60,6 @@ public enum MetricDefinitions {
     ),
     TOTAL_TAGGED_EXPENSES_ENTRY(
       "total_tagged_expenses_entry",
-      "SUM",
       (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .filter(expense -> ((Expenses) expense).getTags() != null && !((Expenses) expense).getTags().isEmpty())
@@ -72,7 +67,6 @@ public enum MetricDefinitions {
     ),
     HIGHEST_EXPENSE_RECORDED(
       "highest_expense_recorded",
-      "SUM",
       (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .max(Comparator.comparingDouble(e -> ((Expenses) e).getDebit()))
@@ -80,7 +74,6 @@ public enum MetricDefinitions {
     ),
     HIGHEST_EXPENSE_TAG(
             "highest_expense_tag",
-            "SUM",
             (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .max(Comparator.comparingDouble(e -> ((Expenses) e).getDebit()))
@@ -95,7 +88,6 @@ public enum MetricDefinitions {
     ),
     HIGHEST_CREDIT_RECORDED(
       "highest_credit_recorded",
-      "SUM",
       (stream, context) -> stream
               .filter(Expenses.class::isInstance)
               .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
@@ -103,7 +95,6 @@ public enum MetricDefinitions {
     ),
     HIGHEST_CREDIT_RECORDED_TAG(
             "highest_credit_recorded_tag",
-            "SUM",
             (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .max(Comparator.comparingDouble(e -> ((Expenses) e).getCredit()))
@@ -117,21 +108,18 @@ public enum MetricDefinitions {
     ),
     AGG_CREDIT(
             "credit_aggregate",
-            "SUM",
             (stream, context) -> stream
                     .filter(Objects::nonNull)
                     .mapToDouble(value -> ((Expenses) value).getCredit())
                     .sum()),
     AGG_DEBIT(
             "debit_aggregate",
-            "SUM",
             (stream, context) -> stream
                     .filter(Objects::nonNull)
                     .mapToDouble(value -> ((Expenses) value).getDebit())
                     .sum()),
     AGG_BY_TAG(
             "tags_aggregate",
-            "GROUP_BY_TAG",
             (stream, context) -> stream
                     .filter(Expenses.class::isInstance)
                     .map(Expenses.class::cast)
@@ -162,7 +150,6 @@ public enum MetricDefinitions {
                     ))
     ),
     AGG_EXPENSE("expense_aggregate",
-            "SUM",
             (stream, context) -> stream
                     .map(Expenses.class::cast)
                     .filter(expenses -> expenses.getTags()
@@ -176,7 +163,6 @@ public enum MetricDefinitions {
     ),
     MEAN_DAILY_EXPENSE(
             "mean_daily_expense",
-            "SUM",
             (stream, context) -> {
                 List<Expenses> expensesList = stream
                         .map(Expenses.class::cast)
@@ -221,12 +207,10 @@ public enum MetricDefinitions {
     // ADD MORE METRIC DEFINITIONS HERE
 
     private final String metricName;
-    private final String aggregationMode;
     private final MetricProcessor<?, ?> processor;
 
-    <T, R> MetricDefinitions(String metricName, String aggregationMode, MetricProcessor<T, R> processor){
+    <T, R> MetricDefinitions(String metricName, MetricProcessor<T, R> processor){
         this.metricName = metricName;
-        this.aggregationMode = aggregationMode;
         this.processor = processor;
     }
 
@@ -237,6 +221,11 @@ public enum MetricDefinitions {
             }
         }
         return null;
+    }
+
+    public static String[] allMetricNames(){
+        List<String> metricNames = Arrays.stream(MetricDefinitions.values()).map(MetricDefinitions::name).toList();
+        return metricNames.toArray(String[]::new);
     }
 
     @SuppressWarnings("unchecked")
