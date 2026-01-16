@@ -223,6 +223,11 @@ public enum MetricDefinitions {
         return null;
     }
 
+    public static String[] allMetricNames(){
+        List<String> metricNames = Arrays.stream(MetricDefinitions.values()).map(MetricDefinitions::name).toList();
+        return metricNames.toArray(String[]::new);
+    }
+
     @SuppressWarnings("unchecked")
     public <T, R> R  process(Stream<T> values, MetricContext context) {
         return ((MetricProcessor<T, R>) processor).process(values, context);
