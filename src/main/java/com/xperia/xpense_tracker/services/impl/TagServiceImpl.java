@@ -1,6 +1,9 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.cache.CacheService;
+import com.xperia.xpense_tracker.models.TagCategoryDTO;
+import com.xperia.xpense_tracker.models.TagWithExpenseCountDTO;
+import com.xperia.xpense_tracker.models.TagWithExpenseCountProjection;
 import com.xperia.xpense_tracker.models.entities.tracker.Tag;
 import com.xperia.xpense_tracker.models.entities.tracker.TagCategory;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
@@ -35,6 +38,21 @@ public class TagServiceImpl implements TagService {
     public List<Tag> findAllTagsForUser(TrackerUser user) {
         List<Tag> userTags = tagRepository.findAllByUser(user);
         return userTags.stream().sorted(Comparator.comparing(Tag::getName)).toList();
+    }
+
+    @Override
+    public List<TagWithExpenseCountDTO> findAllTagsForUserWithExpenseCount(TrackerUser user) {
+        List<TagWithExpenseCountProjection> userTagsProjection = tagRepository.findTagsWithCount(user.getId());
+        List<TagWithExpenseCountDTO> userTags = userTagsProjection.stream()
+                .map(p -> new TagWithExpenseCountDTO(
+                        p.getId(),
+                        p.getName(),
+                        p.getKeywords(),
+                        new TagCategoryDTO(p.getCategoryId(), p.getCategoryName()),
+                        p.getColor(),
+                        p.getExpenseCount()
+                )).toList();
+        return userTags.stream().sorted(Comparator.comparing(TagWithExpenseCountDTO::getName)).toList();
     }
 
     @Override
