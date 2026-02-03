@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.controllers;
 
+import com.xperia.xpense_tracker.models.TagWithExpenseCountDTO;
 import com.xperia.xpense_tracker.models.entities.tracker.Tag;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TagRequest;
@@ -33,7 +34,8 @@ public class TagController {
     public ResponseEntity<AbstractResponse> getTags(@AuthenticationPrincipal UserDetails userDetails){
         try{
             TrackerUser user = (TrackerUser) userDetails;
-            List<Tag> tags = tagService.findAllTagsForUser(user);
+//            List<Tag> tags = tagService.findAllTagsForUser(user);
+            List<TagWithExpenseCountDTO> tags = tagService.findAllTagsForUserWithExpenseCount(user);
             return ResponseEntity.ok(new SuccessResponse(tags));
         }catch (Exception ex){
             LOG.error("Failed to fetch tags : {}", ex.getMessage());

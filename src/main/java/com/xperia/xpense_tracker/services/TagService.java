@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.services;
 
+import com.xperia.xpense_tracker.models.TagWithExpenseCountDTO;
 import com.xperia.xpense_tracker.models.entities.tracker.Tag;
 import com.xperia.xpense_tracker.models.entities.tracker.TagCategory;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
@@ -12,6 +13,8 @@ import java.util.Set;
 public interface TagService {
 
     List<Tag> findAllTagsForUser(TrackerUser user);
+
+    List<TagWithExpenseCountDTO> findAllTagsForUserWithExpenseCount(TrackerUser user);
 
     Tag addNewTag(TagRequest tagRequest, TrackerUser user);
 
