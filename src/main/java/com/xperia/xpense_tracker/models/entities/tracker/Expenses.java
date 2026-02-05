@@ -76,7 +76,7 @@ public class Expenses {
         this.tags = builder.tags;
         this.attachment = builder.attachment;
         this.statement = builder.statement;
-
+        this.bankAccount = builder.bankAccount;
     }
 
     private Expenses(String id, ExpenseBuilder builder){
@@ -92,6 +92,7 @@ public class Expenses {
         this.tags = builder.tags;
         this.attachment = builder.attachment;
         this.notes = builder.notes;
+        this.bankAccount = builder.bankAccount;
     }
 
     public static class ExpenseBuilder{
@@ -120,8 +121,11 @@ public class Expenses {
 
         private String notes;
 
-        public ExpenseBuilder(TrackerUser user){
+        private UserBankAccount bankAccount;
+
+        public ExpenseBuilder(TrackerUser user, UserBankAccount bankAccount){
             this.user = user;
+            this.bankAccount = bankAccount;
         }
 
         public ExpenseBuilder(Expenses existing){
@@ -136,12 +140,14 @@ public class Expenses {
             this.user = existing.getUser();
             this.attachment = existing.attachment;
             this.notes = existing.notes;
+            this.bankAccount = existing.bankAccount;
         }
 
         public ExpenseBuilder onDate(LocalDate transactionDate){
             this.transactionDate = transactionDate;
             return this;
         }
+
 
         public ExpenseBuilder withDescription(String description){
             this.description = description;
