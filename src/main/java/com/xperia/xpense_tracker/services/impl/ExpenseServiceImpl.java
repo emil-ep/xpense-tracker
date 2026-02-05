@@ -233,19 +233,24 @@ public class ExpenseServiceImpl implements ExpenseService {
     /**
      * The sync method helps in re-syncing the entire expenses of user with the new tags
      *
-     * @param userDetails The user who is triggering the sync functionality
-     * @param requestId the requestId generated for tracking purposes
+     * @param userDetails   The user who is triggering the sync functionality
+     * @param requestId     the requestId generated for tracking purposes
+     * @param bankAccountId
      */
     @Async
     @Override
-    public void syncExpenses(UserDetails userDetails, String requestId) {
+    public void syncExpenses(UserDetails userDetails, String requestId, String bankAccountId) {
         TrackerUser user = (TrackerUser) userDetails;
+        Optional<UserBankAccount> userBankAccount = userBankAccountService.findBankAccount(bankAccountId, user);
+        if (userBankAccount.isEmpty()){
+            throw new TrackerBadRequestException("Unknown bank account details");
+        }
         try{
             SyncStatus inProgressStatus = new SyncStatus(requestId, SyncStatusEnum.IN_PROGRESS);
             syncStatusService.saveStatus(inProgressStatus);
             Long startTime = System.currentTimeMillis();
             LOGGER.info("--- Started syncing expenses v1 ---");
-            List<Expenses> userExpenses = expensesRepository.getExpensesByUser(user);
+            List<Expenses> userExpenses = expensesRepository.getExpensesByUserAndBankAccount(user, userBankAccount.get());
             List<Tag> userTags = tagService.findAllTagsForUser(user);
             List<Expenses> updatesExpenses = userExpenses.stream()
                     .map(expenses -> {

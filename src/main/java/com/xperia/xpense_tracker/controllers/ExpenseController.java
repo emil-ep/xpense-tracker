@@ -198,10 +198,11 @@ public class ExpenseController {
     }
 
     @PostMapping("/sync")
-    public ResponseEntity<AbstractResponse> syncExpenses(@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<AbstractResponse> syncExpenses(@AuthenticationPrincipal UserDetails userDetails,
+                                                         @RequestParam("bank") String bankAccountId){
         try{
             String requestId = UUID.randomUUID().toString();
-            expenseService.syncExpenses(userDetails, requestId);
+            expenseService.syncExpenses(userDetails, requestId, bankAccountId);
             TrackerUser user = (TrackerUser) userDetails;
             LOGGER.info("Sync operation initiated for user : {} - requestId : {}", user.getId(), requestId);
             return ResponseEntity

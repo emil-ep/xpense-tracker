@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.repository.tracker;
 import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
 import com.xperia.xpense_tracker.models.entities.tracker.Statements;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserBankAccount;
 import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,8 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
             @Param("toDate") LocalDate toDate);
 
     List<Expenses> getExpensesByUser(TrackerUser user);
+
+    List<Expenses> getExpensesByUserAndBankAccount(TrackerUser user, UserBankAccount bankAccount);
 
     Optional<Expenses> findExpensesById(String expenseId);
 

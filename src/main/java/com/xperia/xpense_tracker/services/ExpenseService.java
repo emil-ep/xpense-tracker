@@ -31,7 +31,7 @@ public interface ExpenseService {
 
     List<MonthlyDebitSummary> aggregateExpenses(String by, UserDetails userDetails);
 
-    void syncExpenses(UserDetails userDetails, String requestId);
+    void syncExpenses(UserDetails userDetails, String requestId, String bankAccountId);
 
     void syncExpensesV2(UserDetails userDetails, String requestId);
 
