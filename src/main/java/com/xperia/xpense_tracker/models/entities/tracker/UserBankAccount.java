@@ -41,4 +41,11 @@ public class UserBankAccount {
             orphanRemoval = true
     )
     private List<Tag> tags;
+
+    @OneToMany(
+            mappedBy = "bankAccount",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<RemovedExpense> removedExpenses;
 }

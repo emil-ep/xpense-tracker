@@ -37,19 +37,9 @@ public class RemovedExpense {
     @JoinColumn(name = "user_id", nullable = false)
     private TrackerUser user;
 
-    public RemovedExpense(String id, LocalDate transactionDate, String description,
-                          String bankReferenceNo, Double debit, Double credit, Double closingBalance, TransactionType type,
-                          TrackerUser user){
-        this.id = id;
-        this.transactionDate = transactionDate;
-        this.description = description;
-        this.bankReferenceNo = bankReferenceNo;
-        this.debit = debit;
-        this.credit = credit;
-        this.closingBalance = closingBalance;
-        this.type = type;
-        this.user = user;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_account_id", nullable = false)
+    private UserBankAccount bankAccount;
 
     public RemovedExpense(Expenses expenses){
         this.id = expenses.getId();
@@ -61,5 +51,6 @@ public class RemovedExpense {
         this.closingBalance = expenses.getClosingBalance();
         this.type = expenses.getType();
         this.user = expenses.getUser();
+        this.bankAccount = expenses.getBankAccount();
     }
 }
