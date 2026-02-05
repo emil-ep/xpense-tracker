@@ -60,6 +60,10 @@ public class Expenses {
 
     private String notes;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_account_id", nullable = false)
+    private UserBankAccount bankAccount;
+
     private Expenses(ExpenseBuilder builder){
         this.description = builder.description;
         this.bankReferenceNo = builder.bankReferenceNo;
