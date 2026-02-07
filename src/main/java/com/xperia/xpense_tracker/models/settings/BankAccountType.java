@@ -1,5 +1,8 @@
 package com.xperia.xpense_tracker.models.settings;
 
+import lombok.Getter;
+
+@Getter
 public enum BankAccountType {
 
     SBI("SBI", "State Bank of India"),
@@ -20,4 +23,12 @@ public enum BankAccountType {
         this.name = name;
     }
 
+    public static BankAccountType findByShortName(String name){
+        for(BankAccountType accountType: BankAccountType.values()){
+            if (accountType.getShortName().equalsIgnoreCase(name)){
+                return accountType;
+            }
+        }
+        return null;
+    }
 }
