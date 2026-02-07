@@ -48,4 +48,10 @@ public class UserBankAccount {
             orphanRemoval = true
     )
     private List<RemovedExpense> removedExpenses;
+
+    public UserBankAccount(String name, BankAccountType type, TrackerUser user){
+        this.name = name;
+        this.type = type;
+        this.user = user;
+    }
 }

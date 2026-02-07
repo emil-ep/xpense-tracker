@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Entity(name = "removed_expenses")
 @NoArgsConstructor
 @Getter
+@Setter
 public class RemovedExpense {
 
     @Id
