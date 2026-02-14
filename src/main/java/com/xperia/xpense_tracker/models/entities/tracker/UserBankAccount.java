@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.models.entities.tracker;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.xperia.xpense_tracker.models.settings.BankAccountType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,6 +29,7 @@ public class UserBankAccount {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private TrackerUser user;
 
     @OneToMany(
@@ -35,6 +37,7 @@ public class UserBankAccount {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     private List<Expenses> expenses;
 
     @OneToMany(
@@ -42,6 +45,7 @@ public class UserBankAccount {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     private List<Tag> tags;
 
     @OneToMany(
@@ -49,6 +53,7 @@ public class UserBankAccount {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     private List<RemovedExpense> removedExpenses;
 
     public UserBankAccount(String name, BankAccountType type, TrackerUser user){
