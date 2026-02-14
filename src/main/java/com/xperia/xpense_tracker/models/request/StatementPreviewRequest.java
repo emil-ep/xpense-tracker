@@ -25,5 +25,7 @@ public class StatementPreviewRequest {
     private Integer closingBalance;
 
     private Integer headerStartIndex;
+
+    private String bankAccountId;
     
 }
