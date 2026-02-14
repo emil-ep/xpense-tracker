@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -29,6 +30,13 @@ public class TrackerUser implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<UserBankAccount> bankAccounts = new ArrayList<>();
 
     public TrackerUser(String email, String password, String name, UserRole role) {
         this.email = email;

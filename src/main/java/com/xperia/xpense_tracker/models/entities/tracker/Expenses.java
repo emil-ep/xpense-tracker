@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -16,6 +17,7 @@ import java.util.Set;
 @Entity(name = "expenses")
 @NoArgsConstructor
 @Getter
+@Setter
 public class Expenses {
 
     @Id
@@ -60,6 +62,10 @@ public class Expenses {
 
     private String notes;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_account_id", nullable = false)
+    private UserBankAccount bankAccount;
+
     private Expenses(ExpenseBuilder builder){
         this.description = builder.description;
         this.bankReferenceNo = builder.bankReferenceNo;
@@ -72,7 +78,7 @@ public class Expenses {
         this.tags = builder.tags;
         this.attachment = builder.attachment;
         this.statement = builder.statement;
-
+        this.bankAccount = builder.bankAccount;
     }
 
     private Expenses(String id, ExpenseBuilder builder){
@@ -88,6 +94,7 @@ public class Expenses {
         this.tags = builder.tags;
         this.attachment = builder.attachment;
         this.notes = builder.notes;
+        this.bankAccount = builder.bankAccount;
     }
 
     public static class ExpenseBuilder{
@@ -116,8 +123,11 @@ public class Expenses {
 
         private String notes;
 
-        public ExpenseBuilder(TrackerUser user){
+        private UserBankAccount bankAccount;
+
+        public ExpenseBuilder(TrackerUser user, UserBankAccount bankAccount){
             this.user = user;
+            this.bankAccount = bankAccount;
         }
 
         public ExpenseBuilder(Expenses existing){
@@ -132,12 +142,14 @@ public class Expenses {
             this.user = existing.getUser();
             this.attachment = existing.attachment;
             this.notes = existing.notes;
+            this.bankAccount = existing.bankAccount;
         }
 
         public ExpenseBuilder onDate(LocalDate transactionDate){
             this.transactionDate = transactionDate;
             return this;
         }
+
 
         public ExpenseBuilder withDescription(String description){
             this.description = description;

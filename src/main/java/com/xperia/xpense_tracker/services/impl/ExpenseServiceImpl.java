@@ -65,6 +65,9 @@ public class ExpenseServiceImpl implements ExpenseService {
     private StatementService statementService;
 
     @Autowired
+    private UserBankAccountService userBankAccountService;
+
+    @Autowired
     private CacheService cache;
 
 
@@ -79,6 +82,11 @@ public class ExpenseServiceImpl implements ExpenseService {
     public List<Expenses> processExpenseFromFile(File file, StatementPreviewRequest request, UserDetails userDetails,
                                                  boolean isPreview) throws IOException {
         String extension = file.getName().split("\\.")[1];
+        TrackerUser user = (TrackerUser) userDetails;
+        Optional<UserBankAccount> bankAccount = userBankAccountService.findBankAccount(request.getBankAccountId(), user);
+        if (bankAccount.isEmpty()){
+            throw new TrackerBadRequestException("Unknown bank account provided");
+        }
         Optional<Statements> statement = statementService.findByFileName(file.getName());
         FileProcessor fileProcessor = FileProcessorFactory.createFileProcessor(extension.toLowerCase());
         if (fileProcessor == null) {
@@ -94,7 +102,6 @@ public class ExpenseServiceImpl implements ExpenseService {
         //Here we return the row index and the compatible date time formatter for valid data
         ParsedRowData parsedRowData = findCompatibleDateFormatter(parsedFile, request.getTransactionDate());
         validatePreviewInputs(parsedFile, request, parsedRowData);
-        TrackerUser user = (TrackerUser) userDetails;
         List<Tag> userTags = tagService.findAllTagsForUser(user);
         List<Expenses> expensesList = new ArrayList<>();
         parsedFile.stream()
@@ -112,7 +119,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 }
                 String transactionDescription = row.get(request.getDescription());
                 Set<Tag> matchedTags = findMatchingTags(userTags, transactionDescription);
-                Expenses expense = new Expenses.ExpenseBuilder(user)
+                Expenses expense = new Expenses.ExpenseBuilder(user, bankAccount.get())
                         .onDate(LocalDate.parse(String.valueOf(row.get(request.getTransactionDate())), parsedRowData.getDateTimeFormatter()))
                         .withDescription(transactionDescription)
                         .withBankReferenceNo(row.get(request.getBankReferenceNo()))
@@ -226,19 +233,24 @@ public class ExpenseServiceImpl implements ExpenseService {
     /**
      * The sync method helps in re-syncing the entire expenses of user with the new tags
      *
-     * @param userDetails The user who is triggering the sync functionality
-     * @param requestId the requestId generated for tracking purposes
+     * @param userDetails   The user who is triggering the sync functionality
+     * @param requestId     the requestId generated for tracking purposes
+     * @param bankAccountId
      */
     @Async
     @Override
-    public void syncExpenses(UserDetails userDetails, String requestId) {
+    public void syncExpenses(UserDetails userDetails, String requestId, String bankAccountId) {
         TrackerUser user = (TrackerUser) userDetails;
+        Optional<UserBankAccount> userBankAccount = userBankAccountService.findBankAccount(bankAccountId, user);
+        if (userBankAccount.isEmpty()){
+            throw new TrackerBadRequestException("Unknown bank account details");
+        }
         try{
             SyncStatus inProgressStatus = new SyncStatus(requestId, SyncStatusEnum.IN_PROGRESS);
             syncStatusService.saveStatus(inProgressStatus);
             Long startTime = System.currentTimeMillis();
             LOGGER.info("--- Started syncing expenses v1 ---");
-            List<Expenses> userExpenses = expensesRepository.getExpensesByUser(user);
+            List<Expenses> userExpenses = expensesRepository.getExpensesByUserAndBankAccount(user, userBankAccount.get());
             List<Tag> userTags = tagService.findAllTagsForUser(user);
             List<Expenses> updatesExpenses = userExpenses.stream()
                     .map(expenses -> {

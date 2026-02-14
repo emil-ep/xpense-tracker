@@ -44,6 +44,10 @@ public class Tag {
 
     private String color;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "bank_account_id")
+    private UserBankAccount bankAccount;
+
     public Tag(String name, Tag parentTag, TrackerUser user, String[] keywords,
                boolean canBeConsideredExpense, TagCategory category, String color){
         this.name = name;

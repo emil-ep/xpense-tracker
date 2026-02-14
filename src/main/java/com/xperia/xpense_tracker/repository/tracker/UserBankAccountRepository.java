@@ -1,0 +1,17 @@
+package com.xperia.xpense_tracker.repository.tracker;
+
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserBankAccount;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface UserBankAccountRepository extends JpaRepository<UserBankAccount, String> {
+
+    Optional<UserBankAccount> findByIdAndUser(String id, TrackerUser user);
+
+    Optional<List<UserBankAccount>> findAllByUser(TrackerUser user);
+}
