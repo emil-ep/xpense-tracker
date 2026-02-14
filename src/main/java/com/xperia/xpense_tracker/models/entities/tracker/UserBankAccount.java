@@ -20,6 +20,8 @@ public class UserBankAccount {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private BankAccountType type;
 
     private String accountNumber;

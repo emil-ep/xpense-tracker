@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@Transactional
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
