@@ -1,6 +1,7 @@
 package com.xperia.xpense_tracker.models.entities.tracker;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,6 +47,7 @@ public class Tag {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bank_account_id")
+    @JsonIgnore
     private UserBankAccount bankAccount;
 
     public Tag(String name, Tag parentTag, TrackerUser user, String[] keywords,

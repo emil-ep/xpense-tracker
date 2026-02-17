@@ -64,6 +64,7 @@ public class Expenses {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_account_id", nullable = false)
+    @JsonIgnore
     private UserBankAccount bankAccount;
 
     private Expenses(ExpenseBuilder builder){
