@@ -8,6 +8,7 @@ import com.xperia.xpense_tracker.repository.tracker.UserBankAccountRepository;
 import com.xperia.xpense_tracker.services.UserBankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.xperia.exception.TrackerBadRequestException;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,9 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
 
     @Override
     public void saveBankAccount(TrackerUser user, BankAccountRequest request) {
+        if (BankAccountType.findByShortName(request.getType()) == null){
+            throw new TrackerBadRequestException("bank account type is not valid");
+        }
         BankAccountType type = BankAccountType.findByShortName(request.getType());
         UserBankAccount bankAccount = new UserBankAccount(
                 request.getName(),
