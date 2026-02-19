@@ -2,6 +2,7 @@ package com.xperia.xpense_tracker.controllers;
 
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.tracker.UserBankAccount;
+import com.xperia.xpense_tracker.models.request.BankAccountRequest;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.ErrorResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,6 +45,20 @@ public class UserBankAccountController {
         }catch (Exception ex){
             LOGGER.error("Error fetching bank accounts : {}", ex.getMessage(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching user bank accounts"));
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<AbstractResponse> addNewBankAccount(@AuthenticationPrincipal UserDetails userDetails,
+                                                              BankAccountRequest bankAccountRequest){
+        TrackerUser user = (TrackerUser) userDetails;
+        try{
+            bankAccountService.saveBankAccount(user, bankAccountRequest);
+            LOGGER.info("Created new bank account for the user : {}", user.getEmail());
+            return ResponseEntity.ok(new SuccessResponse("Created bank account"));
+        }catch (Exception ex){
+            LOGGER.error("Error saving bank account for the user : {}", user.getEmail(), ex);
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error saving bank account"));
         }
     }
 }
