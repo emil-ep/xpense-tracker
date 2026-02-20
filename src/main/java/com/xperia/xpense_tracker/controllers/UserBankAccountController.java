@@ -49,13 +49,13 @@ public class UserBankAccountController {
     }
 
     @PostMapping
-    public ResponseEntity<AbstractResponse> addNewBankAccount(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<AbstractResponse> upsertBankAccount(@AuthenticationPrincipal UserDetails userDetails,
                                                               BankAccountRequest bankAccountRequest){
         TrackerUser user = (TrackerUser) userDetails;
         try{
-            bankAccountService.saveBankAccount(user, bankAccountRequest);
-            LOGGER.info("Created new bank account for the user : {}", user.getEmail());
-            return ResponseEntity.ok(new SuccessResponse("Created bank account"));
+            bankAccountService.upsertBankAccount(user, bankAccountRequest);
+            LOGGER.info("Updated bank account for the user : {}", user.getEmail());
+            return ResponseEntity.ok(new SuccessResponse("Updated bank account"));
         }catch (Exception ex){
             LOGGER.error("Error saving bank account for the user : {}", user.getEmail(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error saving bank account"));

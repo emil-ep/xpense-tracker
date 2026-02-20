@@ -30,15 +30,23 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
     }
 
     @Override
-    public void saveBankAccount(TrackerUser user, BankAccountRequest request) {
+    public void upsertBankAccount(TrackerUser user, BankAccountRequest request) {
         if (BankAccountType.findByShortName(request.getType()) == null){
             throw new TrackerBadRequestException("bank account type is not valid");
         }
-        BankAccountType type = BankAccountType.findByShortName(request.getType());
-        UserBankAccount bankAccount = new UserBankAccount(
-                request.getName(),
-                type == null ? BankAccountType.NONE : type,
-                user);
+        UserBankAccount bankAccount;
+        if (request.getId() != null && !request.getId().isEmpty()){
+            Optional<UserBankAccount> bankAccountOptional = bankRepository.findByIdAndUser(request.getId(), user);
+            if (bankAccountOptional.isEmpty()){
+                throw new TrackerBadRequestException("bank id not valid or not associated to this user");
+            }
+            bankAccount = bankAccountOptional.get();
+        }else{
+            bankAccount = new UserBankAccount(
+                    request.getName(),
+                    request.getType() == null ? BankAccountType.NONE : BankAccountType.findByShortName(request.getType()),
+                    user);
+        }
         bankRepository.save(bankAccount);
     }
 

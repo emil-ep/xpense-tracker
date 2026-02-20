@@ -7,6 +7,8 @@ import lombok.Setter;
 @Setter
 public class BankAccountRequest {
 
+    private String id;
+
     private String name;
 
     private String accountNumber;
