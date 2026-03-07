@@ -4,7 +4,7 @@ volumes:
 
 services:
   db:
-    image: postgres
+    image: postgres:16
     environment:
       POSTGRES_USER: xpense_admin
       POSTGRES_PASSWORD: xpenseTracker1234
