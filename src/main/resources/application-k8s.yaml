@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    tracker:
+      hikari:
+        jdbc-url: ${TRACKER_DATASOURCE_URL}
+        username: ${TRACKER_DATASOURCE_USERNAME}
+        password: ${TRACKER_DATASOURCE_PASSWORD}
+    mf:
+      hikari:
+        jdbc-url: ${MF_DATASOURCE_URL}
+        username: ${MF_DATASOURCE_USERNAME}
+        password: ${MF_DATASOURCE_PASSWORD}
