@@ -14,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +47,7 @@ public class UserBankAccountController {
 
     @PostMapping
     public ResponseEntity<AbstractResponse> upsertBankAccount(@AuthenticationPrincipal UserDetails userDetails,
-                                                              BankAccountRequest bankAccountRequest){
+                                                              @RequestBody BankAccountRequest bankAccountRequest){
         TrackerUser user = (TrackerUser) userDetails;
         try{
             bankAccountService.upsertBankAccount(user, bankAccountRequest);
@@ -59,6 +56,16 @@ public class UserBankAccountController {
         }catch (Exception ex){
             LOGGER.error("Error saving bank account for the user : {}", user.getEmail(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error saving bank account"));
+        }
+    }
+
+    @GetMapping("/types")
+    public ResponseEntity<AbstractResponse> getBankAccountTypes(){
+        try{
+            return ResponseEntity.ok(new SuccessResponse(bankAccountService.fetchBankAccountTypes()));
+        }catch (Exception ex){
+            LOGGER.error("Error fetching bank account types : ", ex);
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching bank account types"));
         }
     }
 }

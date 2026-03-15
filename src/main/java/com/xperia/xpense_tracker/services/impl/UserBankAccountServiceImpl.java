@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xperia.exception.TrackerBadRequestException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,8 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
 
     @Override
     public void upsertBankAccount(TrackerUser user, BankAccountRequest request) {
-        if (BankAccountType.findByShortName(request.getType()) == null){
+        BankAccountType accountType = BankAccountType.findByShortName(request.getType());
+        if (accountType == null){
             throw new TrackerBadRequestException("bank account type is not valid");
         }
         UserBankAccount bankAccount;
@@ -41,6 +43,9 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
                 throw new TrackerBadRequestException("bank id not valid or not associated to this user");
             }
             bankAccount = bankAccountOptional.get();
+            bankAccount.setAccountNumber(request.getAccountNumber());
+            bankAccount.setName(request.getName());
+            bankAccount.setType(accountType);
         }else{
             bankAccount = new UserBankAccount(
                     request.getName(),
@@ -53,5 +58,10 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
     @Override
     public void removeBankAccount(String bankAccountId) {
         bankRepository.deleteById(bankAccountId);
+    }
+
+    @Override
+    public List<String> fetchBankAccountTypes() {
+        return Arrays.stream(BankAccountType.values()).map(BankAccountType::getShortName).toList();
     }
 }
