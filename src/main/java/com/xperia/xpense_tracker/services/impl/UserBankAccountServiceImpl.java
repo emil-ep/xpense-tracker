@@ -57,6 +57,8 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
 
     @Override
     public void removeBankAccount(String bankAccountId) {
+        //TODO Implement checks to not allow deletion if expenses are attached
+        //TODO should be done next on priority 25/3/2026
         bankRepository.deleteById(bankAccountId);
     }
 

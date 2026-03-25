@@ -68,4 +68,25 @@ public class UserBankAccountController {
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching bank account types"));
         }
     }
+
+    @DeleteMapping
+    public ResponseEntity<AbstractResponse> deleteBankAccount(@RequestParam("id") String bankAccountId,
+                                                              @AuthenticationPrincipal UserDetails userDetails){
+        try{
+            TrackerUser user = (TrackerUser) userDetails;
+            Optional<List<UserBankAccount>> userBankAccounts = bankAccountService.findBankAccountsOfUser(user);
+            if (userBankAccounts.isEmpty()){
+                LOGGER.error("Unable to find any bank accounts for the user : {}", user.getId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("Bank account doesnt belong to user"));
+            }
+            if (userBankAccounts.get().stream().filter(bankAccount -> bankAccount.getId().equalsIgnoreCase(bankAccountId)).findFirst().isEmpty()){
+                LOGGER.error("Couldn't find bank account provided in request {} for user  : {}", bankAccountId, user.getId());
+            }
+            bankAccountService.removeBankAccount(bankAccountId);
+            return ResponseEntity.ok(new SuccessResponse("Removed bank account"));
+        }catch (Exception ex){
+            LOGGER.error("Error deleting bank account : {} for user : {}", bankAccountId, "");
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error deleting bank account"));
+        }
+    }
 }
