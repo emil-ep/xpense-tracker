@@ -79,13 +79,18 @@ public class UserBankAccountController {
                 LOGGER.error("Unable to find any bank accounts for the user : {}", user.getId());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("Bank account doesnt belong to user"));
             }
-            if (userBankAccounts.get().stream().filter(bankAccount -> bankAccount.getId().equalsIgnoreCase(bankAccountId)).findFirst().isEmpty()){
+            Optional<UserBankAccount> selectedAccount = userBankAccounts.get()
+                    .stream()
+                    .filter(bankAccount -> bankAccount.getId().equalsIgnoreCase(bankAccountId))
+                    .findFirst();
+            if (selectedAccount.isEmpty()){
                 LOGGER.error("Couldn't find bank account provided in request {} for user  : {}", bankAccountId, user.getId());
+                return ResponseEntity.badRequest().body(new ErrorResponse("Couldn't find bank account with the provided id"));
             }
-            bankAccountService.removeBankAccount(bankAccountId);
+            bankAccountService.removeBankAccount(user, selectedAccount.get());
             return ResponseEntity.ok(new SuccessResponse("Removed bank account"));
         }catch (Exception ex){
-            LOGGER.error("Error deleting bank account : {} for user : {}", bankAccountId, "");
+            LOGGER.error("Error deleting bank account : {} for user : {}", bankAccountId, "" , ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error deleting bank account"));
         }
     }

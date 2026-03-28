@@ -1,11 +1,15 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.tracker.UserBankAccount;
 import com.xperia.xpense_tracker.models.request.BankAccountRequest;
 import com.xperia.xpense_tracker.models.settings.BankAccountType;
+import com.xperia.xpense_tracker.repository.tracker.ExpensesRepository;
 import com.xperia.xpense_tracker.repository.tracker.UserBankAccountRepository;
 import com.xperia.xpense_tracker.services.UserBankAccountService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xperia.exception.TrackerBadRequestException;
@@ -19,6 +23,11 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
 
     @Autowired
     private UserBankAccountRepository bankRepository;
+
+    @Autowired
+    private ExpensesRepository expensesRepository;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserBankAccountServiceImpl.class);
 
     @Override
     public Optional<UserBankAccount> findBankAccount(String bankAccountId, TrackerUser user) {
@@ -56,10 +65,14 @@ public class UserBankAccountServiceImpl implements UserBankAccountService {
     }
 
     @Override
-    public void removeBankAccount(String bankAccountId) {
-        //TODO Implement checks to not allow deletion if expenses are attached
-        //TODO should be done next on priority 25/3/2026
-        bankRepository.deleteById(bankAccountId);
+    public void removeBankAccount(TrackerUser user, UserBankAccount bankAccount) {
+        List<Expenses> attachedExpenses = expensesRepository.getExpensesByUserAndBankAccount(user, bankAccount);
+        if (attachedExpenses.isEmpty()){
+            bankRepository.deleteById(bankAccount.getId());
+        }
+        LOGGER.debug("Total : {} expenses are attached to the bank account : {}", attachedExpenses.size(), bankAccount.getId());
+        throw new TrackerBadRequestException("Expenses are attached to this bank account. " +
+                "Please assign to different account or delete expenses first");
     }
 
     @Override

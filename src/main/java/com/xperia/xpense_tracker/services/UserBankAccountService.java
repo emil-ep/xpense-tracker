@@ -15,7 +15,7 @@ public interface UserBankAccountService {
 
     void upsertBankAccount(TrackerUser user, BankAccountRequest request);
 
-    void removeBankAccount(String bankAccountId);
+    void removeBankAccount(TrackerUser user, UserBankAccount bankAccount);
 
     List<String> fetchBankAccountTypes();
 }
