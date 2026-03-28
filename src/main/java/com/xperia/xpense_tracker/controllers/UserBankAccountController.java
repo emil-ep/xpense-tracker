@@ -14,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,16 +46,52 @@ public class UserBankAccountController {
     }
 
     @PostMapping
-    public ResponseEntity<AbstractResponse> addNewBankAccount(@AuthenticationPrincipal UserDetails userDetails,
-                                                              BankAccountRequest bankAccountRequest){
+    public ResponseEntity<AbstractResponse> upsertBankAccount(@AuthenticationPrincipal UserDetails userDetails,
+                                                              @RequestBody BankAccountRequest bankAccountRequest){
         TrackerUser user = (TrackerUser) userDetails;
         try{
-            bankAccountService.saveBankAccount(user, bankAccountRequest);
-            LOGGER.info("Created new bank account for the user : {}", user.getEmail());
-            return ResponseEntity.ok(new SuccessResponse("Created bank account"));
+            bankAccountService.upsertBankAccount(user, bankAccountRequest);
+            LOGGER.info("Updated bank account for the user : {}", user.getEmail());
+            return ResponseEntity.ok(new SuccessResponse("Updated bank account"));
         }catch (Exception ex){
             LOGGER.error("Error saving bank account for the user : {}", user.getEmail(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error saving bank account"));
+        }
+    }
+
+    @GetMapping("/types")
+    public ResponseEntity<AbstractResponse> getBankAccountTypes(){
+        try{
+            return ResponseEntity.ok(new SuccessResponse(bankAccountService.fetchBankAccountTypes()));
+        }catch (Exception ex){
+            LOGGER.error("Error fetching bank account types : ", ex);
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching bank account types"));
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<AbstractResponse> deleteBankAccount(@RequestParam("id") String bankAccountId,
+                                                              @AuthenticationPrincipal UserDetails userDetails){
+        try{
+            TrackerUser user = (TrackerUser) userDetails;
+            Optional<List<UserBankAccount>> userBankAccounts = bankAccountService.findBankAccountsOfUser(user);
+            if (userBankAccounts.isEmpty()){
+                LOGGER.error("Unable to find any bank accounts for the user : {}", user.getId());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("Bank account doesnt belong to user"));
+            }
+            Optional<UserBankAccount> selectedAccount = userBankAccounts.get()
+                    .stream()
+                    .filter(bankAccount -> bankAccount.getId().equalsIgnoreCase(bankAccountId))
+                    .findFirst();
+            if (selectedAccount.isEmpty()){
+                LOGGER.error("Couldn't find bank account provided in request {} for user  : {}", bankAccountId, user.getId());
+                return ResponseEntity.badRequest().body(new ErrorResponse("Couldn't find bank account with the provided id"));
+            }
+            bankAccountService.removeBankAccount(user, selectedAccount.get());
+            return ResponseEntity.ok(new SuccessResponse("Removed bank account"));
+        }catch (Exception ex){
+            LOGGER.error("Error deleting bank account : {} for user : {}", bankAccountId, "" , ex);
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error deleting bank account"));
         }
     }
 }

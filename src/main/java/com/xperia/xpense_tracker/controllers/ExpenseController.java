@@ -177,6 +177,7 @@ public class ExpenseController {
             List<Expenses> expenses = expenseService.processExpenseFromFile(file, request, userDetails, true);
             return ResponseEntity.ok(new SuccessResponse(expenses));
         }catch (IOException ex){
+            LOGGER.error("Error while previewing statement : {}", ex.getMessage(), ex);
             return ResponseEntity.badRequest().body(new ErrorResponse("Error while processing file"));
         }
     }

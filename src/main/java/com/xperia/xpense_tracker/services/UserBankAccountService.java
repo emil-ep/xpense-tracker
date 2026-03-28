@@ -13,7 +13,9 @@ public interface UserBankAccountService {
 
     Optional<List<UserBankAccount>> findBankAccountsOfUser(TrackerUser user);
 
-    void saveBankAccount(TrackerUser user, BankAccountRequest request);
+    void upsertBankAccount(TrackerUser user, BankAccountRequest request);
 
-    void removeBankAccount(String bankAccountId);
+    void removeBankAccount(TrackerUser user, UserBankAccount bankAccount);
+
+    List<String> fetchBankAccountTypes();
 }
