@@ -17,7 +17,7 @@ import java.util.Map;
 
 public interface ExpenseService {
 
-    Page<Expenses> getExpenses(UserDetails userDetails, LocalDate fromDate, LocalDate toDate, PageRequest pageRequest);
+    Page<Expenses> getExpenses(UserDetails userDetails, LocalDate fromDate, LocalDate toDate, String bankAccountId, PageRequest pageRequest);
 
     List<Expenses> processExpenseFromFile(File file,
                                           StatementPreviewRequest request,

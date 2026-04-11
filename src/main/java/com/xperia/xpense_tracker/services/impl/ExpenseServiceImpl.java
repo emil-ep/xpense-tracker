@@ -72,10 +72,15 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 
     @Override
-    public Page<Expenses> getExpenses(UserDetails userDetails, LocalDate startDate, LocalDate endDate, PageRequest pageRequest) {
+    public Page<Expenses> getExpenses(UserDetails userDetails, LocalDate startDate, LocalDate endDate, String bankAccountId,
+                                      PageRequest pageRequest) {
 
         TrackerUser user = (TrackerUser) userDetails;
-        return expensesRepository.getPaginatedExpensesByUser(user, startDate, endDate, pageRequest);
+        Optional<UserBankAccount> userBankAccount = userBankAccountService.findBankAccount(bankAccountId, user);
+        if (userBankAccount.isEmpty()){
+            throw new TrackerBadRequestException("user bank account details not correct");
+        }
+        return expensesRepository.getPaginatedExpensesByUser(user, startDate, endDate, userBankAccount.get(), pageRequest);
     }
 
     @Override
