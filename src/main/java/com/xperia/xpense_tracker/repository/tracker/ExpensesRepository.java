@@ -32,9 +32,12 @@ public interface ExpensesRepository extends JpaRepository<Expenses, String> {
 
     Optional<Expenses> findExpensesById(String expenseId);
 
-    @Query("SELECT e FROM expenses e WHERE e.user = :user AND e.transactionDate BETWEEN :fromDate AND :toDate")
+    @Query("SELECT e FROM expenses e " +
+            "WHERE e.user = :user " +
+            "AND e.bankAccount = :bankAccount " +
+            "AND e.transactionDate BETWEEN :fromDate AND :toDate")
     Page<Expenses> getPaginatedExpensesByUser(TrackerUser user, @Param("fromDate") LocalDate fromDate,
-                                              @Param("toDate") LocalDate toDate, Pageable pageable);
+                                              @Param("toDate") LocalDate toDate, UserBankAccount bankAccount, Pageable pageable);
 
     @Query("SELECT e FROM expenses e WHERE e.user = :user AND e.transactionDate IN :dates AND e.bankReferenceNo IN :bankReferenceNos")
     List<Expenses> findByUserAndTransactionDateInAndBankReferenceNoIn(TrackerUser user, Set<LocalDate> dates, Set<String> bankReferenceNos);

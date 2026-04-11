@@ -68,6 +68,7 @@ public class ExpenseController {
                                                         @RequestParam(value = "size", defaultValue = "10") int size,
                                                         @RequestParam(value = "from") String fromDate,
                                                         @RequestParam(value = "to") String toDate,
+                                                        @RequestParam(value = "bankAccount") String bankAccountId,
                                                         @AuthenticationPrincipal UserDetails userDetails){
         try{
             LocalDate startDate;
@@ -75,7 +76,7 @@ public class ExpenseController {
             startDate = LocalDate.parse(fromDate, DATE_TIME_FORMATTER);
             endDate = LocalDate.parse(toDate, DATE_TIME_FORMATTER);
 
-            Page<Expenses> expenses = expenseService.getExpenses(userDetails,startDate, endDate,
+            Page<Expenses> expenses = expenseService.getExpenses(userDetails,startDate, endDate, bankAccountId,
                     PageRequest.of(
                             page - 1,
                             size,
