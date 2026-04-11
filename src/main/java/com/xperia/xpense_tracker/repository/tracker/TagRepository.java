@@ -29,8 +29,8 @@ public interface TagRepository extends JpaRepository<Tag, String> {
             FROM tag t
             LEFT JOIN expense_tags et ON t.id = et.tag_id
             JOIN tag_category c ON t.category_id = c.id
-            WHERE t.user_id = :userId
+            WHERE t.user_id = :userId AND t.bank_account_id = :bankAccountId
             GROUP BY t.id, t.name,t.keywords, t.color, c.id, c.name
             """, nativeQuery = true)
-    List<TagWithExpenseCountProjection> findTagsWithCount(@Param("userId") String userId);
+    List<TagWithExpenseCountProjection> findTagsWithCount(@Param("userId") String userId, @Param("bankAccountId") String bankAccountId);
 }

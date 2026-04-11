@@ -31,11 +31,12 @@ public class TagController {
     private static final Logger LOG = LoggerFactory.getLogger(TagController.class);
 
     @GetMapping
-    public ResponseEntity<AbstractResponse> getTags(@AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<AbstractResponse> getTags(@RequestParam(value = "bankAccount") String bankAccountId,
+                                                    @AuthenticationPrincipal UserDetails userDetails){
         try{
             TrackerUser user = (TrackerUser) userDetails;
 //            List<Tag> tags = tagService.findAllTagsForUser(user);
-            List<TagWithExpenseCountDTO> tags = tagService.findAllTagsForUserWithExpenseCount(user);
+            List<TagWithExpenseCountDTO> tags = tagService.findAllTagsForUserWithExpenseCount(user, bankAccountId);
             return ResponseEntity.ok(new SuccessResponse(tags));
         }catch (Exception ex){
             LOG.error("Failed to fetch tags : {}", ex.getMessage());

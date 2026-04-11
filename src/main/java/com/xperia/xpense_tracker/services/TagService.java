@@ -14,7 +14,7 @@ public interface TagService {
 
     List<Tag> findAllTagsForUser(TrackerUser user);
 
-    List<TagWithExpenseCountDTO> findAllTagsForUserWithExpenseCount(TrackerUser user);
+    List<TagWithExpenseCountDTO> findAllTagsForUserWithExpenseCount(TrackerUser user, String bankAccountId);
 
     Tag addNewTag(TagRequest tagRequest, TrackerUser user);
 

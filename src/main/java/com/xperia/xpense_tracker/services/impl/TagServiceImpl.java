@@ -7,11 +7,13 @@ import com.xperia.xpense_tracker.models.TagWithExpenseCountProjection;
 import com.xperia.xpense_tracker.models.entities.tracker.Tag;
 import com.xperia.xpense_tracker.models.entities.tracker.TagCategory;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserBankAccount;
 import com.xperia.xpense_tracker.models.request.TagRequest;
 import com.xperia.xpense_tracker.models.request.TagsEditRequest;
 import com.xperia.xpense_tracker.repository.tracker.TagCategoryRepository;
 import com.xperia.xpense_tracker.repository.tracker.TagRepository;
 import com.xperia.xpense_tracker.services.TagService;
+import com.xperia.xpense_tracker.services.UserBankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xperia.exception.TrackerBadRequestException;
@@ -31,6 +33,9 @@ public class TagServiceImpl implements TagService {
     private TagCategoryRepository tagCategoryRepository;
 
     @Autowired
+    private UserBankAccountService userBankAccountService;
+
+    @Autowired
     private CacheService cache;
 
 
@@ -41,8 +46,12 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagWithExpenseCountDTO> findAllTagsForUserWithExpenseCount(TrackerUser user) {
-        List<TagWithExpenseCountProjection> userTagsProjection = tagRepository.findTagsWithCount(user.getId());
+    public List<TagWithExpenseCountDTO> findAllTagsForUserWithExpenseCount(TrackerUser user, String bankAccountId) {
+        Optional<UserBankAccount> userBankAccount = userBankAccountService.findBankAccount(bankAccountId, user);
+        if (userBankAccount.isEmpty()){
+            throw new TrackerBadRequestException("User bank account detail provided is invalid");
+        }
+        List<TagWithExpenseCountProjection> userTagsProjection = tagRepository.findTagsWithCount(user.getId(),  userBankAccount.get().getId());
         List<TagWithExpenseCountDTO> userTags = userTagsProjection.stream()
                 .map(p -> new TagWithExpenseCountDTO(
                         p.getId(),
