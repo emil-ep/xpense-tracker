@@ -3,6 +3,7 @@ package com.xperia.xpense_tracker.repository.tracker;
 import com.xperia.xpense_tracker.models.TagWithExpenseCountProjection;
 import com.xperia.xpense_tracker.models.entities.tracker.Tag;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserBankAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, String> {
 
-    Optional<Tag> findByNameAndUser(String name, TrackerUser user);
+    Optional<Tag> findByNameAndUserAndBankAccount(String name, TrackerUser user, UserBankAccount bankAccount);
 
     List<Tag> findAllByUser(TrackerUser user);
 
