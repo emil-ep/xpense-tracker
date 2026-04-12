@@ -51,13 +51,14 @@ public class Tag {
     private UserBankAccount bankAccount;
 
     public Tag(String name, Tag parentTag, TrackerUser user, String[] keywords,
-               boolean canBeConsideredExpense, TagCategory category, String color){
+               boolean canBeConsideredExpense, TagCategory category, String color,  UserBankAccount bankAccount){
         this.name = name;
         this.user = user;
         this.keywords = keywords;
         this.canBeConsideredExpense = canBeConsideredExpense;
         this.category = category;
         this.color = color;
+        this.bankAccount = bankAccount;
     }
 
     public boolean isEditable(){

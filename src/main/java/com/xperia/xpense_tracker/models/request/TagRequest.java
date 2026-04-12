@@ -24,4 +24,6 @@ public class TagRequest {
     private boolean canBeCountedAsExpense;
 
     private String color;
+
+    private String bankAccountId;
 }

@@ -67,14 +67,18 @@ public class TagServiceImpl implements TagService {
     @Override
     public Tag addNewTag(TagRequest tagRequest, TrackerUser user) throws TrackerException {
         Tag parentTag = null;
-        Optional<TagCategory> tagCategory = Optional.empty();
+        Optional<TagCategory> tagCategory;
+        Optional<UserBankAccount> userBankAccount = userBankAccountService.findBankAccount(tagRequest.getBankAccountId(), user);
+        if (userBankAccount.isEmpty()){
+            throw new TrackerBadRequestException("User bank account details provided are invalid");
+        }
         if(tagRequest.getParentTagId() != null){
             if(tagRepository.findTagById(tagRequest.getParentTagId()).isEmpty()){
                 throw new TrackerBadRequestException("Parent tagId is not valid");
             }
             parentTag = tagRepository.findTagById(tagRequest.getParentTagId()).get();
         }
-        Optional<Tag> existingTag = tagRepository.findByNameAndUser(tagRequest.getName(), user);
+        Optional<Tag> existingTag = tagRepository.findByNameAndUserAndBankAccount(tagRequest.getName(), user, userBankAccount.get());
         if (existingTag.isPresent()){
             throw new TrackerBadRequestException("Tag with same name exists");
         }
@@ -99,7 +103,8 @@ public class TagServiceImpl implements TagService {
                 tagRequest.getKeywords(),
                 tagRequest.isCanBeCountedAsExpense(),
                 tagCategory.get(),
-                tagRequest.getColor()
+                tagRequest.getColor(),
+                userBankAccount.get()
         );
         cache.clearCache(METRICS_CACHE_NAME, user.getId());
         return tagRepository.save(tag);
