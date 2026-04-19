@@ -75,7 +75,7 @@ public class MetricsServiceImpl implements MetricsService {
      * @param aggregationTimeframe the timeframe in which metrics needs to be fetched
      * @param metricToBeFetched    the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
      * @param userDetails          the user for which the details should be fetched
-     * @param bankAccountId
+     * @param bankAccountId        the bank accountId of the user
      * @param timeInterval         the time interval in which metrics should be calculated
      * @return returns the list of metrics aggregated by timeframe
      */
