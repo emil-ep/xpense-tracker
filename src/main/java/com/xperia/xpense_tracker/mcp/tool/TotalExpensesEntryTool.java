@@ -36,6 +36,6 @@ public class TotalExpensesEntryTool implements McpTool{
         MetricTimeFrame timeFrame = MetricTimeFrame.findByTimeframe((String) arguments.get("timeframe"));
         String[] metricNames = MetricDefinitions.allMetricNames();
         Optional<TrackerUser> user = userService.findUserByUserId((String)arguments.get("userId"));
-        return metricsService.fetchMetricsV2(timeFrame, metricNames, user.get(), timeframeServiceRequest);
+        return metricsService.fetchMetricsV2(timeFrame, metricNames, user.get(), null , timeframeServiceRequest);
     }
 }

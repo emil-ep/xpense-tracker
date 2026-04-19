@@ -2,13 +2,10 @@ package com.xperia.xpense_tracker.services.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.xperia.xpense_tracker.cache.CacheService;
-import com.xperia.xpense_tracker.models.entities.tracker.Expenses;
-import com.xperia.xpense_tracker.models.entities.tracker.TagCategoryEnum;
-import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
+import com.xperia.xpense_tracker.models.entities.tracker.*;
 import com.xperia.xpense_tracker.models.metrics.MetricContext;
 import com.xperia.xpense_tracker.models.metrics.MetricDefinitions;
 import com.xperia.xpense_tracker.models.metrics.MetricTimeFrame;
-import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.request.TimeframeServiceRequest;
 import com.xperia.xpense_tracker.models.response.AggregatedExpenseResponse;
 import com.xperia.xpense_tracker.models.settings.SettingsType;
@@ -16,6 +13,7 @@ import com.xperia.xpense_tracker.repository.tracker.ExpensesRepository;
 import com.xperia.xpense_tracker.repository.tracker.TagRepository;
 import com.xperia.xpense_tracker.repository.tracker.UserSettingRepository;
 import com.xperia.xpense_tracker.services.MetricsService;
+import com.xperia.xpense_tracker.services.UserBankAccountService;
 import com.xperia.xpense_tracker.services.UserSettingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +22,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.xperia.exception.TrackerBadRequestException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +49,9 @@ public class MetricsServiceImpl implements MetricsService {
     @Autowired
     private UserSettingsService userSettingsService;
 
+    @Autowired
+    private UserBankAccountService userBankAccountService;
+
     @Override
     public List<AggregatedExpenseResponse> fetchMetrics(MetricTimeFrame timeframe, int limit, UserDetails userDetails) {
         TrackerUser user = (TrackerUser) userDetails;
@@ -73,20 +75,28 @@ public class MetricsServiceImpl implements MetricsService {
      * @param aggregationTimeframe the timeframe in which metrics needs to be fetched
      * @param metricToBeFetched    the metrics that needs to be fetched. The metric should correspond to MetricTimeFrame enum
      * @param userDetails          the user for which the details should be fetched
+     * @param bankAccountId
      * @param timeInterval         the time interval in which metrics should be calculated
      * @return returns the list of metrics aggregated by timeframe
      */
     @Override
     @Cacheable(value = METRICS_CACHE_NAME,
-            key = "T(org.springframework.util.StringUtils).arrayToCommaDelimitedString(#metricToBeFetched) + ':' + #aggregationTimeframe.toString() + ':' + #timeInterval.toString() + ':' + #userDetails.toString()")
+            key = "T(org.springframework.util.StringUtils).arrayToCommaDelimitedString(#metricToBeFetched) + ':' + #aggregationTimeframe.toString() + ':' + #timeInterval.toString() + ':' + #bankAccountId.toString() + ':' + #userDetails.toString()")
     public List<Object> fetchMetricsV2(MetricTimeFrame aggregationTimeframe, String[] metricToBeFetched,
-                                       UserDetails userDetails, TimeframeServiceRequest timeInterval) {
+                                       UserDetails userDetails, String bankAccountId, TimeframeServiceRequest timeInterval) {
         TrackerUser user = (TrackerUser) userDetails;
+        Optional<UserBankAccount> userBankAccount = userBankAccountService.findBankAccount(bankAccountId, user);
+        if (userBankAccount.isEmpty()){
+            LOGGER.error("BankAccount : {} provided is not valid for user : {}", bankAccountId, user.getId());
+            throw new TrackerBadRequestException("Bank Account information provided is not valid");
+        }
         String cacheKey = StringUtils.arrayToCommaDelimitedString(metricToBeFetched)
                 + ":"
                 + aggregationTimeframe.toString()
                 + ":"
                 + timeInterval.toString()
+                + ":"
+                + bankAccountId
                 + ":"
                 + userDetails.toString();
         cacheService.storeByUser(user.getId(), cacheKey, METRICS_CACHE_NAME);
@@ -98,6 +108,7 @@ public class MetricsServiceImpl implements MetricsService {
         List<Expenses> expenses = expensesRepository
                 .findExpensesByUserAndTransactionDateBetween(
                         user,
+                        userBankAccount.get(),
                         timeInterval.getFromDate(),
                         timeInterval.getToDate()
                 );

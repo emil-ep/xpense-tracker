@@ -11,5 +11,9 @@ public interface MetricsService {
 
     List<AggregatedExpenseResponse> fetchMetrics(MetricTimeFrame timeframe, int limit, UserDetails userDetails);
 
-    List<Object> fetchMetricsV2(MetricTimeFrame timeFrame, String[] metricToBeFetched, UserDetails userDetails, TimeframeServiceRequest timeInterval);
+    List<Object> fetchMetricsV2(MetricTimeFrame timeFrame,
+                                String[] metricToBeFetched,
+                                UserDetails userDetails,
+                                String bankAccountId,
+                                TimeframeServiceRequest timeInterval);
 }
