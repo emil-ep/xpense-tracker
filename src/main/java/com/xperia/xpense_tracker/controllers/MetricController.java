@@ -50,6 +50,7 @@ public class MetricController {
     @PostMapping("/v2")
     public ResponseEntity<AbstractResponse> fetchMetricsV2(@RequestParam("aggregationMode") String timeframe,
                                                            @RequestParam("metrics") String[] metrics,
+                                                           @RequestParam("bankAccountId") String bankAccountId,
                                                            @RequestBody TimeframeRequest request,
                                                            @AuthenticationPrincipal UserDetails userDetails){
         try{
@@ -58,7 +59,7 @@ public class MetricController {
             }
             TimeframeServiceRequest timeInterval = validateTimeframeRequest(request);
             MetricTimeFrame metricTimeFrame = MetricTimeFrame.findByTimeframe(timeframe);
-            List<Object> response = metricsService.fetchMetricsV2(metricTimeFrame, metrics, userDetails, timeInterval);
+            List<Object> response = metricsService.fetchMetricsV2(metricTimeFrame, metrics, userDetails, bankAccountId, timeInterval);
             return ResponseEntity.ok(new SuccessResponse(response));
         } catch (TrackerBadRequestException ex){
             LOGGER.error("Error processing metrics : {}", ex.getMessage());
