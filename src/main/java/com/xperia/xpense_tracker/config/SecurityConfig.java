@@ -16,6 +16,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -39,14 +42,31 @@ public class SecurityConfig {
                         request -> request
                                 //TODO the "/v1/mcp/ should be removed once ai integrated within product.
                                 //TODO this is added only for testing purposes
-                                .requestMatchers("/v1/auth/**", "/actuator/**", "/actuator", "/v1/mcp/**").permitAll()
+                                .requestMatchers("/v1/auth/**", "/actuator/**", "/actuator", "/v1/mcp/**", "/login", "/error")
+                                .permitAll()
                                 .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+//                        .defaultSuccessUrl("/home", true)
+//                        .failureUrl("/login?error=true")
+                        .tokenEndpoint(token -> token.accessTokenResponseClient(accessTokenResponseClient()))
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
                         authenticationFilter, UsernamePasswordAuthenticationFilter.class
                 );
         return http.build();
+    }
+
+    @Bean
+    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+        return new RestClientAuthorizationCodeTokenResponseClient();
     }
 
     @Bean
