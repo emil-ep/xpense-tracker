@@ -19,12 +19,15 @@ public class Oauth2Token {
 
     private String refreshToken;
 
+    private Long expireTimestamp;
+
     @OneToOne
     private TrackerUser user;
 
-    public Oauth2Token(String accessToken, String refreshToken, TrackerUser user){
+    public Oauth2Token(String accessToken, String refreshToken, TrackerUser user, Long expireTimestamp){
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.user = user;
+        this.expireTimestamp = expireTimestamp;
     }
 }

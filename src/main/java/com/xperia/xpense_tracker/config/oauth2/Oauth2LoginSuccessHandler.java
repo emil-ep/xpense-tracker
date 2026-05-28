@@ -40,6 +40,6 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 : null;
 
         String userEmail = oauthToken.getPrincipal().getAttribute("email");
-        oauth2TokenService.saveToken(userEmail, accessToken, refreshToken);
+        oauth2TokenService.saveToken(userEmail, accessToken, refreshToken, expiresAt.getEpochSecond());
     }
 }
