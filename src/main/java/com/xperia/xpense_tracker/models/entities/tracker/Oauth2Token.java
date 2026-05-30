@@ -15,10 +15,13 @@ public class Oauth2Token {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "access_token", columnDefinition = "TEXT")
     private String accessToken;
 
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
+    @Column(name = "expire_timestamp")
     private Long expireTimestamp;
 
     @OneToOne

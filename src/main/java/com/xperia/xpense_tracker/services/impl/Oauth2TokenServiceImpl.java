@@ -57,6 +57,6 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
             LOGGER.error("There is no user with email : {}", email);
             throw new TrackerBadRequestException("There is no user with the email : " + email);
         }
-        return oauth2TokenRepository.findByEmail(email);
+        return oauth2TokenRepository.findByUser(user.get());
     }
 }
