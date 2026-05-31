@@ -1,0 +1,42 @@
+name: Grok PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+      - name: Checkout Grok PR Reviewer
+        uses: actions/checkout@v4
+        with:
+          repository: emil-ep/pr-reviewer  # ⬅️ Your reviewer repo
+          path: grok-reviewer
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        working-directory: grok-reviewer
+        run: npm ci
+      
+      - name: Build
+        working-directory: grok-reviewer
+        run: npm run build
+      
+      - name: Run Grok PR Review
+        working-directory: grok-reviewer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: node dist/index.js
