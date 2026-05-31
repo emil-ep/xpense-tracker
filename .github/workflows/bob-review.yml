@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Grok PR Reviewer
         uses: actions/checkout@v4
         with:
-          repository: emil-ep/grok-pr-reviewer  # ⬅️ Your reviewer repo
+          repository: emil-ep/pr-reviewer  # ⬅️ Your reviewer repo
           path: grok-reviewer
       
       - name: Setup Node.js
