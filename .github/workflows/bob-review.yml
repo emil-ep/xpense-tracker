@@ -1,0 +1,22 @@
+name: Bob PR Review
+on:
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: emil-ep/Bob-PR-reviewer
+          path: bob
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: cd bob && npm ci && npm run build
+      - run: cd bob && node dist/index.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
