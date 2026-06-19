@@ -1,0 +1,63 @@
+name: Bob PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # Only run on PR events or when comment contains /review
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' && 
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '/review'))
+
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout Bob PR Reviewer
+        uses: actions/checkout@v4
+        with:
+          repository: emil-ep/pr-reviewer  # Your central reviewer repo
+          path: bob-reviewer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: bob-reviewer
+        run: npm ci
+
+      - name: Build project
+        working-directory: bob-reviewer
+        run: npm run build
+
+      - name: Get PR number
+        id: pr
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Bob PR Review
+        working-directory: bob-reviewer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BOB_API_ENDPOINT: ${{ secrets.BOB_API_ENDPOINT }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          echo "🤖 Reviewing PR #${PR_NUMBER} in ${REPO_OWNER}/${REPO_NAME}"
+          node dist/index.js
