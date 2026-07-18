@@ -125,9 +125,14 @@ public class TagServiceImpl implements TagService {
         }
         Tag existingTag = tagRepository.findTagById(tagRequest.getId())
                 .orElseThrow(() -> new TrackerBadRequestException("tagId not valid"));
+        // The request would send the keyword to update only, we need to copy existing tag keywords and the new keywords
+        String[] newKeywords = new String[existingTag.getKeywords().length + tagRequest.getKeywords().length];
+        System.arraycopy(existingTag.getKeywords(), 0, newKeywords, 0, existingTag.getKeywords().length);
+        System.arraycopy(tagRequest.getKeywords(), 0, newKeywords, existingTag.getKeywords().length,
+                tagRequest.getKeywords().length);
         existingTag.setName(tagRequest.getName());
         existingTag.setParentTag(parentTag);
-        existingTag.setKeywords(tagRequest.getKeywords());
+        existingTag.setKeywords(newKeywords);
         existingTag.setCanBeConsideredExpense(tagRequest.isCanBeCountedAsExpense());
         cache.clearCache(METRICS_CACHE_NAME, user.getId());
         return tagRepository.save(existingTag);
