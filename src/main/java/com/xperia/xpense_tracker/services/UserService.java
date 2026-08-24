@@ -12,4 +12,6 @@ public interface UserService {
     Optional<TrackerUser> findUserByEmail(String email);
 
     Optional<TrackerUser> findUserByUserId(String userId);
+
+    void registerOauthUser(String userEmail, String name);
 }

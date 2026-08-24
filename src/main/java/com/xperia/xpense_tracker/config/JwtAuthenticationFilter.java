@@ -34,6 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Pattern ACTUATOR_PATTERN = Pattern.compile("/actuator");
     //TODO this should be removed once the ai is integrated within product
     private static final Pattern MCP_SERVER_PATTERN = Pattern.compile("/v1/mcp");
+    private static final Pattern OAUTH2_PATTERN = Pattern.compile("/oauth2/.*");
+    private static final Pattern OAUTH2_LOGIN_PATTERN = Pattern.compile("/login/oauth2/.*");
+    private static final Pattern LOGIN_PATTERN = Pattern.compile("/login");
+    private static final Pattern ERROR_PATTERN = Pattern.compile("/error");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -47,6 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || ACTUATOR_PATTERN.matcher(request.getRequestURI()).matches()
                 || ACTUATOR_EXTRAS_PATTERN.matcher(request.getRequestURI()).matches()
                 || MCP_SERVER_PATTERN.matcher(request.getRequestURI()).matches()
+                || OAUTH2_PATTERN.matcher(request.getRequestURI()).matches()
+                || OAUTH2_LOGIN_PATTERN.matcher(request.getRequestURI()).matches()
+                || LOGIN_PATTERN.matcher(request.getRequestURI()).matches()
+                || ERROR_PATTERN.matcher(request.getRequestURI()).matches()
 
         ) {
             filterChain.doFilter(request, response); // Proceed with the filter chain
