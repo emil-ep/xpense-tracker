@@ -51,8 +51,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 
-            client-secret: 
+            client-id: ${GOOGLE-CLIENT-ID}
+            client-secret: ${GOOGLE-CLIENT-SECRET}
             scope:
               - openid
               - profile
