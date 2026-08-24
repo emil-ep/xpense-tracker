@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -17,6 +18,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 @Component
@@ -53,10 +56,20 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 : null;
 
         String userEmail = oauthToken.getPrincipal().getAttribute("email");
-        oauth2TokenService.saveToken(userEmail, accessToken, refreshToken, expiresAt.getEpochSecond());
-        UserDetails userDetails = userService.userDetailsService()
-                .loadUserByUsername(userEmail);
-        String jwt = jwtService.generateToken(userDetails);
-        response.sendRedirect(frontendUrl + "/login?token=" + jwt);
+        String name = oauthToken.getPrincipal().getAttribute("name");
+        try{
+            oauth2TokenService.saveToken(userEmail, accessToken, refreshToken, expiresAt.getEpochSecond());
+            UserDetails userDetails;
+            try{
+                userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
+            }catch (UsernameNotFoundException ex){
+                userService.registerOauthUser(userEmail, name);
+                userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
+            }
+            String jwt = jwtService.generateToken(userDetails);
+            response.sendRedirect(frontendUrl + "/login?token=" + jwt);
+        }catch (Exception ex){
+            response.sendRedirect(frontendUrl + "/login?error=" + URLEncoder.encode("Login failed: " + ex.getMessage(), StandardCharsets.UTF_8));
+        }
     }
 }
