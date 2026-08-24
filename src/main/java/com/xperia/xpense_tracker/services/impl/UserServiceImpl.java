@@ -1,6 +1,8 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.config.PasswordEncoderConfig;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserRole;
 import com.xperia.xpense_tracker.repository.tracker.UserRepository;
 import com.xperia.xpense_tracker.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private PasswordEncoderConfig encoderConfig;
 
     @Autowired
     private UserRepository userRepository;
@@ -32,5 +37,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<TrackerUser> findUserByUserId(String userId) {
         return userRepository.findById(userId);
+    }
+
+    @Override
+    public void registerOauthUser(String userEmail, String name) {
+        TrackerUser user = new TrackerUser(userEmail,
+                encoderConfig.passwordEncoder().encode("googleLogin"), name, UserRole.USER);
     }
 }
