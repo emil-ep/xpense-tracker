@@ -46,6 +46,7 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
             token = existingToken.get();
             token.setRefreshToken(refreshToken);
             token.setAccessToken(accessToken);
+            token.setExpireTimestamp(expireTimestamp);
         }
         oauth2TokenRepository.save(token);
 
