@@ -2,11 +2,15 @@ package com.xperia.xpense_tracker.config;
 
 import com.xperia.xpense_tracker.config.oauth2.Oauth2LoginSuccessHandler;
 import com.xperia.xpense_tracker.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,12 +21,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -44,6 +52,7 @@ public class SecurityConfig {
     private PasswordEncoderConfig passwordEncoder;
 
     private final Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -53,6 +62,22 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(1)
+    public SecurityFilterChain internalSecurityFilterChain(HttpSecurity http,
+                                                           @Qualifier("internalAuthenticationProvider")
+                                                            AuthenticationProvider internalAuthenticationProvider) throws Exception{
+
+        http.securityMatcher("/api/internal/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("SERVICE"))
+                .authenticationProvider(internalAuthenticationProvider)
+                .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
                 .cors(Customizer.withDefaults())
@@ -72,8 +97,7 @@ public class SecurityConfig {
 //                        .failureUrl("/login?error=true")
                         .failureHandler((request, response, exception) -> {
                             // This will tell us exactly what's going wrong
-                            System.err.println("❌ OAuth2 Login Failed: " + exception.getMessage());
-                            exception.printStackTrace();
+                            LOGGER.error("❌ OAuth2 Login Failed: {}", exception.getMessage(), exception);
                             response.sendRedirect("http://localhost:3000/login?error="
                                     + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8));
                         })
@@ -114,5 +138,29 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizedClientService authorizedClientService(ClientRegistrationRepository clientRegistrationRepository){
         return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+    }
+
+    @Bean
+    public AuthenticationProvider internalAuthenticationProvider(@Qualifier("internalUserDetailsService")
+                                                                     UserDetailsService internalUserDetailsService) {
+
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(internalUserDetailsService);
+        authProvider.setPasswordEncoder(
+                passwordEncoder.passwordEncoder()
+        );
+        return authProvider;
+    }
+
+    @Bean
+    public UserDetailsService internalUserDetailsService(@Value("${xpense.internal.username}") String username,
+                                                         @Value("${xpense.internal.password}") String password){
+
+        UserDetails service = User
+                .withUsername(username)
+                .password(passwordEncoder.passwordEncoder().encode(password))
+                .roles("SERVICE")
+                .build();
+        return new InMemoryUserDetailsManager(service);
     }
 }
