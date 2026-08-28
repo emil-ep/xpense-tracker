@@ -67,7 +67,7 @@ public class SecurityConfig {
                                                            @Qualifier("internalAuthenticationProvider")
                                                             AuthenticationProvider internalAuthenticationProvider) throws Exception{
 
-        http.securityMatcher("/internal/**")
+        http.securityMatcher("/api/internal/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("SERVICE"))

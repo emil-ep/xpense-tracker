@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.controllers;
 
+import com.xperia.xpense_tracker.models.entities.tracker.Oauth2Token;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.InternalService;
@@ -8,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 
 @RestController
@@ -23,7 +26,7 @@ public class InternalController {
 
     @GetMapping(value = "/users/google", produces = "application/json")
     public ResponseEntity<AbstractResponse> fetchGoogleDetailsOfUsers(){
-        this.internalService.findUsersWithGoogleAccessToken();
-        return ResponseEntity.ok().body(new SuccessResponse(null));
+        List<Oauth2Token> validTokens = this.internalService.findUsersWithGoogleAccessToken();
+        return ResponseEntity.ok().body(new SuccessResponse(validTokens));
     }
 }
