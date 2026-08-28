@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xperia.exception.TrackerBadRequestException;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -58,5 +59,15 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
             throw new TrackerBadRequestException("There is no user with the email : " + email);
         }
         return oauth2TokenRepository.findByUser(user.get());
+    }
+
+    @Override
+    public List<Oauth2Token> findAllValidTokens() {
+        List<Oauth2Token> tokens = oauth2TokenRepository.findAll();
+        Long currentTimestamp = System.currentTimeMillis();
+        return tokens
+                .stream()
+                .filter(token -> token.getExpireTimestamp() > currentTimestamp)
+                .toList();
     }
 }

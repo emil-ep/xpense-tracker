@@ -94,3 +94,8 @@ management:
 
 frontend:
   url : http://localhost:3000
+
+xpense:
+  internal:
+    username: service
+    password: service
