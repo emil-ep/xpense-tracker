@@ -58,7 +58,7 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String userEmail = oauthToken.getPrincipal().getAttribute("email");
         String name = oauthToken.getPrincipal().getAttribute("name");
         try{
-            oauth2TokenService.saveToken(userEmail, accessToken, refreshToken, expiresAt.getEpochSecond());
+            oauth2TokenService.saveToken(userEmail, accessToken, refreshToken, expiresAt.getEpochSecond() * 1000);
             UserDetails userDetails;
             try{
                 userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
