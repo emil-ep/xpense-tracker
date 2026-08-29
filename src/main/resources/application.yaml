@@ -57,11 +57,11 @@ spring:
               - openid
               - profile
               - email
-              - https://www.googleapis.com/auth/drive.file #drive access
+              - https://www.googleapis.com/auth/gmail.readonly #gmail read access
             redirect-uri: "http://localhost:8085/login/oauth2/code/google"
         provider:
           google:
-            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            authorization-uri: https://accounts.google.com/o/oauth2/auth?access_type=offline&prompt=consent
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
 
