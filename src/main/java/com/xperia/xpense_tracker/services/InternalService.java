@@ -1,11 +1,13 @@
 package com.xperia.xpense_tracker.services;
 
 
-import com.xperia.xpense_tracker.models.entities.tracker.Oauth2Token;
+import org.xperia.models.UserOauthToken;
 
 import java.util.List;
 
 public interface InternalService {
 
-    List<Oauth2Token> findUsersWithGoogleAccessToken();
+    List<UserOauthToken> findUsersWithGoogleAccessToken();
+
+    void refreshOAuthToken(String email);
 }
