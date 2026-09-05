@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.xperia.client.GoogleClient;
 import org.xperia.exception.TrackerBadRequestException;
 import org.xperia.models.UserOauthToken;
@@ -35,10 +36,10 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
 
     private final UserService userService;
 
-    @Value("$spring.security.oauth2.client.registration.google.client-id")
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
-    @Value("spring.security.oauth2.client.registration.google.client-secret")
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
     @Autowired
@@ -135,7 +136,10 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
                 token.setRefreshToken(tokenResponse.getRefreshToken());
             }
             return oauth2TokenRepository.save(token);
-        }catch (Exception ex){
+        }catch (HttpClientErrorException e){
+            LOGGER.error("HttpClientErrorException refreshing token : {}", token.getId(), e);
+            return null;
+        } catch (Exception ex){
             LOGGER.error("Error refreshing token : {}", token.getId(), ex);
             return null;
         }
