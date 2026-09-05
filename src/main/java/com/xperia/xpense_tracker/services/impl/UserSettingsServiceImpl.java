@@ -117,7 +117,7 @@ public class UserSettingsServiceImpl implements UserSettingsService {
         if (expireTimestamp < System.currentTimeMillis()){
             Oauth2Token refreshed = tokenService.refreshAndSaveToken(token.get());
             if (refreshed != null){
-                return googleService.fetchLabels(token.get().getAccessToken(), user.getEmail());
+                return googleService.fetchLabels(refreshed.getAccessToken(), user.getEmail());
             }
             return null;
         }else{

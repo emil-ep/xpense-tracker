@@ -138,8 +138,6 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
             return oauth2TokenRepository.save(token);
         }catch (HttpClientErrorException e){
             LOGGER.error("HttpClientErrorException refreshing token : {}", token.getId(), e);
-            System.out.println("Status: " + e.getStatusCode());
-            System.out.println("Response: " + e.getResponseBodyAsString());
             return null;
         } catch (Exception ex){
             LOGGER.error("Error refreshing token : {}", token.getId(), ex);
