@@ -3,19 +3,25 @@ package com.xperia.xpense_tracker.services.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.xperia.xpense_tracker.models.entities.tracker.Oauth2Token;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateItem;
 import com.xperia.xpense_tracker.models.settings.SettingsType;
 import com.xperia.xpense_tracker.repository.tracker.UserSettingRepository;
+import com.xperia.xpense_tracker.services.GoogleService;
+import com.xperia.xpense_tracker.services.Oauth2TokenService;
 import com.xperia.xpense_tracker.services.UserService;
 import com.xperia.xpense_tracker.services.UserSettingsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.xperia.exception.TrackerBadRequestException;
 import org.xperia.exception.TrackerNotFoundException;
 import org.xperia.exception.TrackerUnknownException;
+import org.xperia.models.google.GoogleMailLabel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +35,14 @@ public class UserSettingsServiceImpl implements UserSettingsService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private GoogleService googleService;
+
+    @Autowired
+    private Oauth2TokenService tokenService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsServiceImpl.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -80,6 +94,17 @@ public class UserSettingsServiceImpl implements UserSettingsService {
             throw new TrackerNotFoundException("The provided settingsType is not available");
         }
         return userSettings.get();
+    }
+
+    @Override
+    public List<GoogleMailLabel> fetchAvailableMailLabels(UserDetails userDetails) {
+        TrackerUser user = (TrackerUser) userDetails;
+        Optional<Oauth2Token> token = tokenService.getToken(user.getEmail());
+        if (token.isEmpty()){
+            LOGGER.error("No Oauth tokens available for user : {}", user.getEmail());
+            return null;
+        }
+        return googleService.fetchLabels(token.get().getAccessToken(), user.getEmail());
     }
 
     private boolean validatePayload(JsonNode payload, SettingsType type){
