@@ -113,7 +113,16 @@ public class UserSettingsServiceImpl implements UserSettingsService {
             LOGGER.error("No Oauth tokens available for user : {}", user.getEmail());
             return null;
         }
-        return googleService.fetchLabels(token.get().getAccessToken(), user.getEmail());
+        Long expireTimestamp = token.get().getExpireTimestamp();
+        if (expireTimestamp < System.currentTimeMillis()){
+            Oauth2Token refreshed = tokenService.refreshAndSaveToken(token.get());
+            if (refreshed != null){
+                return googleService.fetchLabels(token.get().getAccessToken(), user.getEmail());
+            }
+            return null;
+        }else{
+            return googleService.fetchLabels(token.get().getAccessToken(), user.getEmail());
+        }
     }
 
     private boolean validatePayload(JsonNode payload, SettingsType type){
