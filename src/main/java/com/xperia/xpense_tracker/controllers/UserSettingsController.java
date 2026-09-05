@@ -43,7 +43,7 @@ public class UserSettingsController {
     @GetMapping("/mail/labels")
     public ResponseEntity<AbstractResponse> fetchMailLabels(@AuthenticationPrincipal UserDetails userDetails){
         try{
-            return ResponseEntity.ok(new SuccessResponse(""));
+            return ResponseEntity.ok(new SuccessResponse(userSettingsService.fetchAvailableMailLabels(userDetails)));
         }catch (Exception ex){
             LOGGER.error("Error fetching mail labels : {}", ex.getMessage(), ex);
             return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching mail labels of user"));

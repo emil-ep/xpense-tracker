@@ -5,6 +5,7 @@ import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
 import com.xperia.xpense_tracker.models.request.UserSettingUpdateItem;
 import com.xperia.xpense_tracker.models.settings.SettingsType;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.xperia.models.google.GoogleMailLabel;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface UserSettingsService {
     UserSettings updateUserSettings(SettingsType type, Object payload, UserDetails userDetails);
 
     UserSettings findUserSettingsByType(SettingsType type, UserDetails userDetails);
+
+    List<GoogleMailLabel> fetchAvailableMailLabels(UserDetails userDetails);
 }

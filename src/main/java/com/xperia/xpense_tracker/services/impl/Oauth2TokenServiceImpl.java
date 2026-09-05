@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xperia.client.GoogleClient;
 import org.xperia.exception.TrackerBadRequestException;
-import org.xperia.models.GoogleTokenResponse;
 import org.xperia.models.UserOauthToken;
+import org.xperia.models.google.GoogleTokenResponse;
 
 import java.util.List;
 import java.util.Objects;
