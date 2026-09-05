@@ -1,6 +1,7 @@
 package com.xperia.xpense_tracker.services;
 
 import com.xperia.xpense_tracker.models.entities.tracker.Oauth2Token;
+import org.xperia.models.UserOauthToken;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,5 +12,7 @@ public interface Oauth2TokenService {
 
     Optional<Oauth2Token> getToken(String email);
 
-    List<Oauth2Token> findAllValidTokens();
+    List<UserOauthToken> findAllValidTokens();
+
+    Oauth2Token refreshAndSaveToken(Oauth2Token token);
 }

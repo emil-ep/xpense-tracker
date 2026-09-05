@@ -1,14 +1,13 @@
 package com.xperia.xpense_tracker.controllers;
 
-import com.xperia.xpense_tracker.models.entities.tracker.Oauth2Token;
 import com.xperia.xpense_tracker.models.response.AbstractResponse;
 import com.xperia.xpense_tracker.models.response.SuccessResponse;
 import com.xperia.xpense_tracker.services.InternalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.xperia.exception.TrackerNotFoundException;
+import org.xperia.models.UserOauthToken;
 
 import java.util.List;
 
@@ -26,7 +25,17 @@ public class InternalController {
 
     @GetMapping(value = "/users/google", produces = "application/json")
     public ResponseEntity<AbstractResponse> fetchGoogleDetailsOfUsers(){
-        List<Oauth2Token> validTokens = this.internalService.findUsersWithGoogleAccessToken();
+        List<UserOauthToken> validTokens = this.internalService.findUsersWithGoogleAccessToken();
         return ResponseEntity.ok().body(new SuccessResponse(validTokens));
+    }
+
+    @PostMapping(value = "/refresh/token", produces = "application/json")
+    public ResponseEntity<AbstractResponse> refreshAccessToken(@PathVariable("email") String email){
+        try{
+            this.internalService.refreshOAuthToken(email);
+            return ResponseEntity.ok().body(new SuccessResponse("Token refreshed"));
+        }catch (TrackerNotFoundException ex){
+            return ResponseEntity.notFound().build();
+        }
     }
 }
