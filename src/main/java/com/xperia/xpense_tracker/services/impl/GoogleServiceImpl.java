@@ -31,7 +31,7 @@ public class GoogleServiceImpl implements GoogleService {
     public List<GoogleMailLabel> fetchLabels(String oauth2Token, String email) {
         try{
             String response =  this.googleClient.getLabelIds(oauth2Token);
-            GoogleMailLabelResponse parsedResp = this.objectMapper.convertValue(response, GoogleMailLabelResponse.class);
+            GoogleMailLabelResponse parsedResp = this.objectMapper.readValue(response, GoogleMailLabelResponse.class);
             if (parsedResp != null){
                 return parsedResp.labels();
             }
