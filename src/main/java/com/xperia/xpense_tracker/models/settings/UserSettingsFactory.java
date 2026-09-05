@@ -48,6 +48,16 @@ public class UserSettingsFactory {
                     throw new TrackerException("unable to parse setting", HttpStatus.INTERNAL_SERVER_ERROR.value());
                 }
             }
+            case MAIL_LABEL_ID -> {
+                MailLabelIdSetting setting = new MailLabelIdSetting("");
+                try{
+                    String settingAsString = objectMapper.writeValueAsString(setting);
+                    return objectMapper.readTree(settingAsString);
+                }catch (JsonProcessingException ex){
+                    LOGGER.error("Error while parsing MAIL_LABEL_ID settings : {}", ex.getMessage(), ex);
+                    throw new TrackerException("unable to parse setting", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                }
+            }
             case null, default -> {
                 return null;
             }
