@@ -30,21 +30,30 @@ import java.util.Optional;
 @Service
 public class UserSettingsServiceImpl implements UserSettingsService {
 
-    @Autowired
-    private UserSettingRepository userSettingRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private GoogleService googleService;
-
-    @Autowired
-    private Oauth2TokenService tokenService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsServiceImpl.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final UserService userService;
+
+    private final Oauth2TokenService tokenService;
+
+    private final GoogleService googleService;
+
+    private final UserSettingRepository userSettingRepository;
+
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+    public UserSettingsServiceImpl(
+            UserService userService,
+            Oauth2TokenService tokenService,
+            GoogleService googleService,
+            UserSettingRepository userSettingRepository){
+        this.userService = userService;
+        this.tokenService = tokenService;
+        this.googleService = googleService;
+        this.userSettingRepository = userSettingRepository;
+        this.objectMapper = new ObjectMapper();
+    }
 
     @Override
     public List<UserSettings> fetchUserSettings(String username) {
