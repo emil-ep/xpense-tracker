@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.xperia.exception.TrackerNotFoundException;
 import org.xperia.models.UserOauthToken;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -30,10 +32,11 @@ public class InternalController {
     }
 
     @PostMapping(value = "/refresh/token", produces = "application/json")
-    public ResponseEntity<AbstractResponse> refreshAccessToken(@PathVariable("email") String email){
+    public ResponseEntity<AbstractResponse> refreshAccessToken(@RequestParam(value = "email", required = false) String email){
         try{
-            this.internalService.refreshOAuthToken(email);
-            return ResponseEntity.ok().body(new SuccessResponse("Token refreshed"));
+            email = URLDecoder.decode(email, StandardCharsets.UTF_8);
+            UserOauthToken refreshedToken = this.internalService.refreshOAuthToken(email);
+            return ResponseEntity.ok().body(new SuccessResponse(refreshedToken));
         }catch (TrackerNotFoundException ex){
             return ResponseEntity.notFound().build();
         }
