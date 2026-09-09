@@ -31,12 +31,19 @@ public class InternalServiceImpl implements InternalService {
     }
 
     @Override
-    public void refreshOAuthToken(String email) throws TrackerNotFoundException{
-        Optional< Oauth2Token> userToken = this.tokenService.getToken(email);
+    public UserOauthToken refreshOAuthToken(String email) throws TrackerNotFoundException{
+        Optional<Oauth2Token> userToken = this.tokenService.getToken(email);
         if (userToken.isEmpty()){
             LOGGER.error("No auth token found for user : {}", email);
             throw new TrackerNotFoundException("No Auth token found for the user " + email);
         }
-        this.tokenService.refreshAndSaveToken(userToken.get());
+        Oauth2Token refreshedToken = this.tokenService.refreshAndSaveToken(userToken.get());
+        return new UserOauthToken(
+                refreshedToken.getId(),
+                refreshedToken.getAccessToken(),
+                refreshedToken.getRefreshToken(),
+                refreshedToken.getExpireTimestamp(),
+                refreshedToken.getUser().getId(),
+                refreshedToken.getUser().getEmail());
     }
 }
