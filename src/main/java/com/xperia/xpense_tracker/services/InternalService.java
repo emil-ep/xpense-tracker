@@ -9,5 +9,5 @@ public interface InternalService {
 
     List<UserOauthToken> findUsersWithGoogleAccessToken();
 
-    void refreshOAuthToken(String email);
+    UserOauthToken refreshOAuthToken(String email);
 }
