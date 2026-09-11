@@ -1,6 +1,5 @@
 package com.xperia.xpense_tracker.services.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xperia.xpense_tracker.services.GoogleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,21 +16,17 @@ public class GoogleServiceImpl implements GoogleService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleServiceImpl.class);
 
-    private final ObjectMapper objectMapper;
-
     private final GoogleClient googleClient;
 
     @Autowired
     public GoogleServiceImpl(GoogleClient googleClient){
         this.googleClient = googleClient;
-        this.objectMapper = new ObjectMapper();
     }
 
     @Override
     public List<GoogleMailLabel> fetchLabels(String oauth2Token, String email) {
         try{
-            String response =  this.googleClient.getLabelIds(oauth2Token);
-            GoogleMailLabelResponse parsedResp = this.objectMapper.readValue(response, GoogleMailLabelResponse.class);
+            GoogleMailLabelResponse parsedResp = this.googleClient.getLabelIds(oauth2Token);
             if (parsedResp != null){
                 return parsedResp.labels();
             }
