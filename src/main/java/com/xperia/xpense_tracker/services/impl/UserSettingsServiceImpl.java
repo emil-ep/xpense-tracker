@@ -93,8 +93,8 @@ public class UserSettingsServiceImpl implements UserSettingsService {
     }
 
     @Override
-    public UserSettings findUserSettingsByType(SettingsType type, UserDetails userDetails) {
-        Optional<TrackerUser> user = userService.findUserByEmail(userDetails.getUsername());
+    public UserSettings findUserSettingsByType(SettingsType type, String email) {
+        Optional<TrackerUser> user = userService.findUserByEmail(email);
         if (user.isEmpty()){
             throw new TrackerNotFoundException("User not found");
         }

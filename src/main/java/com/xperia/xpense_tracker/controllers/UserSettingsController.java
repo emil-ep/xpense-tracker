@@ -40,6 +40,11 @@ public class UserSettingsController {
         }
     }
 
+    /**
+     * Fetches the available mail labels from mail client
+     * @param userDetails the details of the user
+     * @return the labels from mail client
+     */
     @GetMapping("/mail/labels")
     public ResponseEntity<AbstractResponse> fetchMailLabels(@AuthenticationPrincipal UserDetails userDetails){
         try{

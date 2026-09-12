@@ -1,13 +1,20 @@
 package com.xperia.xpense_tracker.services.impl;
 
 import com.xperia.xpense_tracker.models.entities.tracker.Oauth2Token;
+import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
+import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
+import com.xperia.xpense_tracker.models.settings.SettingsType;
 import com.xperia.xpense_tracker.services.InternalService;
 import com.xperia.xpense_tracker.services.Oauth2TokenService;
+import com.xperia.xpense_tracker.services.UserService;
+import com.xperia.xpense_tracker.services.UserSettingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.xperia.exception.TrackerBadRequestException;
 import org.xperia.exception.TrackerNotFoundException;
+import org.xperia.models.SharedUserSetting;
 import org.xperia.models.UserOauthToken;
 
 import java.util.List;
@@ -20,9 +27,17 @@ public class InternalServiceImpl implements InternalService {
 
     private final Oauth2TokenService tokenService;
 
+    private final UserSettingsService userSettingsService;
+
+    private final UserService userService;
+
     @Autowired
-    public InternalServiceImpl(Oauth2TokenService tokenService){
+    public InternalServiceImpl(Oauth2TokenService tokenService,
+                               UserSettingsService userSettingsService,
+                               UserService userService){
         this.tokenService = tokenService;
+        this.userSettingsService = userSettingsService;
+        this.userService = userService;
     }
 
     @Override
@@ -45,5 +60,21 @@ public class InternalServiceImpl implements InternalService {
                 refreshedToken.getExpireTimestamp(),
                 refreshedToken.getUser().getId(),
                 refreshedToken.getUser().getEmail());
+    }
+
+    @Override
+    public SharedUserSetting findUserSettingsByType(String userEmail, String type) {
+
+        Optional<TrackerUser> user = userService.findUserByEmail(userEmail);
+        if (user.isEmpty()){
+            throw new TrackerBadRequestException("User not found with the email " + userEmail);
+        }
+        UserSettings userSettings = userSettingsService.findUserSettingsByType(SettingsType.findByType(type), userEmail);
+        return new SharedUserSetting(
+                userSettings.getId(),
+                userSettings.getType().getType(),
+                userSettings.getUser().getEmail(),
+                userSettings.getUser().getId(),
+                userSettings.getPayload());
     }
 }

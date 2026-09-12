@@ -26,9 +26,9 @@ public class GoogleServiceImpl implements GoogleService {
     @Override
     public List<GoogleMailLabel> fetchLabels(String oauth2Token, String email) {
         try{
-            GoogleMailLabelResponse parsedResp = this.googleClient.getLabelIds(oauth2Token);
-            if (parsedResp != null){
-                return parsedResp.labels();
+            GoogleMailLabelResponse response =  this.googleClient.getLabelIds(oauth2Token);
+            if (response != null){
+                return response.labels();
             }
             LOGGER.debug("Received Google Mail Label response as null when parsed");
             return null;
