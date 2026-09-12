@@ -17,7 +17,7 @@ public interface UserSettingsService {
 
     UserSettings updateUserSettings(SettingsType type, Object payload, UserDetails userDetails);
 
-    UserSettings findUserSettingsByType(SettingsType type, UserDetails userDetails);
+    UserSettings findUserSettingsByType(SettingsType type, String email);
 
     List<GoogleMailLabel> fetchAvailableMailLabels(UserDetails userDetails);
 }
