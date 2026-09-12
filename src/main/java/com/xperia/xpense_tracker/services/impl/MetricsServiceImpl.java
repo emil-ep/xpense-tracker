@@ -144,8 +144,8 @@ public class MetricsServiceImpl implements MetricsService {
      * @return returns the TagCategoryEnum's that is specified in the user settings
      */
     private List<TagCategoryEnum> findUserSavingsTagCategories(UserDetails userDetails){
-
-        UserSettings savingsCategoriesOfUser = userSettingsService.findUserSettingsByType(SettingsType.SAVINGS_TAGS, userDetails);
+        TrackerUser user = (TrackerUser) userDetails;
+        UserSettings savingsCategoriesOfUser = userSettingsService.findUserSettingsByType(SettingsType.SAVINGS_TAGS, user.getEmail());
         JsonNode payload =  savingsCategoriesOfUser.getPayload();
         Set<String> categories = StreamSupport
                 .stream(payload.get("tags").spliterator(), false)
