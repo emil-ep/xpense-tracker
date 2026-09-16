@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface MailDetailsService {
 
     Optional<MailDetails> findMailDetailsByUserId(String userId);
+
+    MailDetails saveMailDetails(MailDetails mailDetailsToUpdate);
 }
