@@ -1,5 +1,6 @@
 package com.xperia.xpense_tracker.services.impl;
 
+import com.xperia.xpense_tracker.models.entities.tracker.MailDetails;
 import com.xperia.xpense_tracker.models.entities.tracker.Oauth2Token;
 import com.xperia.xpense_tracker.models.entities.tracker.TrackerUser;
 import com.xperia.xpense_tracker.models.entities.tracker.UserSettings;
@@ -8,12 +9,14 @@ import com.xperia.xpense_tracker.services.InternalService;
 import com.xperia.xpense_tracker.services.Oauth2TokenService;
 import com.xperia.xpense_tracker.services.UserService;
 import com.xperia.xpense_tracker.services.UserSettingsService;
+import com.xperia.xpense_tracker.services.MailDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xperia.exception.TrackerBadRequestException;
 import org.xperia.exception.TrackerNotFoundException;
+import org.xperia.models.SharedMailDetails;
 import org.xperia.models.SharedUserSetting;
 import org.xperia.models.UserOauthToken;
 
@@ -31,13 +34,17 @@ public class InternalServiceImpl implements InternalService {
 
     private final UserService userService;
 
+    private final MailDetailsService mailDetailsService;
+
     @Autowired
     public InternalServiceImpl(Oauth2TokenService tokenService,
                                UserSettingsService userSettingsService,
-                               UserService userService){
+                               UserService userService,
+                               MailDetailsService mailDetailsService){
         this.tokenService = tokenService;
         this.userSettingsService = userSettingsService;
         this.userService = userService;
+        this.mailDetailsService = mailDetailsService;
     }
 
     @Override
@@ -76,5 +83,24 @@ public class InternalServiceImpl implements InternalService {
                 userSettings.getUser().getEmail(),
                 userSettings.getUser().getId(),
                 userSettings.getPayload());
+    }
+
+    @Override
+    public SharedMailDetails findUserMailDetails(String userEmail) {
+        Optional<TrackerUser> user = userService.findUserByEmail(userEmail);
+        if (user.isEmpty()){
+            throw new TrackerBadRequestException("User not found with the email " + userEmail);
+        }
+        Optional<MailDetails> mailDetails = this.mailDetailsService.findMailDetailsByUserId(user.get().getId());
+        if (mailDetails.isPresent()){
+            MailDetails userMailDetail = mailDetails.get();
+            return new SharedMailDetails(
+                    userMailDetail.getHistoryId(),
+                    userMailDetail.getLastSynced(),
+                    userMailDetail.getUser().getId(),
+                    userMailDetail.getUser().getEmail());
+        }
+        LOGGER.error("mail details not found for user : {}", userEmail);
+        throw new TrackerNotFoundException("mail details not found for user " + userEmail);
     }
 }

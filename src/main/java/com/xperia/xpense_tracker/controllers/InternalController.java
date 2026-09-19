@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.xperia.exception.TrackerNotFoundException;
+import org.xperia.models.SharedMailDetails;
 import org.xperia.models.SharedUserSetting;
 import org.xperia.models.UserOauthToken;
 
@@ -51,6 +52,19 @@ public class InternalController {
         }
     }
 
+    @GetMapping("/user/mailDetails")
+    public ResponseEntity<AbstractResponse> fetchMailDetails(@RequestParam("email") String email){
+
+        try{
+            email = URLDecoder.decode(email, StandardCharsets.UTF_8);
+            SharedMailDetails mailDetails = this.internalService.findUserMailDetails(email);
+            return ResponseEntity.ok(new SuccessResponse(mailDetails));
+        }catch (Exception ex){
+            LOGGER.error("Error fetching user mail details for user : {}", email, ex);
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error fetching user mail details"));
+        }
+    }
+
     @PostMapping(value = "/refresh/token", produces = "application/json")
     public ResponseEntity<AbstractResponse> refreshAccessToken(@RequestParam(value = "email", required = false) String email){
         try{
@@ -61,4 +75,6 @@ public class InternalController {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 }
