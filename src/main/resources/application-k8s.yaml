@@ -10,3 +10,9 @@ spring:
         jdbc-url: ${MF_DATASOURCE_URL}
         username: ${MF_DATASOURCE_USERNAME}
         password: ${MF_DATASOURCE_PASSWORD}
+
+file:
+  upload:
+    path: /app/uploads
+    attachment:
+      path: /app/uploads/attachments
