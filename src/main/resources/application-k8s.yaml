@@ -10,3 +10,21 @@ spring:
         jdbc-url: ${MF_DATASOURCE_URL}
         username: ${MF_DATASOURCE_USERNAME}
         password: ${MF_DATASOURCE_PASSWORD}
+
+file:
+  upload:
+    path: /app/uploads
+    attachment:
+      path: /app/uploads/attachments
+
+token:
+  signing:
+    key: ${TOKEN_SIGNING_KEY}
+
+frontend:
+  url: ${FRONTEND_URL}
+
+xpense:
+  internal:
+    username: ${INTERNAL_SERVICE_USERNAME}
+    password: ${INTERNAL_SERVICE_PASSWORD}
