@@ -16,3 +16,15 @@ file:
     path: /app/uploads
     attachment:
       path: /app/uploads/attachments
+
+token:
+  signing:
+    key: ${TOKEN_SIGNING_KEY}
+
+frontend:
+  url: ${FRONTEND_URL}
+
+xpense:
+  internal:
+    username: ${INTERNAL_SERVICE_USERNAME}
+    password: ${INTERNAL_SERVICE_PASSWORD}
