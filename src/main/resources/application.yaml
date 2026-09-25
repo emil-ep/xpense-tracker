@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: xpense-tracker
+    name: xpense-backend
   datasource:
     tracker:
       hikari:
