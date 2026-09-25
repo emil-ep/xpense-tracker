@@ -28,3 +28,8 @@ xpense:
   internal:
     username: ${INTERNAL_SERVICE_USERNAME}
     password: ${INTERNAL_SERVICE_PASSWORD}
+
+logging:
+  structured:
+    format:
+      console: ecs
