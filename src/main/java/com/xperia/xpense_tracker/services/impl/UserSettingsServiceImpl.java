@@ -108,7 +108,7 @@ public class UserSettingsServiceImpl implements UserSettingsService {
     @Override
     public List<GoogleMailLabel> fetchAvailableMailLabels(UserDetails userDetails) {
         TrackerUser user = (TrackerUser) userDetails;
-        Optional<Oauth2Token> token = tokenService.getToken(user.getEmail());
+        Optional<Oauth2Token> token = tokenService.getTokenByEmail(user.getEmail());
         if (token.isEmpty()){
             LOGGER.error("No Oauth tokens available for user : {}", user.getEmail());
             return null;

@@ -53,8 +53,14 @@ public class InternalServiceImpl implements InternalService {
     }
 
     @Override
+    public UserOauthToken findGoogleUser(String userId) {
+        Optional<UserOauthToken> token =  this.tokenService.getTokenByUserId(userId);
+        return token.orElse(null);
+    }
+
+    @Override
     public UserOauthToken refreshOAuthToken(String email) throws TrackerNotFoundException{
-        Optional<Oauth2Token> userToken = this.tokenService.getToken(email);
+        Optional<Oauth2Token> userToken = this.tokenService.getTokenByEmail(email);
         if (userToken.isEmpty()){
             LOGGER.error("No auth token found for user : {}", email);
             throw new TrackerNotFoundException("No Auth token found for the user " + email);

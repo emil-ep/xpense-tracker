@@ -38,6 +38,12 @@ public class InternalController {
         return ResponseEntity.ok().body(new SuccessResponse(validTokens));
     }
 
+    @GetMapping(value = "/users/google")
+    public ResponseEntity<AbstractResponse> findGoogleDetailsOfUser(@PathVariable("userId") String userId){
+        UserOauthToken validToken = this.internalService.findGoogleUser(userId);
+        return ResponseEntity.ok().body(new SuccessResponse(validToken));
+    }
+
     @GetMapping("/user/settings")
     public ResponseEntity<AbstractResponse> fetchUserSettings(@RequestParam("email") String email,
                                                               @RequestParam("settingsType") String type){

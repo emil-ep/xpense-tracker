@@ -10,7 +10,9 @@ public interface Oauth2TokenService {
 
     void saveToken(String email, String accessToken, String refreshToken, Long expireTimestamp);
 
-    Optional<Oauth2Token> getToken(String email);
+    Optional<Oauth2Token> getTokenByEmail(String email);
+
+    Optional<UserOauthToken> getTokenByUserId(String userId);
 
     List<UserOauthToken> findAllValidTokens();
 

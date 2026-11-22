@@ -12,6 +12,8 @@ public interface InternalService {
 
     List<UserOauthToken> findUsersWithGoogleAccessToken();
 
+    UserOauthToken findGoogleUser(String userId);
+
     UserOauthToken refreshOAuthToken(String email);
 
     SharedUserSetting findUserSettingsByType(String userEmail, String type);

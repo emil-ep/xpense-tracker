@@ -64,7 +64,7 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
             throw new TrackerBadRequestException("The received email doesn't have a corresponding user in database : " + email);
         }
 
-        Optional<Oauth2Token> existingToken = getToken(email);
+        Optional<Oauth2Token> existingToken = getTokenByEmail(email);
         Oauth2Token token;
         if (existingToken.isEmpty()){
             token = new Oauth2Token(accessToken, refreshToken, user.get(), expireTimestamp);
@@ -79,13 +79,29 @@ public class Oauth2TokenServiceImpl implements Oauth2TokenService {
     }
 
     @Override
-    public Optional<Oauth2Token> getToken(String email) {
+    public Optional<Oauth2Token> getTokenByEmail(String email) {
         Optional<TrackerUser> user = userService.findUserByEmail(email);
         if (user.isEmpty()){
             LOGGER.error("There is no user with email : {}", email);
             throw new TrackerBadRequestException("There is no user with the email : " + email);
         }
         return oauth2TokenRepository.findByUser(user.get());
+    }
+
+    @Override
+    public Optional<UserOauthToken> getTokenByUserId(String userId) {
+        Optional<TrackerUser> user = userService.findUserByUserId(userId);
+        if (user.isEmpty()){
+            return Optional.empty();
+        }
+        Optional<Oauth2Token> token = oauth2TokenRepository.findByUser(user.get());
+        return token.map(oauth2Token -> new UserOauthToken(
+                oauth2Token.getId(),
+                oauth2Token.getAccessToken(),
+                oauth2Token.getRefreshToken(),
+                oauth2Token.getExpireTimestamp(),
+                oauth2Token.getUser().getId(),
+                oauth2Token.getUser().getEmail()));
     }
 
     @Override
