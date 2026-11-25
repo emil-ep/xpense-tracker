@@ -38,7 +38,7 @@ public class InternalController {
         return ResponseEntity.ok().body(new SuccessResponse(validTokens));
     }
 
-    @GetMapping(value = "/users/google")
+    @GetMapping(value = "/users/{userId}/google")
     public ResponseEntity<AbstractResponse> findGoogleDetailsOfUser(@PathVariable("userId") String userId){
         UserOauthToken validToken = this.internalService.findGoogleUser(userId);
         return ResponseEntity.ok().body(new SuccessResponse(validToken));

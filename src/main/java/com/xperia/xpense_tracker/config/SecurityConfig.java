@@ -153,8 +153,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService internalUserDetailsService(@Value("${xpense.internal.username}") String username,
-                                                         @Value("${xpense.internal.password}") String password){
+    public UserDetailsService internalUserDetailsService(@Value("${xpense.internal.tracker.username}") String username,
+                                                         @Value("${xpense.internal.tracker.password}") String password){
 
         UserDetails service = User
                 .withUsername(username)

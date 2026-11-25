@@ -98,5 +98,7 @@ frontend:
 
 xpense:
   internal:
-    username: service
-    password: service
+    tracker:
+      url: http://localhost:8085
+      username: service
+      password: service
